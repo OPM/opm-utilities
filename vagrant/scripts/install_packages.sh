@@ -6,7 +6,7 @@
 set -e
 set -x
 
-install_check_file="/tmp/i_have_installed_everything"
+install_check_file="$HOME/.opm_deps_installed"
 if [ -f $install_check_file ]; then
 	echo $install_check_file "exists, skipping install procedure"
 	echo "install_packages.sh run " `date` ", but did nothing" >> $install_check_file

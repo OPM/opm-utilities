@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-./install_packages.sh
+/host/install_packages.sh

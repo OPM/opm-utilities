@@ -49,11 +49,13 @@ else
 	cmake-curses-gui \
 	cmake-qt-gui 
 
+	#Used to create documentation and plots
 	sudo apt-get install -y \
 	doxygen \
 	ghostscript \
 	texlive-latex-recommended \
-	pgf 
+	pgf \
+	gnuplot
 
 	sudo apt-get install -y \
 	git-core

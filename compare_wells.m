@@ -1,18 +1,11 @@
-%% check/load OPM and eclipse-results
+%% load and plot OPM and eclipse-results
+%Dependencies: http://www.sintef.no/projectweb/mrst/
 mrstModule add ad-fi deckformat
 
+%% user input 
 fn = 'NORNE_ATW2013';
 outputdir_ecl = '../opm-data/norne/';
-outputdir_opm = '../opm-data/norne/output_ntg/';
-%% Grid
-if(0)
-deck = readEclipseDeck([fn,'.DATA']);
-% The deck is given in field units, MRST uses metric.
-deck = convertDeckUnits(deck);
-G = initEclipseGrid(deck);
-G = computeGeometry(G);
-end
-
+outputdir_opm = '../opm-data/norne/output/';
 
 %% Welldata
 smry_opm = readSummaryLocal([outputdir_opm,fn]);
@@ -60,7 +53,5 @@ for i = 1:numel(wellnames)
                 saveas(gcf, [outputdir,'/norne_',wellname,'_',keyword], 'jpg')
             end
         end
-       
-
     end
 end

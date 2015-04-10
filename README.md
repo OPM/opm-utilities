@@ -4,3 +4,6 @@ summaryplot is a Python script enabling plotting of curves from reservoir simula
 Dependencies: http://ert.nr.no/wiki/index.php/ERT-Python python numpy matplotlib
 
 eclipse.el is an Emacs mode for reservoir simulation input files.
+
+compare_wells.m is a Matlab script enabling plotting of curves from reservoir simulations. 
+Dependencies: http://www.sintef.no/projectweb/mrst/

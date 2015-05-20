@@ -592,23 +592,11 @@ are in what could be a an incomplete string."
 			  (progn (setq instring nil) t)))
 	    ;; The next line emulates re-search-foward
 	    (if instring (goto-char (match-end 0)))
-	    (if (or (= ?-- (preceding-char)))
+	    (if (or (= -- (preceding-char)))
 		;; Here we are in a comment for the rest of it.
 		;; thus returnme is a force-false.
 		(goto-char p)
-	      ;; Here, we could be in a string start, or transpose...
-	      (if (or (= (current-column) 1)
-		      instring
-		      (save-excursion (forward-char -2)
-				      (looking-at sregex)))
-		  ;; a valid string start, find the end
-		  (let ((f (re-search-forward eclipse-string-end-regexp nil t)))
-		    (if (and (not f) incomplete)
-			(setq returnme t)
-		      (setq returnme (> (point) p))
-		      (setq instring t)))
-		;; Ooops, a transpose, keep going.
-		))))))
+		)))))
     (set-match-data m)
     returnme))
   

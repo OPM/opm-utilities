@@ -25,9 +25,15 @@ declare -A OPM_MODULE_DEPENDS
 OPM_MODULE_DEPENDS[opm-cmake]=""
 OPM_MODULE_DEPENDS[opm-parser]="opm-cmake"
 OPM_MODULE_DEPENDS[opm-material]="opm-cmake opm-parser"
-OPM_MODULE_DEPENDS[opm-core]="opm-cmake opm-material"
-OPM_MODULE_DEPENDS[dune-cornerpoint]="opm-cmake opm-core"
-OPM_MODULE_DEPENDS[opm-autodiff]="opm-cmake opm-core dune-cornerpoint"
+OPM_MODULE_DEPENDS[ewoms]="opm-cmake opm-material opm-parser"
+OPM_MODULE_DEPENDS[opm-core]="opm-cmake opm-parser opm-material"
+OPM_MODULE_DEPENDS[dune-cornerpoint]="opm-cmake opm-parser opm-core"
+OPM_MODULE_DEPENDS[opm-autodiff]="opm-cmake opm-parser opm-core dune-cornerpoint"
+OPM_MODULE_DEPENDS[opm-porsol]="opm-cmake opm-core dune-cornerpoint"
+OPM_MODULE_DEPENDS[opm-upscaling]="opm-porsol"
+OPM_MODULE_DEPENDS[opm-benchmarks]="opm-upscaling"
+OPM_MODULE_DEPENDS[opm-polymer]="opm-autodiff"
+OPM_MODULE_DEPENDS[opm-verteq]="opm-core"
 
 OPM_ORDERED_MODULES=""
 
@@ -50,11 +56,20 @@ find_all_modules() {
                 TMP2="dune-cornerpoint"
                 ;;
 
+            *ewoms*)
+                TMP2="ewoms"
+                ;;
+
             *)
                 # the directory contains stuff which we're not sure about
                 continue
                 ;;
         esac
+
+        if ! test "${OPM_MODULE_DEPENDS[$TMP2]+foo}"; then
+            echo "unknown module $TMP2. skipping."
+            continue
+        fi
 
         OPM_INSTALLED_MODULES="$OPM_INSTALLED_MODULES $TMP2"
         OPM_MODULE_SOURCE_DIR["$TMP2"]="$TMP"

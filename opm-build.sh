@@ -22,14 +22,14 @@ declare -A OPM_MODULE_SOURCE_DIR
 declare -A PROCESSED_MODULES
 
 declare -A OPM_MODULE_DEPENDS
-OPM_MODULE_DEPENDS[opm-cmake]=""
-OPM_MODULE_DEPENDS[opm-parser]="opm-cmake"
-OPM_MODULE_DEPENDS[opm-material]="opm-cmake opm-parser"
-OPM_MODULE_DEPENDS[ewoms]="opm-cmake opm-material opm-parser"
-OPM_MODULE_DEPENDS[opm-core]="opm-cmake opm-parser opm-material"
-OPM_MODULE_DEPENDS[dune-cornerpoint]="opm-cmake opm-parser opm-core"
-OPM_MODULE_DEPENDS[opm-autodiff]="opm-cmake opm-parser opm-core dune-cornerpoint"
-OPM_MODULE_DEPENDS[opm-porsol]="opm-cmake opm-core dune-cornerpoint"
+OPM_MODULE_DEPENDS[opm-common]=""
+OPM_MODULE_DEPENDS[opm-parser]="opm-common"
+OPM_MODULE_DEPENDS[opm-material]="opm-common opm-parser"
+OPM_MODULE_DEPENDS[ewoms]="opm-common opm-material opm-parser"
+OPM_MODULE_DEPENDS[opm-core]="opm-common opm-parser opm-material"
+OPM_MODULE_DEPENDS[dune-cornerpoint]="opm-common opm-parser opm-core"
+OPM_MODULE_DEPENDS[opm-autodiff]="opm-common opm-parser opm-core dune-cornerpoint"
+OPM_MODULE_DEPENDS[opm-porsol]="opm-common opm-core dune-cornerpoint"
 OPM_MODULE_DEPENDS[opm-upscaling]="opm-porsol"
 OPM_MODULE_DEPENDS[opm-benchmarks]="opm-upscaling"
 OPM_MODULE_DEPENDS[opm-polymer]="opm-autodiff"

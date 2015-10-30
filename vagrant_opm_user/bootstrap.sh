@@ -23,3 +23,6 @@ sudo apt-get install libopm-core1-bin -y
 sudo apt-get install libopm-autodiff1-bin -y
 sudo apt-get install libopm-polymer1-bin -y
 sudo apt-get install libopm-upscaling1-bin -y
+
+# Other utilities that are required by tutorials etc.
+sudo apt-get install unzip -y

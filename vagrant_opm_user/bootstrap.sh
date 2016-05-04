@@ -22,7 +22,7 @@ sudo apt-get update -y
 sudo apt-get install libopm-core1-bin -y
 sudo apt-get install libopm-simulators1-bin -y
 sudo apt-get install libopm-upscaling1-bin -y
-sudo apt-get install openmpi-bin
+sudo apt-get install openmpi-bin -y
 
 # Other utilities that are required by tutorials etc.
 sudo apt-get install unzip -y

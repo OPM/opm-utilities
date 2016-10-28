@@ -40,19 +40,22 @@
 #  -n Normalize each vector to maximum 1.
 #  -e Ensemble mode: Colour by vector instead of by DATA-file, and adapt legend
 #  -d Dump images to files instead of displaying on screen
+#  -c PARAMNAME colour curves based on the value associatd to PARAMNAME as found
+#     in a textfile called parameters.txt alongside the Eclipse runs.
 #
 #
 # Copyright: Statoil ASA 2011 
 #  
-# $Id: summaryplot 473 2014-03-12 09:45:06Z havb $
+# $Id: summaryplot 537 2015-11-20 12:35:05Z havb $
 #
 
-import ert.ecl.ecl as ecl
+import ert.ecl as ecl
 import itertools # for manual color cycling
 import matplotlib.pyplot
 import numpy as np
 import sys, os, time
 import re
+import difflib
 from multiprocessing import Process
 
 
@@ -66,15 +69,25 @@ def summaryplotter(*args):
     summaryfiles = [] # EclSum objects
     rstfiles = []     # EclRst objects
     gridfiles = []    # EclGrid objects
+    parameterfiles = [] # Vector of parameterfiles, from ERT or Basra
     includehistory = False # default behaviour
     nolabel        = False # default behaviour
     singleplot     = False # default behaviour
     ensemblemode   = False # default behaviour
     normalize      = False
     dumpimages     = False
-    maxlegends     = 5 # Do not show more than the first five simulations in the legend 
+    maxlegends     = 10 # Do not show more than the first 10 simulations in the legend 
+    parametercolouring    = False
+    logparametercolouring = False
+    takeparamname         = False
+    paramnameforcolouring = ""
+    parametervalues = [] # Vector of values pr. realization for colouring
 
     for arg in args[1:]:
+        if (takeparamname): # 
+            paramnameforcolouring=arg
+            takeparamname=False
+            continue
         if (arg == "-h"):
             includehistory=True
             continue
@@ -96,16 +109,104 @@ def summaryplotter(*args):
         if (arg == "-d"):
             dumpimages=True
             continue
-        
+        if (arg == "-c"):
+            takeparamname=True # Process the parameter name for coloruing in next loop.
+            parametercolouring = True
+            logparametercolouring = False
+            nolabel=True
+            continue
+        if (arg == "-cl"):
+            takeparamname=True
+            logparametercolouring = True
+            parametercolouring = False
+            nolabel=True
+            continue
 
         # Try to parse command line arg as a summary file,
         # try as a vector if not.
         try:
             sum = ecl.EclSum(arg)
             datafiles.append(arg)
+
             summaryfiles.append(sum)
+            
+            # Try to load a corresponding parameter-file for colouring data
+            parameterfileERT = os.path.dirname(os.path.realpath(arg))+"/../../parameters.txt" # ERT files
+            parameterfileBasra = os.path.dirname(os.path.realpath(arg))+"/ParameterValues" # Basra files
+            if (os.path.isfile(parameterfileERT)):
+                parameterfiles.append(parameterfileERT)
+            elif (os.path.isfile(parameterfileBasra)):
+                parameterfiles.append(parameterfileBasra)
+            else:
+                parameterfiles.append("")
+            # (we don't care yet if it exists or not)
+
         except: 
             vectors.append(arg)
+
+    if ((parametercolouring or logparametercolouring) and nolabel == False):
+        print "Hint: Use -nl to skip legend"
+
+    if ((parametercolouring or logparametercolouring) and len(summaryfiles) < 2):
+        parametercolouring = False
+        logparametercolouring = False
+        print "Info: Not colouring by parameter when only one DATA file is loaded"
+        
+
+    minvalue = 0.0
+    maxvalue = 0.0
+    parameternames = []
+    if (parametercolouring or logparametercolouring):
+        # Try to load parameters.txt for each datafile, and put the associated values in a vector
+        #print len(parameterfiles)
+        for parameterfile in parameterfiles:
+            valuefound = False
+            if os.path.isfile(parameterfile):
+                file = open(parameterfile)
+                for line in file:
+                    linecontents = line.split()
+                    parameternames.append(linecontents[0])
+                    if linecontents[0] == paramnameforcolouring:
+                        parametervalues.append(float(linecontents[1]))
+                        valuefound = True
+                        break
+            if valuefound == False:
+                print "Warning: " + paramnameforcolouring + " was not found in parameter-file " + parameterfile
+                parametervalues.append(0.0)
+        #print parametervalues
+
+        # Normalize parametervalues to [0,1]:
+        minvalue = np.min(parametervalues)
+        maxvalue = np.max(parametervalues)
+        if (maxvalue - minvalue) < 0.000001:
+            print "Warning: No data found to colour by, are you sure you typed " + paramnameforcolouring + " correctly?"
+            suggestion = difflib.get_close_matches(paramnameforcolouring, parameternames, 1)
+            if len(suggestion) > 0:
+		print "         Maybe you meant " + suggestion[0]
+            logparametercolouring = False
+            parametercolouring = False	
+	else:
+	    normalizedparametervalues = (parametervalues - minvalue)/(maxvalue - minvalue)
+
+        if (logparametercolouring):
+            minvalue = np.min(np.log10(parametervalues))
+            maxvalue = np.max(np.log10(parametervalues))
+            if (maxvalue - minvalue > 0):
+                normalizedparametervalues = (np.log10(parametervalues) - minvalue)/(maxvalue - minvalue)
+            else:
+                print "Warning: Log(zero) encountered, reverting to non-logarithmic values"
+                minvalue = np.min(parametervalues)
+                maxvalue = np.max(parametervalues)
+                normalizedparametervalues = (parametervalues - minvalue)/(maxvalue - minvalue)
+                parametercolouring = True
+                logparametercolouring = False
+                
+
+            
+                
+        #print normalizedparametervalues
+        
+        # Build a colour map from all the values, from min to max.
 
     if normalize and includehistory:
         print "Warning: Historical data is not normalized equal to simulated data"
@@ -205,14 +306,37 @@ def summaryplotter(*args):
         if len(summaryfiles) > 5 and len(summaryfiles) < 51:
             # Linear transparency in number of summaryfiles between 5 and 50:
             alpha=0.7 - (float((len(summaryfiles))-5.0))/45.0*0.3
+    if singleplot:
+        numberofcolours = len(matchedsummaryvectors)
+
     colours = map(tuple, pyplot.get_cmap('jet')(np.linspace(0,1.0,numberofcolours)))
+
+
+    if (parametercolouring or logparametercolouring):
+        colourmap = matplotlib.colors.LinearSegmentedColormap.from_list('GreenBlackRed', [(0, 0.6, 0), (0,0,0), (0.8,0,0)])
+        matplotlib.cm.register_cmap(name='GreenBlackRedMap', cmap=colourmap)
+        colours = map(tuple, pyplot.get_cmap('GreenBlackRedMap')(normalizedparametervalues))
+ 
+    
+    if (parametercolouring or logparametercolouring):
+        # Using contourf to provide my colorbar info, then clearing the figure
+        Z = [[0,0],[0,0]]
+        step = (maxvalue-minvalue)/100
+        levels = np.arange(minvalue,maxvalue+step,step)
+        invisiblecontourplot = pyplot.contourf(Z, levels, cmap='GreenBlackRedMap')
+        pyplot.clf()
+        pyplot.close()
+
 
     for v_idx in range(0,len(matchedsummaryvectors)):
         v = matchedsummaryvectors[v_idx]
 
         if singleplot==False or v==matchedsummaryvectors[0]:
             fig = pyplot.figure()
+            if (parametercolouring or logparametercolouring):
+                pyplot.colorbar(invisiblecontourplot)
             pyplot.xlabel('Date')
+            
 
         # Set background colour outside plot area to white:
         fig.patch.set_facecolor('white')
@@ -221,7 +345,12 @@ def summaryplotter(*args):
 	pyplot.grid(b=True, which='both', color='0.65',linestyle='-')
         
 	if singleplot==False:
-            pyplot.title(v)
+            if (parametercolouring):
+                pyplot.title(v + ", colouring: "+ paramnameforcolouring)
+            elif (logparametercolouring):
+                pyplot.title(v + ", colouring: Log10("+ paramnameforcolouring + ")")
+            else:
+                pyplot.title(v)
         else:
             pyplot.title("")
         
@@ -242,6 +371,8 @@ def summaryplotter(*args):
                     
                 pyplot.plot_date(s.get_mpl_dates(), values, 'k.',
                                  label=sumlabel)
+                fig.autofmt_xdate()
+
 
         for s_idx in range(0,len(summaryfiles)):
             s = summaryfiles[s_idx]
@@ -262,6 +393,8 @@ def summaryplotter(*args):
                         sumlabel=v
                     else:
                         sumlabel='_nolegend_'
+                elif singleplot:
+                    cycledcolor=colours[v_idx]
                 else:
                     cycledcolor=colours[s_idx]
 
@@ -273,20 +406,36 @@ def summaryplotter(*args):
                 pyplot.plot_date(s.get_mpl_dates(), values, xdate=True, ydate=False,
                                  ls='-', marker='None', color=cycledcolor, label=sumlabel,
                                  linewidth=1.5, alpha=alpha)
+                fig.autofmt_xdate()
+
 
         if not nolabel:
-            pyplot.legend(loc='best')
+            pyplot.legend(loc='best', fancybox=True, framealpha=0.5)
     for v in restartvectors:
 
         if singleplot==False or (v==restartvectors[0] and len(matchedsummaryvectors)==0):
-            pyplot.figure()
+            fig = pyplot.figure()
+            if (parametercolouring or logparametercolouring):
+                 pyplot.colorbar(invisiblecontourplot)
             pyplot.xlabel('Date')
 
         if singleplot==False:
-            pyplot.title(v)
+            if (parametercolouring):
+                pyplot.title(v + ", colouring: "+ paramnameforcolouring)
+            elif (logparametercolouring):
+                pyplot.title(v + ", colouring: Log10("+ paramnameforcolouring + ")")
+            else:
+                pyplot.title(v)
         else:
             pyplot.title("")
 
+        # Set background colour outside plot area to white:
+        fig.patch.set_facecolor('white')
+
+        # Add grey major gridlines:
+	pyplot.grid(b=True, which='both', color='0.65',linestyle='-')
+
+  
         for datafile_idx in range(0, len(datafiles)):
 
             if singleplot:

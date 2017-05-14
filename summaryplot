@@ -49,7 +49,11 @@
 # $Id: summaryplot 537 2015-11-20 12:35:05Z havb $
 #
 
-import ert.ecl as ecl
+try:
+    from ert.ecl import EclFile, EclSum, EclGrid
+except ImportError:
+    from ecl.ecl import EclFile, EclSum, EclGrid
+
 import itertools # for manual color cycling
 import matplotlib.pyplot
 import numpy as np
@@ -125,7 +129,7 @@ def summaryplotter(*args):
         # Try to parse command line arg as a summary file,
         # try as a vector if not.
         try:
-            sum = ecl.EclSum(arg)
+            sum = EclSum(arg)
             datafiles.append(arg)
 
             summaryfiles.append(sum)
@@ -242,8 +246,8 @@ def summaryplotter(*args):
             print "Loading grid and restart file " + rstfile
             # TODO: Allow some of the rstfiles to be missing
             # TODO: Handle missing rstfiles gracefully
-            rst = ecl.EclFile(rstfile)
-            grid = ecl.EclGrid(gridfile)
+            rst = EclFile(rstfile)
+            grid = EclGrid(gridfile)
             rstfiles.append(rst)
             gridfiles.append(grid)
             print "done"

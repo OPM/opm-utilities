@@ -3,8 +3,8 @@
 # or similar.
 
 # Useful commands use: 
-# $ docker build -t opm_docker_image
-# $ docker tag opm_docker_image openporousmedia/releases:<version_number>
+# $ docker build -t opm_docker_image .
+# $ docker tag opm_docker_image openporousmedia/opmreleases:<version_number>
 # $ docker login
 # $ docker push
 # $ docker run -v <HOST_DIR>:/shared_host opm_docker_image flow output_dir="/shared_host/output" "/shared_host/<DECK>"
@@ -23,7 +23,7 @@ RUN apt-get install -y python-software-properties software-properties-common
 ##########  (NOTE: testing repository here!) #############
 ##########################################################
 # For the release repository, we should use "ppa:opm/ppa"
-RUN add-apt-repository -y ppa:opm/testing
+RUN add-apt-repository -y ppa:opm/ppa
 
 # Update package list again
 RUN apt-get update -y

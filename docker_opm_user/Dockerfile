@@ -20,9 +20,10 @@ RUN apt-get install -y python-software-properties software-properties-common
 
 # Add PPA for the OPM packages 
 ##########################################################
-##########  (NOTE: testing repository here!) #############
+##########  (NOTE: check repository here!) #############
 ##########################################################
 # For the release repository, we should use "ppa:opm/ppa"
+# For the testing repository, we should use "ppa:opm/testing"
 RUN add-apt-repository -y ppa:opm/ppa
 
 # Update package list again

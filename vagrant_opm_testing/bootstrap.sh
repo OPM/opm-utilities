@@ -19,10 +19,8 @@ sudo add-apt-repository -y ppa:opm/testing
 sudo apt-get update -y
 
 # OPM packages
-sudo apt-get install -y libopm-core1
-sudo apt-get install -y libopm-simulators1-bin
-sudo apt-get install -y libopm-upscaling1-bin 
-sudo apt-get install -y openmpi-bin 
+sudo apt-get install -y mpi-default-bin
+sudo apt-get install -y libopm-simulators-bin
 
 # Other utilities that are required by tutorials etc.
-sudo apt-get install -y unzip
+sudo apt-get install unzip -y

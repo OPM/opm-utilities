@@ -1,0 +1,4 @@
+OTHERMIRROR="deb file:///home/deb-build/debs/stretch/local-apt ./"
+BINDMOUNTS="/home/deb-build/debs/stretch"
+ALLOWUNTRUSTED="yes"
+HOOKDIR=/home/deb-build/debs/stretch/hook

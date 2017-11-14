@@ -1,0 +1,4 @@
+OTHERMIRROR="deb file:///home/deb-build/debs/xenial/local-apt ./"
+BINDMOUNTS="/home/deb-build/debs/xenial"
+ALLOWUNTRUSTED="yes"
+HOOKDIR=/home/deb-build/debs/xenial/hook

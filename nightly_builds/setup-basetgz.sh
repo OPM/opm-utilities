@@ -91,4 +91,10 @@ apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
 GENERIC_EXTRA_PACKAGES="texlive-latex-extra doxygen cmake g++ build-essential libboost-dev apt-utils"
 
 # Finally create the base tgz
-DIST=xenial pbuilder --create --debootstrapopts "--keyring=/etc/apt/trusted.gpg" --extrapackages "$GENERIC_EXTRA_PACKAGES"
+if [ "$1" == "xenial" ]
+then
+  keyfile=/etc/apt/trusted.gpg
+else
+  keyfile=/etc/apt/trusted.gpg.d/debian-archive-stretch-stable.gpg
+fi
+DIST=$1 pbuilder --create --debootstrapopts "--keyring=$keyfile" --extrapackages "$GENERIC_EXTRA_PACKAGES" --configfile /home/deb-build/debs/$1/pbuilderrc

@@ -6,7 +6,7 @@ WORKSPACE=$HOME
 mkdir -p $HOME/debs/$DIST
 
 # Wipe local package link
-#rm -f $HOME/debs/$DIST/local-apt
+rm -f $HOME/debs/$DIST/local-apt
 
 # We build in a temporary directory
 TMPDIR=`mktemp -d`
@@ -15,14 +15,14 @@ pushd $TMPDIR
 mkdir pdebuild-tmp
 TODAY=`date --rfc-3339=date`
 mkdir -p $WORKSPACE/debs/$DIST/nightly/$TODAY
-#ln -sf $WORKSPACE/debs/$DIST/nightly/$TODAY $HOME/debs/$DIST/local-apt
+ln -sf $WORKSPACE/debs/$DIST/nightly/$TODAY $HOME/debs/$DIST/local-apt
 
 STATUS=0
-for REPO in libecl opm-common opm-parser opm-output opm-material opm-grid opm-core ewoms opm-simulators opm-upscaling
+for REPO in cwrap libecl opm-common opm-parser opm-output opm-material opm-grid opm-core ewoms opm-simulators opm-upscaling
 do
-  if [ "$REPO" == "libecl" ]
+  if [ "$REPO" == "libecl" ] || [ "$REPO" == "cwrap" ]
   then
-    git clone --depth 1 https://github.com/Statoil/libecl
+    git clone --depth 1 https://github.com/Statoil/$REPO
   else
     git clone --depth 1 https://github.com/OPM/$REPO
   fi
@@ -33,6 +33,11 @@ do
   fi
   pushd $REPO
   REV=`git rev-parse --short HEAD`
+  if [ "$REPO" == "cwrap" ]
+  then
+    sed -e 's/setuptools_scm/setuptools/g' -e s"/use_scm_version=.*/version = '$TODAY-git$REV',/g" -i setup.py
+    echo "__version__ = '$TODAY-git$REV'" >> cwrap/__init__.py
+  fi
   dch -b -v "$TODAY-git$REV-1~$DIST" -D $DIST --empty --force-distribution "New nightly build"
   DIST=$DIST pdebuild -- --buildresult $WORKSPACE/debs/$DIST/nightly/$TODAY --buildplace $TMPDIR/pdebuild-tmp --configfile $WORKSPACE/debs/$DIST/pbuilderrc
   if ! test $? -eq 0

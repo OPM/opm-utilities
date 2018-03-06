@@ -13,21 +13,18 @@ set_property(GLOBAL PROPERTY ALLOW_DUPLICATE_CUSTOM_TARGETS 1)
 
 enable_testing()
 add_subdirectory(opm-common)
-add_subdirectory(opm-parser)
-add_dependencies(opmparser ecl opmcommon)
-add_subdirectory(opm-output)
-add_dependencies(opmoutput opmparser)
+add_dependencies(opmcommon ecl)
 add_subdirectory(opm-material)
-add_dependencies(opm-material_prepare opmparser)
+add_dependencies(opm-material_prepare opmcommon)
 add_subdirectory(opm-grid)
-add_dependencies(opmgrid opmparser)
+add_dependencies(opmgrid opmcommon)
 
 # To not build unrelated "tests" in ewoms unless requested
 set(BUILD_TESTING 0)
 # To not add disabled tests to the ctest list
 set(ADD_DISABLED_CTESTS 0)
 add_subdirectory(ewoms)
-add_dependencies(ewoms_prepare opmgrid opmoutput)
+add_dependencies(ewoms_prepare opmgrid)
 set(BUILD_TESTING 1)
 
 add_subdirectory(opm-simulators)

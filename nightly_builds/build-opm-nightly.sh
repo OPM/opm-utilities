@@ -18,7 +18,7 @@ mkdir -p $WORKSPACE/debs/$DIST/nightly/$TODAY
 ln -sf $WORKSPACE/debs/$DIST/nightly/$TODAY $HOME/debs/$DIST/local-apt
 
 STATUS=0
-for REPO in cwrap libecl opm-common opm-parser opm-output opm-material opm-grid ewoms opm-simulators opm-upscaling
+for REPO in cwrap libecl opm-common opm-material opm-grid ewoms opm-simulators opm-upscaling
 do
   if [ "$REPO" == "libecl" ] || [ "$REPO" == "cwrap" ]
   then

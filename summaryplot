@@ -52,7 +52,12 @@
 try:
     from ert.ecl import EclFile, EclSum, EclGrid
 except ImportError:
-    from ecl.ecl import EclFile, EclSum, EclGrid
+    try:
+        from ecl.ecl import EclFile, EclSum, EclGrid
+    except ImportError:
+        from ecl.eclfile import EclFile
+        from ecl.summary import EclSum
+        from ecl.grid import EclGrid
 
 import itertools # for manual color cycling
 import matplotlib.pyplot

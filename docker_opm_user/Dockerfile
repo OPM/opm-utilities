@@ -41,8 +41,6 @@ RUN apt-get update -y
 RUN if test "$opm_version" = "release" || test "$opm_version" = "testing" || test "$opm_version" = "nightly"; then apt-get install -y libopm-simulators1-bin; else apt-get install -y libopm-simulators1-bin=$opm_version* \
                                        libopm-simulators1=$opm_version* \
                                        libopm-grid1=$opm_version* \
-                                       libopm-output1=$opm_version* \
-                                       libopm-parser1=$opm_version* \
                                        libopm-common1=$opm_version* \
                                        libecl1=$opm_version*; fi
 RUN apt-get install openmpi-bin -y

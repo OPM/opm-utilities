@@ -1,0 +1,7 @@
+
+    OPMRUN is graphical user interface to Flow that has similar functionality to the commercial simulator’s ECLRUN program.
+    Target audience are Reservoir Engineers in a production environment. Developers and experienced Linux users will already have compatible work flows.
+    Allows editing and management of OPM Flow’s run time parameters. Default parameters are automatically loaded from Flow, and the user can reset the default set either from a parameter or PRT file.
+    Allows simulation jobs to be queued and run. Queue can be set to run in NOSIM mode or RUN mode.
+    Queues can be edited, saved and loaded.
+    Written in Python 3 and tested under Unbuntu-Mate 18.04 TLS. 

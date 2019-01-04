@@ -7,6 +7,9 @@ The program allows the user to select files to be submitted to OPM Flow
 
 Program Doumentation
 --------------------
+2018-10-01 - Inital release.
+2018-10-02 - Fix printing bug assoicated with listing of jobparm.
+             Create stanalone executable for Linux systems (works on Unbuntu-Mate 18-04)
 
 Copyright Notice
 ----------------
@@ -53,7 +56,7 @@ jobparam = []
 jobhelp  = dict()
 
 opmoptn  = dict()
-opmvers  = '2018-10.01'
+opmvers  = '2018-10.02'
 opm      = Path.home()
 opmhome  = Path(opm  / 'OPM')
 if not opmhome.is_dir():
@@ -924,8 +927,9 @@ while True:
     elif button == 'List OPM Flow Default Parameters':
         if (jobparam):
             print('Start of OPM Flow Parameters')
-            print(*('{}: {}'.format(*k) for k in enumerate(jobparam)), sep="\n")
-            print('End   of OPM Flow Parameters')
+            for k in enumerate(jobparam):
+                print('{}: {}'.format(*k))
+            print('End of OPM Flow Parameters')
         else:
             sg.PopupError('OPM Flow Parameters Have Not Been Set')
     #

@@ -27,6 +27,23 @@ Program Documentation
              computationally more efficient).
            - Major re-factoring of code and code clean up.
            - Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04)
+             Notes:
+             ------
+             PySimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated
+             for fixes and new features. This version of OPMRUN used verion 3.36.0 of PySimpleGUI, later and older
+             versions of PySimpleGUI may not work. Each release of OPMRUN will update to the latest release of
+             PySimpleGUI. In addition, the following modules are require:
+             
+             ( 1) PySimpleGUI
+             ( 2) datetime
+             ( 3) getpass
+             ( 4) os
+             ( 5) sys
+             ( 6) psutil
+             ( 7) re
+             ( 8) subprocess
+             ( 9) pathlib
+
            
 2018-10-02 - Fix printing bug associated with listing of jobparm.
              Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04)
@@ -42,9 +59,9 @@ To Do List
 
 Compiling Source
 ----------------
-It's possible to create a single .EXE file that can be distributed to Linux users. There is no requirement to install
-the Python interpreter on the PC you wish to run it on. Everything it needs is in the one EXE file, assuming you're
-running a somewhat up to date version of Linux.
+It's possible to create a single executable binary file that can be distributed to Linux users. There is no
+requirement to install the Python interpreter on the PC you wish to run it on. Everything it needs is in the one
+binary executable file, assuming you are running a somewhat up to date version of Linux.
 
 Installation of the packages, you'll need to install PySimpleGUI and PyInstaller (you need to install only once)
 
@@ -951,7 +968,7 @@ def load_queue(joblist):
             
         if (text == 'Yes'):   
             filename = sg.PopupGetFile('OPMRUN Queue File Name',default_extension='que', save_as=False,
-                                   default_path=os.getcwd,   
+                                   default_path=str(os.getcwd),   
                                    file_types=[('OPM Queues', '*.que'), ('All', '*.*')], keep_on_top=False )      
             if (filename):
                 joblist = []
@@ -1341,8 +1358,9 @@ def save_queue(joblist):
     if not joblist:
         sg.PopupOK('No Cases In Job Queue; Queue will Not Be Saved')
     else:
-        filename = sg.PopupGetFile('OPMRUN Queue File Name',default_extension='que', save_as=True,
-                               file_types=[('OPM Queues', '*.que'), ('All', '*.*')], keep_on_top=False )      
+        filename = sg.PopupGetFile('OPMRUN Queue File Name',default_extension='que', save_as=True,                                 
+                                   default_path=str(os.getcwd), keep_on_top=False,  
+                                   file_types=[('OPM Queues', '*.que'), ('All', '*.*')]           )      
         if (filename):
             file       = open(filename,'w') 
             file.write('# \n')
@@ -1462,6 +1480,7 @@ def set_menu():
                          'Uncompress Jobs',
                          'ResInsight'],],      
               ['Help',  ['Manual',
+                         'ResInsight Help',
                          'Help',
                          'About'],
                         ] ]

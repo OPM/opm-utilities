@@ -27,6 +27,7 @@ Program Documentation
              computationally more efficient).
            - Major re-factoring of code and code clean up.
            - Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04)
+
              Notes:
              ------
              PySimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated
@@ -43,8 +44,7 @@ Program Documentation
              ( 7) re
              ( 8) subprocess
              ( 9) pathlib
-
-           
+         
 2018-10-02 - Fix printing bug associated with listing of jobparm.
              Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04)
              
@@ -90,8 +90,8 @@ Copyright (C) 2018-2019 Equinox International Petroleum Consultants Pte Ltd.
 
 Author  : David Baxendale
           david.baxendale@eipc.co 
-Version : 1.0
-Date    : 03-Nov-2018
+Version : 2019-04-1
+Date    : 10-Jun-2019
           Copyright (C) 2018 David Baxendale         
 '''
 #-----------------------------------------------------------------------------------------------------------------------------------

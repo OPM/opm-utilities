@@ -1462,7 +1462,6 @@ def set_menu():
                          'Uncompress Jobs',
                          'ResInsight'],],      
               ['Help',  ['Manual',
-                         'ResInsight Help',
                          'Help',
                          'About'],
                         ] ]

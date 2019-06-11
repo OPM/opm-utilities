@@ -8,7 +8,12 @@ The program allows the user to select files to be submitted to OPM Flow and has 
 
 Program Documentation
 --------------------
-2019-04-01 - Fixed bug in running parallel jobs.
+2019-04.02 - Fixed menu layout bug.
+           - Fixed Project Directory bug for when the default OPMRUN.ini file is created.
+           - Fixed Edit Parameters bug for when OPM Flow has not been installed.
+           - Changed some test messages to be consistent with Options.
+
+2019-04.01 - Fixed bug in running parallel jobs.
            - Added functionality to kill a running job, and disable certain buttons when jobs are running.
            - Fixed printing bug when OPM Flow terminates with errors.
            - Added windows dialog sizes to OPMRUN.ini file so that user can change the windows size at next re-start.
@@ -26,8 +31,8 @@ Program Documentation
            - Added option to run job queue in foreground (that is under OPMRUN) and background via xterm (should be
              computationally more efficient).
            - Major re-factoring of code and code clean up.
-           - Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04)
-
+           - Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04).
+           
              Notes:
              ------
              PySimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated
@@ -45,10 +50,10 @@ Program Documentation
              ( 8) subprocess
              ( 9) pathlib
          
-2018-10-02 - Fix printing bug associated with listing of jobparm.
+2018-10.02 - Fix printing bug associated with listing of jobparm.
              Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04)
              
-2018-10-01 - Initial release.
+2018-10.01 - Initial release.
 
 To Do List
 ----------
@@ -126,11 +131,17 @@ jobparam = []
 jobhelp  = dict()
 
 opmoptn  = dict()
-opmvers  = '2019-04.01'
+opmvers  = '2019-04.02'
 opm      = Path.home()
 opmhome  = Path(opm  / 'OPM')
+#
+# Create OPM Directory if Missing
+#
 if not opmhome.is_dir():
-    opmhome.mkdir()
+    try:
+        opmhome.mkdir()
+    except OSError:
+        sg.PopupError('Cannot Create: ' + str(opmhome) + ' Directory \n  Will try and continue')
     
 opmini   = Path(opmhome / 'OPMRUN.ini')
 opmrun   = Path(opmhome / 'OPMRUN.que')
@@ -683,6 +694,11 @@ def edit_options(opmoptn):
 
 
 def edit_parameters(jobparam, jobhelp):
+    '''
+    Edit OPM Flow Parameters. Need to first check if parameters have been loaded, in case
+    OPM Flow has not been installed, or the system cannot find the program. If the parameters
+    are not found, set the exitcode, display error message, and return. 
+    '''
     if (jobparam):
         set_window_status(False)
         
@@ -748,6 +764,7 @@ def edit_parameters(jobparam, jobhelp):
         window0.Element('_outlog_').Update()
 
     else:
+        exitcode  = 'Cancel'
         sg.PopupError('OPM Flow Parameters Have Not Been Set')
         
     return(jobparam, exitcode)
@@ -837,8 +854,8 @@ def kill_job(jobpid):
 
 def load_manual(filename):
     if (filename == 'None'):
-        sg.PopupOK('OPM Flow Manual has not been set in the properties file',
-                   'Use the Edit OPMRUN Options menu to define the command')
+        sg.PopupOK('OPM Flow Manual has not been defined in the Options.',
+                   'Use the Edit Options menu to define the command.'                )
         return()
 
     elif (filename):
@@ -898,15 +915,15 @@ def load_options(opmoptn):
         opmoptn['opm-resinsight'  ] = 'None'
         opmoptn['edit-command'    ] = 'None'
         opmoptn['prj-name-01'     ] = 'Home'
-        opmoptn['prj-dirc-01'     ] = '$Home'
+        opmoptn['prj-dirc-01'     ] = str(opm)
         opmoptn['prj-name-02'     ] = 'Home'
-        opmoptn['prj-dirc-02'     ] = '$Home'
+        opmoptn['prj-dirc-02'     ] = str(opm)
         opmoptn['prj-name-03'     ] = 'Home'
-        opmoptn['prj-dirc-03'     ] = '$Home'
+        opmoptn['prj-dirc-03'     ] = str(opm)
         opmoptn['prj-name-04'     ] = 'Home'
-        opmoptn['prj-dirc-04'     ] = '$Home'
+        opmoptn['prj-dirc-04'     ] = str(opm)
         opmoptn['prj-name-05'     ] = 'Home'
-        opmoptn['prj-dirc-05'     ] = '$Home'
+        opmoptn['prj-dirc-05'     ] = str(opm)
         
         save_options(opmoptn, False)
         sg.PopupOK('OPMRUN Default Options Created and Saved')
@@ -1244,8 +1261,8 @@ def run_process(command, outprt=True):
             
 def run_resinsight(command):
     if (command == 'None'):
-        sg.PopupOK('OPM ResInsight Command has not been set in the properties file',
-                 'Use the Edit Options menu to define the command'                )
+        sg.PopupOK('OPM ResInsight Command has not been defined in the Options.',
+                   'Use the Edit Options menu to define the command.'                )
         return()
 
     try:
@@ -1480,7 +1497,6 @@ def set_menu():
                          'Uncompress Jobs',
                          'ResInsight'],],      
               ['Help',  ['Manual',
-                         'ResInsight Help',
                          'Help',
                          'About'],
                         ] ]

@@ -9,7 +9,13 @@ The software enables submiting OPM Flow simulation input decks together with edi
 as well as being able to compress and uncompress OPM Flow's output files in order to save disk space.
 
 Program Documentation
---------------------
+---------------------
+2019-04.04 - Added suport for Python 2 by using the pathlib2 module from https://pypi.org/project/pathlib2/
+             (not tested).
+           - Updated program code documentation and the Release-Notes.txt file.
+           - Updated README.md file to based on PDF documentation
+           - Deleted binary file from the respository.
+             
 2019-04.03 - Added OPM Flow icon to all Windows via Base64 Encoded PNG File and added OPMRUN.svg icon to release.
            - Changed all Popup messages to have no title bar, grab anywhere, and keep on top options.
            - Moved job parameter manipulation into a separate function get__job function to reduce code duplication,
@@ -32,7 +38,7 @@ Program Documentation
            - Disable X close button or check for None.
            - Added option to Edit OPMRUN options.
            - When adding a job clear the file name field after the job has been added to the queue.
-           - Added Compress Jobs and Uncompress Jobs to the Tools menus.
+           - Added Compress Jobs and Uncompress Jobss to the Tools menu.
            - Added ResInsight option to the Tools menu.
            - Added option to clear the output and log elements.
            - For the Add Job dialog list the number of CPUs available; previously the range went from one to 64. Also
@@ -50,22 +56,26 @@ Program Documentation
 
 Notes:
 ------
-Only Python 3 is currently supported and tested.
+Only Python 3 is currently supported and tested. Although attempts have been made for OPMRUN to run under
+Python 2. The following standard module libraries are used in this version.
+
+( 1) datetime
+( 2) getpass
+( 3) os
+( 4) sys
+( 5) re
+( 8) subprocess
+
+In addition the following Python modules are required:
+
+( 1) PySimpleGUI
+( 2) psutil
+( 3) pathlib for Python 3 or pathlib2 for Python 2
 
 PySimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated
 for fixes and new features. This version of OPMRUN used verion 3.36.0 of PySimpleGUI, later and older
 versions of PySimpleGUI may not work. Each release of OPMRUN will update to the latest release of
-PySimpleGUI. In addition, the following Python modules are require:
-
-( 1) PySimpleGUI
-( 2) datetime
-( 3) getpass
-( 4) os
-( 5) sys
-( 6) psutil
-( 7) re
-( 8) subprocess
-( 9) pathlib
+PySimpleGUI.
 
 To Do List
 ----------
@@ -132,8 +142,10 @@ from   pathlib  import Path
 
 if sys.version_info[0] >= 3:
     import PySimpleGUI as sg
+    from   pathlib  import Path
 else:
     import PySimpleGUI27 as sg
+    from   pathlib2  import Path
     
 #-----------------------------------------------------------------------------------------------------------------------------------
 # Define Constants Section 

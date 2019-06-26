@@ -17,18 +17,18 @@ Compiled binary version should work on all Linux systems, no need to install dep
 Only Python 3 is currently supported and tested. Although attempts have been made for OPMRUN to run under
 Python 2. The following standard module libraries are used in this version.
 
-( 1) datetime
-( 2) getpass
-( 3) os
-( 4) sys
-( 5) re
-( 8) subprocess
+1. datetime
+2. getpass
+3. os
+4. sys
+5. re
+8. subprocess
 
 In addition the following Python modules are required:
 
-( 1) PySimpleGUI
-( 2) psutil
-( 3) pathlib for Python 3 or pathlib2 for Python 2
+1. PySimpleGUI
+2. psutil
+3. pathlib for Python 3 or pathlib2 for Python 2
 
 PySimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated
 for fixes and new features. This version of OPMRUN used verion 3.36.0 of PySimpleGUI, later and older

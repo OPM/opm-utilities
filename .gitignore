@@ -1,0 +1,7 @@
+.examples
+.notes
+opmrun/opmrun_opmuser.egg-info
+opmrun/__init__.py
+opmrun.spec
+opmrun/setup.py
+opmrun/LICENSE

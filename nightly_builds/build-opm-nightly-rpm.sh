@@ -20,9 +20,9 @@ mock -r $DIST --clean
 STATUS=0
 if [ "$DIST" == "apel-7-x86_64" ]
 then
-  REPOS="cwrap libecl opm-common opm-material opm-grid ewoms opm-simulators opm-upscaling"
+  REPOS="cwrap libecl opm-common opm-material opm-grid opm-models opm-simulators opm-upscaling"
 else
-  REPOS="libecl opm-common opm-material opm-grid ewoms opm-simulators opm-upscaling"
+  REPOS="libecl opm-common opm-material opm-grid opm-models opm-simulators opm-upscaling"
 fi
 for REPO in $REPOS
 do

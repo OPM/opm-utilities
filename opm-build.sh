@@ -25,7 +25,7 @@ declare -A OPM_MODULE_DEPENDS
 OPM_MODULE_DEPENDS[opm-common]=""
 OPM_MODULE_DEPENDS[opm-parser]="opm-common"
 OPM_MODULE_DEPENDS[opm-material]="opm-common opm-parser"
-OPM_MODULE_DEPENDS[ewoms]="opm-common opm-material opm-parser"
+OPM_MODULE_DEPENDS[opm-models]="opm-common opm-material opm-parser"
 OPM_MODULE_DEPENDS[opm-core]="opm-common opm-parser opm-material"
 OPM_MODULE_DEPENDS[dune-cornerpoint]="opm-common opm-parser opm-core"
 OPM_MODULE_DEPENDS[opm-autodiff]="opm-common opm-parser opm-core dune-cornerpoint"
@@ -56,8 +56,8 @@ find_all_modules() {
                 TMP2="dune-cornerpoint"
                 ;;
 
-            *ewoms*)
-                TMP2="ewoms"
+            *opm-models*)
+                TMP2="opm-models"
                 ;;
 
             *)

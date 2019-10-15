@@ -18,20 +18,10 @@ ln -sf $HOME/rpms/$DIST/$TODAY $HOME/rpms/$DIST/today
 
 mock -r $DIST --clean
 STATUS=0
-if [ "$DIST" == "apel-7-x86_64" ]
-then
-  REPOS="cwrap libecl opm-common opm-material opm-grid opm-models opm-simulators opm-upscaling"
-else
-  REPOS="libecl opm-common opm-material opm-grid opm-models opm-simulators opm-upscaling"
-fi
+REPOS="opm-common opm-material opm-grid opm-models opm-simulators opm-upscaling"
 for REPO in $REPOS
 do
-  if [ "$REPO" == "libecl" ] || [ "$REPO" == "cwrap" ]
-  then
-    git clone --depth 1 https://github.com/Statoil/$REPO
-  else
-    git clone --depth 1 https://github.com/OPM/$REPO
-  fi
+  git clone --depth 1 https://github.com/OPM/$REPO
 
   if ! test $? -eq 0
   then
@@ -42,18 +32,7 @@ do
   pushd $REPO
   REV=`git rev-parse --short HEAD`
 
-  if [ "$REPO" == "cwrap" ]
-  then
-    sed -e 's/setuptools_scm/setuptools/g' -e s"/use_scm_version=.*/version = '2',/g" -i setup.py
-    echo "__version__ = '2'" >> cwrap/__init__.py
-  fi
-
-  if [ "$REPO" == "libecl" ]
-  then
-    SPECNAME="ecl"
-  else
-    SPECNAME=$REPO
-  fi
+  SPECNAME=$REPO
 	 
   sed -i -e "s/Version:.*$/Version: ${TODAY}_git$REV/g" -e 's/-\%{tag}//g' -e 's/-release//g' redhat/*.spec
   git commit -am"bump to nightly version"

@@ -13,7 +13,6 @@ set_property(GLOBAL PROPERTY ALLOW_DUPLICATE_CUSTOM_TARGETS 1)
 
 enable_testing()
 add_subdirectory(opm-common)
-add_dependencies(opmcommon ecl)
 add_subdirectory(opm-material)
 add_dependencies(opm-material_prepare opmcommon)
 add_subdirectory(opm-grid)

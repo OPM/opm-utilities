@@ -18,14 +18,9 @@ mkdir -p $WORKSPACE/debs/$DIST/nightly/$TODAY
 ln -sf $WORKSPACE/debs/$DIST/nightly/$TODAY $HOME/debs/$DIST/local-apt
 
 STATUS=0
-for REPO in cwrap libecl opm-common opm-material opm-grid opm-models opm-simulators opm-upscaling
+for REPO in opm-common opm-material opm-grid opm-models opm-simulators opm-upscaling
 do
-  if [ "$REPO" == "libecl" ] || [ "$REPO" == "cwrap" ]
-  then
-    git clone --depth 1 https://github.com/Statoil/$REPO
-  else
-    git clone --depth 1 https://github.com/OPM/$REPO
-  fi
+  git clone --depth 1 https://github.com/OPM/$REPO
   if ! test $? -eq 0
   then
     STATUS=1
@@ -33,11 +28,6 @@ do
   fi
   pushd $REPO
   REV=`git rev-parse --short HEAD`
-  if [ "$REPO" == "cwrap" ]
-  then
-    sed -e 's/setuptools_scm/setuptools/g' -e s"/use_scm_version=.*/version = '$TODAY-git$REV',/g" -i setup.py
-    echo "__version__ = '$TODAY-git$REV'" >> cwrap/__init__.py
-  fi
   dch -b -v "$TODAY-git$REV-1~$DIST" -D $DIST --empty --force-distribution "New nightly build"
   DIST=$DIST pdebuild -- --buildresult $WORKSPACE/debs/$DIST/nightly/$TODAY --buildplace $TMPDIR/pdebuild-tmp --configfile $WORKSPACE/debs/$DIST/pbuilderrc
   if ! test $? -eq 0

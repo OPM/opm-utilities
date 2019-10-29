@@ -30,7 +30,7 @@ ENV LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:/usr/lib64/openmpi/lib64:$LD_LIBRARY_
 
 # add path to mpi to start-up scripts
  RUN echo "export PATH=/usr/lib64/openmpi/bin:${PATH}" > /etc/profile.d/scripts-path.sh && \
-     echo "export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib64:/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH" >> /etc/profile.d/scripts-path.sh &&\
+     echo "export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib64:/usr/lib64/openmpi/lib:/opt/rh/rh-mariadb102/root/usr/lib64:$LD_LIBRARY_PATH" >> /etc/profile.d/scripts-path.sh &&\
          chmod 755 /etc/profile.d/scripts-path.sh
 
 RUN adduser opm

@@ -13,7 +13,7 @@ FROM centos:7
 ARG opm_version=release
 
 # Add yum repo
-RUN yum install -y yum-utils epel-release wget
+RUN yum install -y yum-utils epel-release wget centos-release-scl
 RUN if [ "$opm_version" = "release" ]; then yum-config-manager --add-repo https://www.opm-project.org/package/opm.repo; fi
 
 RUN if [ "$opm_version" = "nightly" ]; then yum-config-manager --nogpgcheck --add-repo https://www.opm-project.org/package/opm-nightly.repo; fi

@@ -28,5 +28,6 @@ set(BUILD_TESTING 1)
 
 add_subdirectory(opm-simulators)
 add_dependencies(opmsimulators opmgrid)
+add_dependencies(opm-simulators_prepare opmcommon)
 add_subdirectory(opm-upscaling)
 add_dependencies(opmupscaling opmgrid)

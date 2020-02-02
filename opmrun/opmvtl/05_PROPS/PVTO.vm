@@ -1,0 +1,89 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Type              : amd64                               
+## File Name                 : PVTO.vm                                                         
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 30-Jan-2020
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+--                                                                                      
+--       OIL PVT TABLE FOR LIVE OIL                                                                 
+--                                                                                      
+PVTO                                                                                    
+--       RS        PSAT       BO        VISC                                                  
+--       MSCF/STB  PSIA       RB/STB    CPOISE                                                
+--       --------  --------   -------   ------                                                
+          0.0010      14.7    1.05340   1.7230             /                                             
+          0.0390     250.0    1.06830   1.4220             /                                             
+          0.0890     500.0    1.08890   1.1670             /                                             
+          0.1460     750.0    1.11250   0.9850             /                                             
+          0.2060    1000.0    1.13850   0.8570             /                                             
+          0.2700    1250.0    1.16660   0.7590             /                                             
+          0.3360    1500.0    1.19640   0.6840             /                                             
+          0.4050    1750.0    1.22800   0.6240             /                                             
+          0.4750    2000.0    1.26110   0.5750             /                                             
+          0.5480    2250.0    1.29570   0.5340             /                                             
+          0.6220    2500.0    1.33160   0.5000             /                                             
+          0.6980    2750.0    1.36890   0.4700             /                                             
+          0.7750    3000.0    1.40740   0.4450             /                                             
+          0.8530    3250.0    1.44710   0.4220             /                                             
+          0.9330    3500.0    1.48790   0.4020             /                                             
+          1.0140    3750.0    1.52980   0.3840             /                                             
+          1.0960    4000.0    1.57280   0.3680             /                                             
+          1.1800    4258.0    1.61760   0.3530             /                                             
+          1.2630    4500.0    1.66190   0.3400             /                                             
+          1.3480    4750.0    1.70780   0.3280             /                                             
+          1.4340    5000.0    1.75480   0.3170             /                                             
+          1.6060    5500.0    1.85020   0.2980                                                           
+                    6242.0    1.83040   0.3186             /                
+                                                           / TABLE NO. 01                                       
+--       RS        PSAT       BO        VISC                                                             
+--       MSCF/STB  PSIA       RB/STB    CPOISE                                                           
+--       --------  --------   -------   ------                                                           
+          0.0010      14.7    1.05340   1.7230             /                                             
+          0.0390     250.0    1.06830   1.4220             /                                             
+          0.0890     500.0    1.08890   1.1670             /                                             
+          0.1460     750.0    1.11250   0.9850             /                                             
+          0.2060    1000.0    1.13850   0.8570             /                                             
+          0.2700    1250.0    1.16660   0.7590             /                                             
+          0.3360    1500.0    1.19640   0.6840             /                                             
+          0.4050    1750.0    1.22800   0.6240             /                                             
+          0.4750    2000.0    1.26110   0.5750             /                                             
+          0.5480    2250.0    1.29570   0.5340             /                                             
+          0.6220    2500.0    1.33160   0.5000             /                                             
+          0.6980    2750.0    1.36890   0.4700             /                                             
+          0.7750    3000.0    1.40740   0.4450             /                                             
+          0.8530    3250.0    1.44710   0.4220             /                                             
+          0.9330    3500.0    1.48790   0.4020             /                                             
+          1.0140    3750.0    1.52980   0.3840             /                                             
+          1.0960    4000.0    1.57280   0.3680             /                                             
+          1.1800    4258.0    1.61760   0.3530             /                                             
+          1.2630    4500.0    1.66190   0.3400             /                                             
+          1.3480    4750.0    1.70780   0.3280             /                                             
+          1.4340    5000.0    1.75480   0.3170             /                                             
+          1.6060    5500.0    1.85020   0.2980                                                           
+                    6242.0    1.83040   0.3186             /               
+                                                           / TABLE NO. 02                                                                                       
+## =================================================================================================================================

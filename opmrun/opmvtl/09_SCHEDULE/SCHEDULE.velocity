@@ -1,0 +1,178 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Type              : amd64                               
+## File Name                 : SCHEDULE.velocity                                                   
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 03-Jun-2017
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd            
+## 
+## =================================================================================================================================
+-- =================================================================================================================================
+-- 
+-- SCHEDULE SECTION 
+-- 
+-- =================================================================================================================================
+SCHEDULE
+
+## 
+## Start of Template Setup for Schedule Keywords
+## 
+#yes_no ( "Generate Schedule keywords?" $Ans "Yes" "No")
+#if  ( $Ans )
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- GROUP PRODUCTION AND INJECTION CONTROLS                                      
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('Eclipse\09_SCHEDULE\GRUPTREE.vm')
+#parse ('Eclipse\09_SCHEDULE\GCONPROD.vm')
+#parse ('Eclipse\09_SCHEDULE\GCONINJE.vm')
+#parse ('Eclipse\09_SCHEDULE\GCONSUMP.vm')
+#parse ('Eclipse\09_SCHEDULE\GEFAC.vm'   )
+#parse ('Eclipse\09_SCHEDULE\GCUTBACK.vm')
+#parse ('Eclipse\09_SCHEDULE\GECON.vm'   )
+#parse ('Eclipse\09_SCHEDULE\GRUPRIG.vm' )
+#parse ('Eclipse\09_SCHEDULE\PRORDER.vm' )
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- WELL SPECIFICATIONS AND COMPLETIONS                                          
+-- ---------------------------------------------------------------------------------------------------------------------------------      
+#parse ('Eclipse\09_SCHEDULE\WELSPECS.vm')                                                                              
+#parse ('Eclipse\09_SCHEDULE\WDFACCOR.vm')                                                                        
+#parse ('Eclipse\09_SCHEDULE\COMPDAT.vm' )                                                                         
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- WELL PRODUCTION AND INJECTION CONTROL                                        
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('Eclipse\09_SCHEDULE\WCONPROD.vm')                                                                        
+#parse ('Eclipse\09_SCHEDULE\WCONINJE.vm')                                                                        
+#parse ('Eclipse\09_SCHEDULE\WEFAC.vm'   )                                                                           
+#parse ('Eclipse\09_SCHEDULE\WELDRAW.vm' )                                                                         
+#parse ('Eclipse\09_SCHEDULE\WECON.vm'   )                                                                           
+#parse ('Eclipse\09_SCHEDULE\WELOPEN.vm' )                                                                         
+#parse ('Eclipse\09_SCHEDULE\WELTARG.vm' )                                                                         
+#parse ('Eclipse\09_SCHEDULE\WDRILTIM.vm')                                                                        
+#parse ('Eclipse\09_SCHEDULE\WDRILPRI.vm')                                                               
+#parse ('Eclipse\09_SCHEDULE\QDRILL.vm'  )                                                          
+#parse ('Eclipse\09_SCHEDULE\WORKLIM.vm' )                                                                         
+#parse ('Eclipse\09_SCHEDULE\WRFTPLT.vm' )  
+#end
+## 
+## Start of Template Setup for Schedule Date Keywords
+## 
+#yes_no ( "Generate Schedule Date keywords?" $Ans "Yes" "No")
+#if  ( $Ans )
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- START OF SCHEDULE SECTION                                                    
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('Eclipse\09_SCHEDULE\RPTRST.VM'  )  
+
+##
+## Beanshell Macro to get Input Options
+##
+#beanshell (false)
+//
+// 	Get First and Last Years
+//
+	OptionsAns1 	= new JTextField("2006", 5);
+	OptionsAns2 	= new JTextField("2020", 5);
+	
+	Options    	= new Object[6];
+	Options[0] 	= Box.createVerticalStrut(10);
+	Options[1] 	= "First Year:";
+	Options[2] 	= OptionsAns1;
+	Options[3] 	= Box.createVerticalStrut(10);
+	Options[4] 	= "Last Year:";
+	Options[5] 	= OptionsAns2;
+	
+	if( JOptionPane.OK_OPTION !=
+	    JOptionPane.showConfirmDialog(view, Options, "First and Last Production Years",
+		JOptionPane.OK_CANCEL_OPTION,
+		JOptionPane.QUESTION_MESSAGE))
+	    return null;
+	    
+        context.put("YearStart", new Integer(Options[2].getText()));
+        context.put("YearEnd"  , new Integer(Options[5].getText()));
+	
+//
+// 	Get Time Step Size Option
+//
+	Options    	= new Object[3];
+	Options[0] 	= "Annual";
+	Options[1] 	= "Quaterly";
+	Options[2] 	= "Monthly";
+	
+	context.put("Option",( JOptionPane.showInputDialog(view,
+				"Select the Time Step Size Option",
+				"Select the Time Step",
+				JOptionPane.QUESTION_MESSAGE,
+				null, Options, Options[1]) ));					
+#end
+##
+## Now Setup Constants
+##
+#set ($Date    = "-01-01")
+#if  ($Option == "Annual")
+	#set($Months = "Annual" )
+#elseif ($Option == "Quaterly")
+	#set( $Months = ["APR","JLY","OCT"] )
+#elseif ($Option == "Monthly")
+	#set( $Months = ["FEB","MAR","APR","MAY","JUN","JLY","AUG","SEP","OCT","NOV","DEC"] )
+#end
+## 
+#foreach ( $Year in [$YearStart .. $YearEnd] )
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- SCHEDULE SECTION - $Year$Date                                   
+-- ---------------------------------------------------------------------------------------------------------------------------------
+RPTSCHED                                                                                                                             
+         'WELLS=2'    'WELSPECS'    'CPU=2'     'FIP=2'                        /
+
+DATES                                                                           
+         1  JAN   $Year  /                                                                
+/                                                                               
+                                                                                
+#if ( $Option == "Quaterly" || $Option == "Monthly" )
+RPTSCHED                                                                                                                             
+         'NOTHING'                                                             /                                                    
+                                           
+DATES                                                                                                                                                                                                                          
+#foreach ( $Month in $Months )
+         1  $Month   $Year  /                  
+#end
+/
+#end
+#end 
+##
+## WRITE FINAL REPORT AT YEAR END
+##
+--
+--       FINAL REPORT AND RESTART AT YEAR END
+--
+RPTSCHED                                                                                                                             
+         'WELLS=2'    'WELSPECS'    'CPU=2'     'FIP=2'                        /
+
+RPTRST                                                                           
+         'BASIC=2'                                                             /
+
+DATES                                                                           
+         31 DEC   $YearEnd  /                                                                
+/                                                                                      
+#end
+## =================================================================================================================================

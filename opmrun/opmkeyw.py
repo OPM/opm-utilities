@@ -22,6 +22,21 @@ a file by selecting the "Save" button
 
 See the OPM Flow manual for further information.
 
+Notes:
+------
+Only Python 3 is currently supported and tested Python2 support has been depreciated. The following standard module
+libraries are used in this version.
+
+(1) datetime
+(2) platform
+(3) pathlib
+(4) tkinter as tk
+
+For OPMKEYW the integrated OPM Flow Keyword Generator the following additional modules are required:
+
+(1) PySimpleGUI
+(2) airspeed
+
 Program Documentation
 --------------------
 2020-04.01 - Initial release of OPMKEYW
@@ -32,8 +47,8 @@ Copyright (C) 2018-2020 Equinox International Petroleum Consultants Pte Ltd.
 
 Author  : David Baxendale
           david.baxendale@eipc.co
-Version : 2020-04.1
-Date    : 20-Jan-2020
+Version : 2020-04.01
+Date    : 30-Jan-2020
 """
 # ----------------------------------------------------------------------------------------------------------------------
 # 3456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890

@@ -1,0 +1,81 @@
+Release Notes
+------------
+2020-04.01 - Fixed a tKinter bug that centers windows by the total x-direction display space, rather than the using
+           - just the primary display size (multi-monitor issue). All pops are now based on the current main window
+             location.
+           - Added initial folder option when setting the  OPM Flow manual location.
+           - Removed base64 icon graphic from code, and loaded png graphic from file, for code readability reasons and
+             replaced manual reference of icon for all windows with SetOption default.
+           - Fixed warning message associated with logging before main window was realized.
+           - Added warning message if Pyton 3.7.3 or greater is being used.
+           - Fixed Popup displays not showing text in PySimpleGUI 4.14.1 due to default color of text being None.
+           - Support for Python 2 depreciated.
+           - Moved to PySimpleGUI version 4.14.1
+           - Added PySimpleGUI version to About dialog box for additional information
+
+2019-04.04 - Added suport for Python 2 by using the pathlib2 module from https://pypi.org/project/pathlib2/
+             (not tested).
+           - Updated program code documentation and included the same in Release-Notes.txt.
+           - Updated README.md to be similar to the PDF documentation.
+           - Deleted binary from repository.
+             
+2019-04.03 - Added OPM Flow icon to all Windows via Base64 Encoded PNG File and added OPMRUN.svg icon to release.
+           - Changed all Popup messages to have no title bar, grab anywhere, and keep on top options.
+           - Moved job parameter manipulation into a separate function get__job function to reduce code duplication,
+             as well as to have most of the path manipulation in the one routine.
+           - Modified documentation.
+           - Re-compiled binary generated tested on Unbuntu-Mate 18-04 and 19-04.
+           
+2019-04.02 - Fixed menu layout bug.
+           - Fixed Project Directory bug for when the default OPMRUN.ini file is created.
+           - Fixed Edit Parameters bug for when OPM Flow has not been installed.
+           - Changed some text messages to be consistent with Options.
+           - Re-compiled binary generated.
+
+2019-04.01 - Fixed bug in running parallel jobs.
+           - Added functionality to kill a running job, and disable certain buttons when jobs are running.
+           - Fixed printing bug when OPM Flow terminates with errors.
+           - Added windows dialog sizes to OPMRUN.ini file so that user can change the windows size at next re-start.
+           - Moved pre-processing code to separate module for code readability (after suggestion by Joakim Hove).
+           - Upgraded to PySimpleGUI 3.36.0.
+           - Disable X close button or check for None.
+           - Added option to Edit OPMRUN options.
+           - When adding a job clear the file name field after the job has been added to the queue.
+           - Added Compress Jobs and Uncompress Jobss to the Tools menu.
+           - Added ResInsight option to the Tools menu.
+           - Added option to clear the output and log elements.
+           - For the Add Job dialog list the number of CPUs available; previously the range went from one to 64. Also
+             implemented multiple job selection.
+           - Added projects as shortcut to project directories.
+           - Added option to run job queue in foreground (that is under OPMRUN) and background via xterm (should be
+             computationally more efficient).
+           - Major re-factoring of code and code clean up.
+           - Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04).
+                    
+2018-10.02 - Fix printing bug associated with listing of jobparm.
+             Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04)
+             
+2018-10.01 - Initial release.
+
+Notes:
+------
+Only Python 3 is currently supported and tested. Although attempts have been made for OPMRUN to run under
+Python 2. The following standard module libraries are used in this version.
+
+( 1) datetime
+( 2) getpass
+( 3) os
+( 4) sys
+( 5) re
+( 8) subprocess
+
+In addition the following Python modules are required:
+
+( 1) PySimpleGUI
+( 2) psutil
+( 3) pathlib for Python 3 or pathlib2 for Python 2
+
+PySimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated
+for fixes and new features. This version of OPMRUN used verion 3.36.0 of PySimpleGUI, later and older
+versions of PySimpleGUI may not work. Each release of OPMRUN will update to the latest release of
+PySimpleGUI.

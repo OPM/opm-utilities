@@ -24,7 +24,7 @@ See the OPM Flow manual for further information.
 
 Program Documentation
 --------------------
-2020-01.01 - Initial release.
+2020-04.01 - Initial release of OPMKEYW
            - Support for Python 3 only.
            - Based PySimpleGUI version 4.14.1
 

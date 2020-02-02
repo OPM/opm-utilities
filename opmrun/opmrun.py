@@ -22,6 +22,7 @@ Program Documentation
            - Support for Python 2 depreciated.
            - Moved to PySimpleGUI version 4.14.1
            - Added PySimpleGUI version to About dialog box for additional information
+           - Initial release of OPMKEYW.
 
 2019-04.05 - Added checks and warnings for importing PySimpleGUI and pathlib/pathlib2 for robustness.
            - Fixed display bug in several PopupGetFile() calls and add_job and load_queue functions.

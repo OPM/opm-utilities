@@ -1,0 +1,415 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows XP - Service Pack 2                                 
+## Machine Type              : amd64                               
+## File Name                 : SUMMARY.vm                                                         
+## Author                    : David Baxendale
+##                             51 Goldhill Plaza,  #07-10/11,
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co
+## Date                      : 18-May-2017
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+-- =================================================================================================================================
+-- 
+-- SUMMARY SECTION 
+-- 
+-- =================================================================================================================================
+SUMMARY
+
+#if ($Ans)
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- FIELD PRODUCTION DATA                                                        
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--                                                                              
+-- FIELD PRODUCTION DATA - SIMULATED DATA                                       
+--                                                                              
+FPR                                                                             
+FOEW                                                                            
+FOPR                                                                            
+FOPT                                                                            
+                                                                                
+FGPR                                                                            
+FGPT                                                                            
+FGOR                                                                            
+               
+-- FGCR
+-- FGCT
+
+FLPR
+FLPT
+
+FWPR                                                                            
+FWPT                                                                            
+FWCT                                                                            
+                                                                                
+FVPR                                                                            
+FVPT                                                                            
+                                                                                
+--                                                                              
+-- FIELD INJECTION DATA - SIMULATED DATA                                        
+-- 
+-- FGIR                                                                         
+-- FGIT                                                                         
+-- FOIR
+-- FOIT
+-- FWIR                                                                         
+-- FWIT                                                                         
+                                                                                
+--                                                                              
+-- FIELD GAS LIFT INJECTION RATE (ASSUMES ALQ = GAS LIFT INJECTION RATE)        
+--                                                                              
+FGLIR                                                                           
+                                                                                
+--                                                                              
+-- FIELD PRODUCTION DATA - FUEL GAS CONSUMPTION                                 
+--                                                                              
+FGCR                                                                            
+FGCT                                                                            
+                                                                                
+--                                                                              
+-- FIELD PRODUCTION DATA - WELLS FLOWING AND STATUS                             
+--                                                                              
+FMWSET                                                                          
+
+--                                                                              
+-- FIELD PRODUCTION DATA - HISTORICAL DATA                                      
+--                                                                              
+-- FOPRH                                                                        
+-- FOPTH                                                                        
+--                                                                              
+-- FGPRH                                                                        
+-- FGPTH                                                                        
+-- FGORH                                                                        
+--                                                                              
+-- FWPRH                                                                        
+-- FWPTH                                                                        
+-- FWCTH                                                                        
+--                                                                              
+-- FLPRH                                                                        
+-- FLPTH                                                                        
+                                                                              
+--                                                                              
+-- FIELD INJECTION DATA - HISTORICAL DATA                                      
+--                                                                              
+-- FGIRH                                                                        
+-- FGITH                                                                        
+-- FOIRH                                                                        
+-- FOITH                                                                        
+-- FWIRH                                                                        
+-- FWITH                                                                        
+                                                                                
+--                                                                              
+-- FIELD PRODUCTION DATA - POTENTIAL RATES                                      
+--                                                                              
+FOPP                                                                            
+FGPP                                                                            
+                                                                                
+--
+-- FIELD NUMERICAL AQUIFER DATA
+--
+FNQR
+FNQT
+                                                                                
+--
+-- FIELD ANALYTIC AQUIFER DATA
+--
+FAQR
+FAQT
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- GROUP PRODUCTION DATA                                                        
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--                                                                              
+-- GROUP PRODUCTION DATA - SIMULATED DATA                                       
+--                                                                              
+GOPR                                                                            
+/                                                                               
+GOPT                                                                            
+/                                                                               
+                                                                                
+GGPR                                                                            
+/                                                                               
+GGPT                                                                            
+/                                                                               
+GGOR                                                                            
+/                                                                               
+                                                                                
+GWPR                                                                            
+/                                                                               
+GWPT                                                                            
+/                                                                               
+GWCT                                                                            
+/
+
+--                                                                              
+-- GROUP INJECTION DATA - SIMULATED DATA                                        
+--                                                                              
+GWIR 
+/
+GWIT
+/
+GGIR
+/
+GGIT                                                                         
+/
+                                                                                
+--                                                                              
+-- GROUP GAS LIFT INJECTION RATE (ASSUMES ALQ = GAS LIFT INJECTION RATE)        
+--                                                                              
+GGLIR                                                                           
+/                                                                               
+                                                                                
+--                                                                              
+-- GROUP PRODUCTION DATA - POTENTIAL RATES                                      
+--                                                                              
+GOPP                                                                            
+/                                                                               
+GGPP                                                                            
+/                                                                               
+                                                                                
+--                                                                              
+-- GROUP PRODUCTION DATA - WELLS FLOWING AND STATUS                             
+--                                                                              
+GMWSET                                                                          
+/                                                                               
+                                                                                
+--                                                                              
+-- GROUP PRODUCTION DATA - HISTORICAL DATA                                      
+--                                                                              
+GOPRH                                                                        
+/                                                                            
+GOPTH                                                                                                                                                
+/                                                                            
+GGPRH
+/
+GGPTH
+/
+GGORH                                                                        
+/                                                                             
+GWPRH
+/
+GWPTH
+/
+GWCTH                                                                        
+/
+-- GLPRH
+-- /
+-- GLPTH                                                                        
+-- /                                                                                
+                                                                                
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- WELL PRODUCTION DATA                                                         
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--                                                                              
+-- WELL PRODUCTION DATA - SIMULATED DATA                                        
+--                                                                              
+WOPR                                                                            
+/                                                                               
+WLPR                                                                            
+/                                                                               
+WWPR                                                                            
+/                                                                               
+WGPR                                                                            
+/                                                                               
+WWCT                                                                            
+/                                                                               
+WGOR                                                                            
+/                                                                               
+WWGR                                                                            
+/                                                                               
+WGLR                                                                            
+/                                                                               
+WOGR                                                                            
+/                                                                               
+WOPT                                                                            
+/                                                                               
+WLPT                                                                            
+/                                                                               
+WWPT                                                                            
+/                                                                               
+WGPT                                                                            
+/       
+
+--                                                                             
+-- WELL INJECTION DATA - SIMULATED DATA                                        
+--                                                                             
+-- WGIR                                                                         
+--  1* /
+-- WGIT                                                                         
+--  1* /
+-- WOIR                                                                         
+--  1* /
+-- WOIT                                                                         
+--  1* /
+-- WWIR 
+--  1* /
+-- WWIT                                                                         
+--  1* /
+ 
+--                                                                             
+-- WELL PRESSURE DATA - SIMULATED DATA                                        
+--                                                                             
+WTHP                                                                            
+/                                                                               
+WBHP                                                                            
+/                                                                               
+WBP                                                                             
+/                                                                               
+WBP4                                                                             
+/                                                                               
+WBP5                                                                             
+/                                                                               
+WBP9                                                                             
+/                                                                               
+                                                                                
+--                                                                              
+-- WELL GAS LIFT INJECTION RATE (ASSUMES ALQ = GAS LIFT INJECTION RATE)         
+--    
+WGLIR                                                                           
+/                                                                               
+                                                                                
+--                                                                              
+-- WELL PRODUCTION DATA - POTENTIAL RATES                                       
+--                                                                              
+WOPP                                                                            
+/                                                                               
+WGPP                                                                            
+/                                                                               
+                                                                                
+--                                                                              
+-- WELL PRODUCTION DATA - WELLS FLOWING AND STATUS                              
+--                                                                              
+WSTAT
+/
+                                                                                
+--                                                                              
+-- WELL PRODUCTION DATA - WELL COMPLETION D-FACTOR FLOW DEPENDENT SKIN FACTOR   
+--                                                                              
+-- CDFAC
+-- WELL         II    JJ    KK
+-- NAME        ---   ---   ---
+-- 'GP01'      100   200    20 
+-- 'GP02'      100   200    20 
+-- /                                                                             
+
+--                                                                              
+-- WELL PRODUCTION DATA - HISTORICAL DATA                                       
+--                                                                              
+-- WOPRH                                                                        
+-- /                                                                            
+-- WLPRH                                                                        
+-- /                                                                            
+-- WWPRH                                                                        
+-- /                                                                            
+-- WGPRH                                                                        
+-- /                                                                            
+-- WWCTH                                                                        
+-- /                                                                            
+-- WGORH                                                                        
+-- /                                                                            
+-- WOPTH                                                                        
+-- /                                                                            
+-- WLPTH                                                                        
+-- /                                                                            
+-- WWPTH                                                                        
+-- /                                                                            
+-- WGPTH                                                                        
+-- /                                                                            
+-- WTHPH                                                                         
+-- /                                                                            
+-- WBHPH                                                                         
+-- /                                                                            
+                                                                                
+--                                                                              
+-- WELL INJECTION DATA - HISTORICAL DATA                                       
+--                                                                              
+-- WOIRH                                                                        
+-- /                                                                            
+-- WGIRH                                                                        
+-- /                                                                            
+-- WWIRH                                                                        
+-- /                                                                            
+-- WOPTH                                                                        
+-- /                                                                            
+-- WGITH                                                                        
+-- /                                                                            
+-- WWPTH                                                                        
+-- /                                                                            
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- REGION PRODUCTION DATA                                                       
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--                                                                              
+-- REGION PRODUCTION DATA - SIMULATED DATA                                      
+--                                                                              
+RPR                                                                             
+/                                                                               
+ROPR                                                                            
+/                                                                               
+ROPT                                                                            
+/                                                                               
+RGPR                                                                            
+/                                                                               
+RGPT                                                                            
+/                                                                               
+RWPR                                                                            
+/                                                                               
+RWPT                                                                            
+/                                                                               
+--                                                                              
+-- REGION PRODUCTION DATA - SIMULATED RECOVERY FACTOR DATA                      
+--                                                                              
+ROEW                                                                            
+/
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- AQUIFER INFLUX DATA                                                         
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+-- NUMERICAL AQUIFER
+--
+ANQP
+/
+ANQR
+/
+ANQT
+/
+
+--
+-- ANALYTIC AQUIFER
+--
+AAQP
+/
+AAQR
+/
+AAQT
+/
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- SUMMARY REPORT PRINT                                                         
+-- ---------------------------------------------------------------------------------------------------------------------------------
+RUNSUM                                                                          
+                                                                                
+RPTONLY                                                                         
+                                                                                
+SEPARATE      
+        
+#end
+## =================================================================================================================================

@@ -1,0 +1,95 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 2                                 
+## Machine Type              : x86                               
+## File Name                 : RUNSPEC.velocity                                                        
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 30-Jan-2020
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+-- =================================================================================================================================
+-- 
+-- RUNSPEC SECTION 
+-- 
+-- =================================================================================================================================
+RUNSPEC
+
+#yes_no ( "Generate Standard RUNSPEC keywords?" $Ans "Yes" "No")
+#if ($Ans)
+#parse ('Eclipse\02_RUNSPEC\TITLE.vm')      
+#parse ('Eclipse\02_RUNSPEC\START.vm')        
+#parse ('Eclipse\02_RUNSPEC\NOSIM.vm')  
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- FLUID TYPES AND TRACER OPTIONS                         
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('Eclipse\02_RUNSPEC\OIL.vm')
+#parse ('Eclipse\02_RUNSPEC\WATER.vm')
+#parse ('Eclipse\02_RUNSPEC\GAS.vm')
+#parse ('Eclipse\02_RUNSPEC\DISGAS.vm')
+#parse ('Eclipse\02_RUNSPEC\VAPOIL.vm')
+#parse ('Eclipse\02_RUNSPEC\TRACERS.vm')
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- GRID AND EQUILBRATION DIMENSIONS AND OPTIONS                                             
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('Eclipse\02_RUNSPEC\DIMENS.vm')        
+#parse ('Eclipse\02_RUNSPEC\FAULTDIM.vm')
+#parse ('Eclipse\02_RUNSPEC\EQLDIMS.vm')
+#parse ('Eclipse\02_RUNSPEC\REGDIMS.vm')
+#parse ('Eclipse\02_RUNSPEC\GRIDOPTS.vm')
+#parse ('Eclipse\02_RUNSPEC\EQLOPTS.vm')
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- ROCK AND SATURATION TABLES DIMENSIONS AND OPTIONS                                                
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('Eclipse\02_RUNSPEC\TABDIMS.vm')
+#parse ('Eclipse\02_RUNSPEC\ENDSCALE.vm')
+#parse ('Eclipse\02_RUNSPEC\SATOPTS.vm')
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- GROUP, WELL AND VFP TABLE DIMENSIONS                                                
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('Eclipse\02_RUNSPEC\WELLDIMS.vm')
+#parse ('Eclipse\02_RUNSPEC\PIMTDIMS.vm')
+#parse ('Eclipse\02_RUNSPEC\VFPIDIMS.vm')
+#parse ('Eclipse\02_RUNSPEC\VFPPDIMS.vm')
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- MISCELLEOUS OPTIONS                                                
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('Eclipse\02_RUNSPEC\UDQDIMS.vm')
+#parse ('Eclipse\02_RUNSPEC\UDADIMS.vm')
+#parse ('Eclipse\02_RUNSPEC\UDQPARAM.vm')
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- NUMERICAL AND RUN CONTROL OPTIONS                                                    
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('Eclipse\02_RUNSPEC\NSTACK.vm')
+#parse ('Eclipse\02_RUNSPEC\NUPCOL.vm')
+#parse ('Eclipse\02_RUNSPEC\OPTIONS.vm')
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- INPUT AND OUTPUT OPTIONS                                                   
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('Eclipse\02_RUNSPEC\METRIC.vm')
+#parse ('Eclipse\02_RUNSPEC\UNIFIN.vm')
+#parse ('Eclipse\02_RUNSPEC\UNIFOUT.vm')
+#parse ('Eclipse\02_RUNSPEC\MESSAGES.vm')
+#parse ('Eclipse\02_RUNSPEC\DEBUG.vm')
+#end
+## =================================================================================================================================

@@ -1,0 +1,54 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Type              : amd64                               
+## File Name                 : PVDO.vm                                                         
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 30-Jan-2020
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+--                                                                                      
+--      OIL PVT TABLE FOR DEAD OIL                                                                 
+--                                                                                      
+PVDO                                                                                    
+--      PSAT      BO        VISC                                                  
+--      PSIA      RB/STB    CPOISE                                                
+--      --------  -------   ------                                                
+           400    1.0102     1.16
+          1200    1.0040     1.164
+          2000    0.9960     1.167
+          2800    0.9880     1.172
+          3600    0.9802     1.177
+          4400    0.9724     1.181
+          5200    0.9646     1.185
+          5600    0.9607     1.19                           / TABLE NO. 01    
+--      --------  -------   ------                                                
+           800    1.0255     1.14                           
+          1600    1.0172     1.14                           
+          2400    1.0091     1.14                           
+          3200    1.0011     1.14                           
+          4000    0.9931     1.14                           
+          4800    0.9852     1.14                           
+          5600    0.9774     1.14                           / TABLE NO. 02     
+## =================================================================================================================================

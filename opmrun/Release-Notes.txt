@@ -1,5 +1,17 @@
 Release Notes
 ------------
+2020-04.01 - Fixed a tKinter bug that centers windows by the total x-direction display space, rather than the using
+           - just the primary display size (multi-monitor issue). All pops are now based on the current main window
+             location.
+           - Added initial folder option when setting the  OPM Flow manual location.
+           - Removed base64 icon graphic from code, and loaded png graphic from file, for code readability reasons and
+             replaced manual reference of icon for all windows with SetOption default.
+           - Fixed warning message associated with logging before main window was realized.
+           - Added warning message if Pyton 3.7.3 or greater is being used.
+           - Fixed Popup displays not showing text in PySimpleGUI 4.14.1 due to default color of text being None.
+           - Support for Python 2 depreciated.
+           - Moved to PySimpleGUI version 4.14.1
+           - Added PySimpleGUI version to About dialog box for additional information
 
 2019-04.04 - Added suport for Python 2 by using the pathlib2 module from https://pypi.org/project/pathlib2/
              (not tested).

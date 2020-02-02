@@ -1,0 +1,94 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Type              : x86                               
+## File Name                 : RUNSPEC.vm                                                         
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 30-Jan-2020
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+-- =================================================================================================================================
+-- 
+-- RUNSPEC SECTION 
+-- 
+-- =================================================================================================================================
+RUNSPEC
+
+#if ($Ans == 'Yes')
+#parse ('TITLE.vm')      
+#parse ('START.vm')        
+#parse ('NOSIM.vm')  
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- FLUID TYPES AND TRACER OPTIONS                         
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('OIL.vm')
+#parse ('WATER.vm')
+#parse ('GAS.vm')
+#parse ('DISGAS.vm')
+#parse ('VAPOIL.vm')
+#parse ('TRACERS.vm')
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- GRID AND EQUILBRATION DIMENSIONS AND OPTIONS                                             
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('DIMENS.vm')        
+#parse ('FAULTDIM.vm')
+#parse ('EQLDIMS.vm')
+#parse ('REGDIMS.vm')
+#parse ('GRIDOPTS.vm')
+#parse ('EQLOPTS.vm')
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- ROCK AND SATURATION TABLES DIMENSIONS AND OPTIONS                                                
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('TABDIMS.vm')
+#parse ('ENDSCALE.vm')
+#parse ('SATOPTS.vm')
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- GROUP, WELL AND VFP TABLE DIMENSIONS                                                
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('WELLDIMS.vm')
+#parse ('PIMTDIMS.vm')
+#parse ('VFPIDIMS.vm')
+#parse ('VFPPDIMS.vm')
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- MISCELLEOUS OPTIONS                                                
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('UDQDIMS.vm')
+#parse ('UDADIMS.vm')
+#parse ('UDQPARAM.vm')
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- NUMERICAL AND RUN CONTROL OPTIONS                                                    
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('NSTACK.vm')
+#parse ('NUPCOL.vm')
+#parse ('OPTIONS.vm')
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- INPUT AND OUTPUT OPTIONS                                                   
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('METRIC.vm')
+#parse ('UNIFIN.vm')
+#parse ('UNIFOUT.vm')
+#parse ('MESSAGES.vm')
+#parse ('DEBUG.vm') 
+#end              
+## =================================================================================================================================

@@ -14,7 +14,7 @@ Release Notes
            - Added PySimpleGUI version to About dialog box for additional information
            - Initial release of OPMKEYW.
 
-2019-04.04 - Added suport for Python 2 by using the pathlib2 module from https://pypi.org/project/pathlib2/
+2019-04.04 - Added support for Python 2 by using the pathlib2 module from https://pypi.org/project/pathlib2/
              (not tested).
            - Updated program code documentation and included the same in Release-Notes.txt.
            - Updated README.md to be similar to the PDF documentation.

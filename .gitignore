@@ -5,4 +5,5 @@ opmrun/__init__.py
 opmrun.spec
 opmrun/setup.py
 opmrun/LICENSE
-opmrun/RightClickMenuExample.py
+*.xml
+*.iml

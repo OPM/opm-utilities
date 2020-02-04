@@ -66,52 +66,52 @@ In addition the OPMKEYW requires the following additional modules:
 
 ## Simple and Clean Interface.
 
-![](.images/opmrun-01.png)
+![](.images/opmrun-03.png)
 
 ## Add Job and Select Run Type
 
-![](.images/opmrun-02.png)
-## Job Queue.
-
-![](.images/opmrun-03.png)
-
-## Set Parameter Default Options.
-
 ![](.images/opmrun-04.png)
-
-## Edit Job Data and Parameter File.
+## Job Queue.
 
 ![](.images/opmrun-05.png)
 
-## Edit Data File with Preferred Editor.
+## Set Parameter Default Options.
 
 ![](.images/opmrun-06.png)
 
-## Edit Parameter File with Help.
+## Edit Job Data and Parameter File.
 
 ![](.images/opmrun-07.png)
 
-## Run Jobs in Queue with Various Options.
+## Edit Data File with Preferred Editor.
 
 ![](.images/opmrun-08.png)
 
-## Run Jobs in Queue Creates Log File.
-
-![](.images/opmrun-09.png)
-
-## Schedule Log for Tracking Progress.
+## Edit Parameter File with Help.
 
 ![](.images/opmrun-10.png)
 
-## Manual Available.
-
-![](.images/opmrun-11.png)
-
-## Job File Compression and Uncompression for Saving Space and Archiving.
+## Run Jobs in Queue with Various Options.
 
 ![](.images/opmrun-12.png)
 
-## OPMRUN.INI Settings File.
+## Run Jobs in Queue Creates Log File.
+
+![](.images/opmrun-13.png)
+
+## Schedule Log for Tracking Progress.
+
+![](.images/opmrun-14.png)
+
+## Manual Available.
+
+![](.images/opmrun-15.png)
+
+## Job File Compression and Uncompression for Saving Space and Archiving.
+
+![](.images/opmrun-16.png)
+
+## OPMRUN Options and Project Directories
 
 Stored in user’s home directory in sub directory OPM. Options includes:
 
@@ -122,7 +122,7 @@ Stored in user’s home directory in sub directory OPM. Options includes:
   * Author property fields used in some templates in OPMKEYW.
   * Defining OPMRUN output panel’s size, font and font size.
 
-![](.images/opmrun-13.png)
+![](.images/opmrun-17.png)
 
 Use the Edit/Options menu to edit options and Edit/Projects menu to edit project names and directories.
 
@@ -140,12 +140,12 @@ The main elements are the KEYWORD LIST, KEYWORD FILTER OPTIONS and the DECK ELEM
 
 The "Keyword Filter" button allows for the filtering of the various keywords in the selected section, including being 
 able to list all the keywords available for all sections.  The HEADER section allows for a start and end of file 
-comment headers. Clicking on a keyword will result in the keyword being "pasted" into the Deck element.
+comment headers. Clicking on a keyword will result in the keyword being "pasted" into the Deck Element.
 
 ![](.images/opmkeyw-03.png)
 
-The Deck element is editable by simply clicking anywhere in the element and making changes. Use the “Clear” button to 
-clear the Deck element display.
+The Deck Element is editable by simply clicking anywhere in the element and making changes. Use the “Clear” button to 
+clear the Deck Element display.
 
 ![](.images/opmkeyw-04.png)
 
@@ -157,7 +157,7 @@ Note that The COMMENT keyword, is not an actual keyword, but a comment block to 
 
 ![](.images/opmkeyw-05.png)
 
-Selecting a Section keyword (RUNSPEC, GRID,  EDIT, PROPS, SOLUTION, SUMMARY, and SCHEDULE) will give you an option to 
+Selecting a Section keyword (RUNSPEC, GRID,  EDIT, PROPS, SOLUTION, SUMMARY, and SCHEDULE) will give an option to 
 generate a representative set of keywords for that section. One can therefore generate a complete input deck in a 
 matter of minutes.
 
@@ -172,7 +172,7 @@ the run.
 
 ![](.images/opmkeyw-07.png)
 
-Use the “Copy” button to copy the data in the Deck element to the clipboard, which you can then paste into your 
+Use the “Copy” button to copy the data in the Deck Element to the clipboard, which you can then paste into your 
 favorite editor. Alternatively, one can save the file directly to a *.DATA or *.INC file for further editing and 
 processing.
 

@@ -26,13 +26,13 @@ RUN apt-get install -y software-properties-common wget apt-transport-https
 # Add apt-repo for the OPM packages
 # For the release repository, we should use "ppa:opm/ppa"
 # For the testing repository, we should use "ppa:opm/testing"
-# For the nightly repository, we should use http://opm-project.org/package/xenial-nightly
+# For the nightly repository, we should use http://opm-project.org/package/xenial-bionic
 RUN if [ "$opm_version" = "release" ]; then apt-add-repository ppa:opm/ppa; fi
 RUN if [ "$opm_version" = "testing" ]; then apt-add-repository ppa:opm/testing; fi
 
-RUN if test "$opm_version" != "release" && test "$opm_version" != "testing"; then  wget -qO - https://opm-project.org/package/nightly-xenial/repokey.gpg | apt-key add -; fi
+RUN if test "$opm_version" != "release" && test "$opm_version" != "testing"; then  wget -qO - https://opm-project.org/package/nightly-bionic/repokey.gpg | apt-key add -; fi
 
-RUN if test "$opm_version" != "release" && test "$opm_version" != "testing"; then apt-add-repository https://opm-project.org/package/nightly-xenial; fi
+RUN if test "$opm_version" != "release" && test "$opm_version" != "testing"; then apt-add-repository https://opm-project.org/package/nightly-bionic; fi
 
 # Update package list again
 RUN apt-get update -y

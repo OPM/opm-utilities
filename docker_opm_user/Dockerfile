@@ -21,7 +21,7 @@ ARG opm_version=release
 RUN apt-get update -y
 
 # Packages needed for add-apt-repository
-RUN apt-get install -y python-software-properties software-properties-common wget apt-transport-https
+RUN apt-get install -y software-properties-common wget apt-transport-https
 
 # Add apt-repo for the OPM packages
 # For the release repository, we should use "ppa:opm/ppa"

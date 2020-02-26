@@ -1,7 +1,20 @@
 Release Notes
 ------------
+2020-04.01 - Fixed a tKinter bug that centers windows by the total x-direction display space, rather than the using
+           - just the primary display size (multi-monitor issue). All pops are now based on the current main window
+             location.
+           - Added initial folder option when setting the  OPM Flow manual location.
+           - Removed base64 icon graphic from code, and loaded png graphic from file, for code readability reasons and
+             replaced manual reference of icon for all windows with SetOption default.
+           - Fixed warning message associated with logging before main window was realized.
+           - Added warning message if Pyton 3.7.3 or greater is being used.
+           - Fixed Popup displays not showing text in PySimpleGUI 4.14.1 due to default color of text being None.
+           - Support for Python 2 depreciated.
+           - Moved to PySimpleGUI version 4.14.1
+           - Added PySimpleGUI version to About dialog box for additional information
+           - Initial release of OPMKEYW.
 
-2019-04.04 - Added suport for Python 2 by using the pathlib2 module from https://pypi.org/project/pathlib2/
+2019-04.04 - Added support for Python 2 by using the pathlib2 module from https://pypi.org/project/pathlib2/
              (not tested).
            - Updated program code documentation and included the same in Release-Notes.txt.
            - Updated README.md to be similar to the PDF documentation.
@@ -47,23 +60,27 @@ Release Notes
 
 Notes:
 ------
-Only Python 3 is currently supported and tested. Although attempts have been made for OPMRUN to run under
-Python 2. The following standard module libraries are used in this version.
+Only Python 3 is currently supported and tested Python2 support has been depreciated. The following standard module
+libraries are used in this version.
 
-( 1) datetime
-( 2) getpass
-( 3) os
-( 4) sys
-( 5) re
-( 8) subprocess
+(1) datetime
+(2) getpass
+(3) os
+(4) pathlib
+(5) psutil
+(6) sys
+(7) re
+(8) subprocess
 
 In addition the following Python modules are required:
 
-( 1) PySimpleGUI
-( 2) psutil
-( 3) pathlib for Python 3 or pathlib2 for Python 2
+(1) PySimpleGUI
+
+For OPMKEYW the integrated OPM Flow Keyword Generator the following additional modules are required:
+
+(1) platform
+(2) tkinter as tk
+(3) airspeed
 
 PySimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated
-for fixes and new features. This version of OPMRUN used verion 3.36.0 of PySimpleGUI, later and older
-versions of PySimpleGUI may not work. Each release of OPMRUN will update to the latest release of
-PySimpleGUI.
+for fixes and new features. Each release of OPMRUN will update to the latest release of PySimpleGUI.

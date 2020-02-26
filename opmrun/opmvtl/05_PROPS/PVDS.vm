@@ -1,0 +1,74 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Type              : amd64                               
+## File Name                 : PVDS.vm                                                         
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 30-Jan-2020
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+--                                                                                      
+--       GAS SOLVENT PVT TABLE                                                                        
+--                                                                                      
+PVTS
+--       PRES     BG          VISC                                                         
+--       PSIA     RB/MSCF     CPOISE                                                        
+--       ------   --------    ------                                                
+          700.0     4.4703    0.0135
+          920.0     3.2968    0.0138
+         1150.0     2.6113    0.0141
+         1380.0     2.1560    0.0145
+         1610.0     1.8316    0.0150                        
+         1840.0     1.5952    0.0155
+         2070.0     1.4129    0.0161
+         2300.0     1.2700    0.0167
+         2372.0     1.2305    0.0169
+         2530.0     1.1551    0.0174
+         2760.0     1.0621    0.0181
+         2990.0     0.9841    0.0189
+         3220.0     0.9190    0.0196
+         3450.0     0.8638    0.0204
+         4500.0     0.6910    0.0242
+         6000.0     0.5616    0.0293                       / TABLE N0. 01
+--         
+--       PRES     BG          VISC                                                         
+--       PSIA     RB/MSCF     CPOISE                                                        
+--       ------   --------    ------                                                
+          700.0     4.6493    0.0138
+          920.0     3.4417    0.0140
+         1150.0     2.7227    0.0144
+         1380.0     2.2522    0.0147                                                                    
+         1610.0     1.9158    0.0151
+         1840.0     1.6702    0.0156
+         2070.0     1.4805    0.0162                                
+         2300.0     1.3317    0.0167
+         2372.0     1.2927    0.0169
+         2530.0     1.2119    0.0173
+         2760.0     1.1135    0.0180
+         2990.0     1.0325    0.0187
+         3220.0     0.9637    0.0194
+         3450.0     0.9055    0.0201
+         4500.0     0.7228    0.0236
+         6000.0     0.5837    0.0285                       / TABLE N0. 02                                               
+## =================================================================================================================================

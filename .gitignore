@@ -5,3 +5,5 @@ opmrun/__init__.py
 opmrun.spec
 opmrun/setup.py
 opmrun/LICENSE
+*.xml
+*.iml

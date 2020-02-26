@@ -1,0 +1,133 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Type              : amd64                               
+## File Name                 : SCHEDULE.vm                                                   
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 30-Jan-2020
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+-- =================================================================================================================================
+-- 
+-- SCHEDULE SECTION 
+-- 
+-- =================================================================================================================================
+SCHEDULE
+
+#if ($Ans == "Yes")
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- GROUP PRODUCTION AND INJECTION CONTROLS                                      
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('GRUPTREE.vm')
+#parse ('GCONPROD.vm')
+#parse ('GCONINJE.vm')
+#parse ('GCONSUMP.vm')
+#parse ('GEFAC.vm'   )
+#parse ('GCUTBACK.vm')
+#parse ('GECON.vm'   )
+#parse ('GRUPRIG.vm' )
+#parse ('PRORDER.vm' )
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- WELL SPECIFICATIONS AND COMPLETIONS                                          
+-- ---------------------------------------------------------------------------------------------------------------------------------      
+#parse ('WELSPECS.vm')                                                                              
+#parse ('WDFACCOR.vm')                                                                        
+#parse ('COMPDAT.vm' )                                                                         
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- WELL PRODUCTION AND INJECTION CONTROL                                        
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('WCONPROD.vm')                                                                        
+#parse ('WCONINJE.vm')                                                                        
+#parse ('WEFAC.vm'   )                                                                           
+#parse ('WELDRAW.vm' )                                                                         
+#parse ('WECON.vm'   )                                                                           
+#parse ('WELOPEN.vm' )                                                                         
+#parse ('WELTARG.vm' )                                                                         
+#parse ('WDRILTIM.vm')                                                                        
+#parse ('WDRILPRI.vm')                                                               
+#parse ('QDRILL.vm'  )                                                          
+#parse ('WORKLIM.vm' )                                                                         
+#parse ('WRFTPLT.vm' )  
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- START OF SCHEDULE SECTION                                                    
+-- ---------------------------------------------------------------------------------------------------------------------------------
+#parse ('RPTRST.vm'  )  
+#end      
+##
+## Generate SCHEDULE DATE Keywords 
+##
+#if ($Schedule == "Yes")
+##
+## Setup Constants
+##
+#set ($Date    = "-01-01")
+#if  ($Option == "Annual")
+	#set($Months = "Annual" )
+#elseif ($Option == "Quarterly")
+	#set( $Months = ["APR","JLY","OCT"] )
+#elseif ($Option == "Monthly")
+	#set( $Months = ["FEB","MAR","APR","MAY","JUN","JLY","AUG","SEP","OCT","NOV","DEC"] )
+#end
+##
+## Start of Loop
+##
+#foreach ( $Year in [$YearStart .. $YearEnd] )
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- SCHEDULE SECTION - $Year$Date                                   
+-- ---------------------------------------------------------------------------------------------------------------------------------
+RPTSCHED                                                                                                                             
+         'WELLS=2'    'WELSPECS'    'CPU=2'     'FIP=2'                        /
+
+DATES                                                                           
+         1  JAN   $Year  /                                                                
+/                                                                               
+                                                                                
+#if ( $Option == "Quarterly" || $Option == "Monthly" )
+RPTSCHED                                                                                                                             
+         'NOTHING'                                                             /                                                    
+                                           
+DATES                                                                                                                                                                                                                          
+#foreach ( $Month in $Months )
+         1  $Month   $Year  /                  
+#end
+/
+#end
+#end 
+##
+## WRITE FINAL REPORT AT YEAR END
+##
+--
+--       FINAL REPORT AND RESTART AT YEAR END
+--
+RPTSCHED                                                                                                                             
+         'WELLS=2'    'WELSPECS'    'CPU=2'     'FIP=2'                        /
+
+RPTRST                                                                           
+         'BASIC=2'                                                             /
+
+DATES                                                                           
+         31 DEC   $YearEnd  /                                                                
+/ 
+#end
+## =================================================================================================================================

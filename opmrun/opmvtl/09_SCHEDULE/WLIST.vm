@@ -1,0 +1,45 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Type              : amd64                               
+## File Name                 : WLIST.vm                                                         
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 30-Jan-2020
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+--
+--          WELL LIST SPECIFICATION                                                      
+--                                                                              
+-- LIST     OPER     WELL NAME LIST       
+-- NAME                      
+WLIST
+'*BLK-1'    NEW      WEL-01M WEL-02M WEL-03M WEL-04M WEL-05M WEL-06M WEL-07M   /  
+'*BLK-1'    ADD      WEL-08M WEL-09M WEL-10M WEL-11M WEL-12M WEL-13M WEL-14M   /
+'*BLK-1'    ADD      WEL-15M WEL-16M WEL-17M WEL-18M WEL-19M WEL-20M WEL-23M   /
+'*BLK-1'    ADD      WEL-24M WEL-25M WEL-26M WEL-28M                           /
+
+'*BLK-2'    NEW      WEL-03U WEL-05U WEL-06U WEL-10U WEL-11U WEL-13U WEL-14U   / 
+'*BLK-2'    ADD      WEL-15U WEL-16U WEL-17U WEL-18U WEL-19U WEL-25U WEL-27U   /
+/
+## =================================================================================================================================

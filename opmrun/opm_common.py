@@ -103,7 +103,7 @@ def opm_initialize():
     #
     opmicon  = Path(str(os.path.dirname( __file__ )) + '/opmrun.png')
     if not os.path.isfile(opmicon):
-        sg.PopupError('Cannot Find ICON File: \n \n' + str(opmicon) + '\n \n' + 'Program will Continue',
+        sg.PopupTimed('Cannot Find ICON File opmrun.png - Program will Continue',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         opmicon = None
     #
@@ -144,7 +144,7 @@ def opm_initialize():
 #
 # Define OPMRUN Modules for Stand Alone Running
 #
-def opm_popup(opmvers, text, nrow):
+def opm_popup(opmvers, text,nrow):
     """Display Text Message in a Display Window
 
     Displays a text message in a multiline popup. Normally used for displaying help information, but any text string

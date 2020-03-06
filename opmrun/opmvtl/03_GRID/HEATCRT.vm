@@ -30,7 +30,8 @@
 ## =================================================================================================================================
 --                                                                              
 --       DEFINE RESERVOIR ROCK HEAT CAPACITY TEMPERATURE DEPENDENCE
---       FOR ALL CELLS (BASED ON NX x NY x NZ = 300)                            
+--       KEYWORD IS INCOMPATIBLE WITH THE SPECROCK KEYWORD
+--       (OPM FLOW THERMAL OPTION ONLY)
 -- 
 HEATCRT
          300*0.05                                                              /                                                                                 

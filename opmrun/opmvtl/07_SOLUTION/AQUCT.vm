@@ -31,10 +31,10 @@
 --                                                                              
 --                      CARTER-TRACY AQUIFER DESCRIPTION                            
 --                                                                              
---      ID   DATUM   AQF    AQF    AQF    AQF     AQF   AQF   INFL   PVT  AQU
---      NUM  DEPTH   PRESS  PERM   PORO   RCOMP   RET   DZ    ANGLE  NUM  TAB
---                                                    
-AQUCT                                               
-         1   2000.0  269    100.0  0.30   3.0e-5  330   10.0  360.0   1    2   /
-/           
+--      ID   DATUM   AQF    AQF    AQF    AQF     AQF     AQF  INFL   PVT  AQU
+--      NUM  DEPTH   PRESS  PERM   PORO   RCOMP   RE      DZ   ANGLE  NUM  TAB
+--
+AQUCT
+         1  2525.0   270.0  100.0  0.30   3.0E-5  250.0E1 100. 360.0  1    2   /
+/
 ## =================================================================================================================================

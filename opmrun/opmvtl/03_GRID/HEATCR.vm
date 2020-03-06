@@ -29,8 +29,9 @@
 ## 
 ## =================================================================================================================================
 --                                                                              
---       DEFINE GRID BLOCK RESERVOIR ROCK HEAT CAPACITY
---       FOR ALL CELLS (BASED ON NX x NY x NZ = 300)                            
+--       DEFINE GRID BLOCK RESERVOIR ROCK HEAT CAPACITY FOR ALL CELLS
+--       KEYWORD IS INCOMPATIBLE WITH THE SPECROCK KEYWORD
+--       (OPM FLOW THERMAL OPTION ONLY)
 -- 
 HEATCR
          300*32.0                                                              /                                                                                 

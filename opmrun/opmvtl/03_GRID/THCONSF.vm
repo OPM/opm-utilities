@@ -29,7 +29,8 @@
 ## 
 ## =================================================================================================================================
 --                                                                              
---       DEFINE GRID SGAS DEPENDENT SCALING FACTOR FOR THE THCONR ARRAY FOR ALL CELLS                            
+--       DEFINE GRID SGAS DEPENDENT SCALING FACTOR FOR THE THCONR ARRAY
+--       FOR ALL CELLS (OPM FLOW THERMAL OPTION ONLY)
 -- 
 THCONSF
          300*0.12                                                              /                                                                                 

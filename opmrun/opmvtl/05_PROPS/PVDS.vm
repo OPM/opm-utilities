@@ -31,7 +31,7 @@
 --                                                                                      
 --       GAS SOLVENT PVT TABLE                                                                        
 --                                                                                      
-PVTS
+PVDS
 --       PRES     BG          VISC                                                         
 --       PSIA     RB/MSCF     CPOISE                                                        
 --       ------   --------    ------                                                

@@ -1,0 +1,126 @@
+## =================================================================================================================================
+##
+##                                         VELOCITY TEMPLATE - OPM FLOW SIMULATION FILE  
+##                                                                              
+##                                                                              
+## COPYRIGHT NOTICE
+## ----------------
+## This file is part of the Open Porous Media project (OPM).
+##
+## OPM is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+##
+## This file is made available under the Open Database License: 
+##                                    http://opendatacommons.org/licenses/odbl/1.0/.
+##
+## Any rights in individual contents of the database are licensed under the Database Contents License:
+##                                    http://opendatacommons.org/licenses/dbcl/1.0/
+##
+## OPM is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the aforementioned GNU General Public Licenses for more details.
+##
+## Copyright (C) 2020 Equinor ASA
+##                                                                         
+## =================================================================================================================================
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- ROCK PROPERTIES - NORNE DATA SET NO. 2 (SEMI-NORMALIZED CURVES) 
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--                                                                                      
+--       REFERENCE PRESSURE IS TAKEN FROM THE HCPV WEIGHTED FIELD RESERVOIR PRESSURE      
+--       AS THE PORV IS ALREADY AT RESERVOIR CONDITIONS (ECLIPSE USES THE REFERENCE       
+--       PRESSURE) TO CONVERT THE GIVEN PORV TO RESERVOIR CONDITIONS USING THE DATA       
+--       ON THE ROCK KEYWORD)                                                             
+--                                                                                      
+--       REF PRES  CF                                                                         
+--       BARSA     1/BARSA                                                                     
+--       --------  --------                                                                   
+ROCK                                                                                    
+         277.0     4.84E-5                                 / ROCK COMPRSSIBILITY          
+--                                                                                     
+--       GAS-OIL RELATIVE PERMEABILITY TABLES (SGOF)                                                                  
+--
+SGOF
+--       SG         KRG       KROG      PCOG                                                     
+--       FRAC                           PSIA                                                  
+--       -------   --------  -------   -------                                                
+         0.00000   0.000000  1.000000   0.0000
+         0.05000   0.001655  0.806888   0.0000
+         0.10000   0.006913  0.633562   0.0000
+         0.15000   0.016213  0.485506   0.0000
+         0.20000   0.029990  0.364043   0.0000
+         0.25000   0.048655  0.267589   0.0000
+         0.30000   0.072573  0.192992   0.0000
+         0.35000   0.102046  0.136554   0.0000
+         0.40000   0.137287  0.094671   0.0000
+         0.45000   0.178402  0.064151   0.0000
+         0.50000   0.225368  0.042324   0.0000
+         0.55000   0.278030  0.027035   0.0000
+         0.60000   0.336093  0.016586   0.0000
+         0.65000   0.399135  0.009662   0.0000
+         0.70000   0.466631  0.005254   0.0000
+         0.75000   0.538000  0.002597   0.0000
+         0.80000   0.612665  0.001117   0.0000
+         0.85000   0.690169  0.000384   0.0000
+         0.90000   0.770395  0.000088   0.0000
+         0.95000   0.854218  0.000007   0.0000
+         0.99990   0.949900  0.000000   0.0000 
+         1.00000   0.950000  0.000000   0.0000             / TABLE No. 02 
+/                                  
+--                                                                                     
+--       WATER-OIL RELATIVE PERMEABILITY TABLES (SWOF)                                                                  
+-- 
+SWOF
+--       SWAT       KRW       KROW      PCOW                                                     
+--       FRAC                           PSIA                                                  
+--       --------   --------  -------   -------                                                
+         0.000000   0.000000  1.00000   3.75633
+         0.050000   0.000860  0.84782   1.86981
+         0.100000   0.002630  0.69746   1.23731
+         0.150000   0.005240  0.55717   0.91821
+         0.200000   0.008770  0.43286   0.72451
+         0.250000   0.013380  0.32757   0.59341
+         0.300000   0.019270  0.24177   0.49811
+         0.350000   0.026720  0.17415   0.42511
+         0.400000   0.036080  0.12237   0.36691
+         0.450000   0.047810  0.08374   0.31911
+         0.500000   0.062500  0.05565   0.27881
+         0.550000   0.080900  0.03572   0.24401
+         0.600000   0.103940  0.02199   0.21351
+         0.650000   0.132770  0.01284   0.18631
+         0.700000   0.168690  0.00699   0.16161
+         0.750000   0.213020  0.00346   0.13901
+         0.800000   0.266670  0.00149   0.11801
+         0.850000   0.329180  0.00051   0.09831
+         0.900000   0.397060  0.00012   0.07961
+         0.950000   0.461030  0.00001   0.06161
+         1.000000   0.500000  0.00000   0.04408            / TABLE NO. 02
+--
+--       -- ARRAY    CONSTANT --  ---------- BOX ---------                 
+--                                I1  I2   J1  J2   K1  K2                
+EQUALS                                                  
+         SWL         0.1500       1*  1*   1*  1*   1*  1* / SET SWL
+/                                                                                   
+--
+--       -- SOURCE   DESTIN. --   ---------- BOX ---------                
+--                                I1  I2   J1  J2   K1  K2                
+COPY                                                                
+         SWL         SWCR         1*  1*   1*  1*   1*  1* / CREATE SWCR 
+         SWL         SGU          1*  1*   1*  1*   1*  1* / CREATE SGU 
+/                                                                   
+--
+--       -- ARRAY    CONSTANT --  ---------- BOX ---------                 
+--                                I1  I2   J1  J2   K1  K2                
+ADD                                                        
+         SWCR        0.0800       1*  1*   1*  1*   1*  1* / ADD CONSTANT TO SWCR
+/                                                                                   
+--
+--       -- ARRAY    CONSTANT --  ---------- BOX ---------                 
+--                                I1  I2   J1  J2   K1  K2                
+EQUALS                                                  
+         SGL         0.00         1*  1*   1*  1*   1*  1* / SET SGL  
+         SGCR        0.03         1*  1*   1*  1*   1*  1* / SET SGCR 
+         SOWCR       0.13         1*  1*   1*  1*   1*  1* / SET SOWCR
+         SOGCR       0.07         1*  1*   1*  1*   1*  1* / SET SOGCR
+         SWU         1.00         1*  1*   1*  1*   1*  1* / SET SWU  
+/                                                                                   
+## =================================================================================================================================

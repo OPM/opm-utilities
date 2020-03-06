@@ -144,7 +144,7 @@ def opm_initialize():
 #
 # Define OPMRUN Modules for Stand Alone Running
 #
-def opm_popup(opmvers, text,nrow):
+def opm_popup(opmvers, text, nrow):
     """Display Text Message in a Display Window
 
     Displays a text message in a multiline popup. Normally used for displaying help information, but any text string

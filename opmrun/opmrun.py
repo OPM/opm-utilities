@@ -668,11 +668,12 @@ def delete_job(joblist,Job):
     """
 
     if not joblist:
-        sg.PopupOK('No Cases in Job Queue', no_titlebar=True,
-                   grab_anywhere=True, keep_on_top=True)
+        sg.PopupOK('No Cases in Job Queue', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+
+    elif not Job:
+            sg.PopupOK('No Case Selected', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
     else:
-        text = sg.PopupYesNo('Delete ' + Job[0] + '?',
-                             no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        text = sg.PopupYesNo('Delete \n ' + Job[0] + '?', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         if text == 'Yes':
             joblist.remove(Job[0])
             window0.Element('_joblist_').Update(joblist)
@@ -699,8 +700,7 @@ def edit_job(job, opmuser, **jobhelp):
     """
 
     if job == []:
-        sg.PopupOK('No Case to Edit; Process Will Terminate',
-                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        sg.PopupOK('No Case Selected', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return()
     #
     # Edit Data File or Parameter File Option

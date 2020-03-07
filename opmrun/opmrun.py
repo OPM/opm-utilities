@@ -1233,21 +1233,16 @@ def load_manual(filename):
 def load_options(opmoptn):
     """Loads OPMRUN Options
 
-    Loads OPMRUN options that define various configuration options for the module. If the OPMINI file is not found
-    then it is created using the default values in #HOME/OPM/OPMRUN.ini. This routine should also add options that are
-    new in this release but unavailable in previous releases. The order of the options are irrelevant due to using a
-    dictionary variable.
+    Loads OPMRUN options and projects that define various configuration options for the module. If the OPMINI file is
+    not found then it is created in #HOME/OPM/OPMRUN.ini using the default values defined in this function. This routine
+    also adds any options that are new in this release but unavailable in previous releases.
+
+    Note that the order of the options are irrelevant due to using a dictionary variable.
 
     Parameters
     ----------
     opmoptn : dict
         Contains a dictionary list of all OPMRUN options as follows:
-            opm-keywdir      = template keyword directory for OPMKEYW
-            opm-author1      = template author and author address for OPMKEYW
-            opm-author2      = template author and author address for OPMKEYW
-            opm-author3      = template author and author address for OPMKEYW
-            opm-author4      = template author and author address for OPMKEYW
-            opm-author5      = template author and author address for OPMKEYW
             input-width      = set the size of the input list window in the x-direction (144)
             input-heigt      = set the size of the input list window in the y-direction (10)
             output-width     = set the size of the output log windows in the x-direction (140)
@@ -1257,6 +1252,24 @@ def load_options(opmoptn):
             opm-flow-manual  = define the location of the OPM Flow Manual (None)
             opm-resinsight   = defines the ResInsight command
             edit-command     = defines the edit and editor options to edit the input deck (None)
+            
+            prj-name-01      =  Project Name 01
+            prj-dirc-01      =  Project Directory 01
+            prj-name-02      =  Project Name 02
+            prj-dirc-02      =  Project Directory 02
+            prj-name-03      =  Project Name 03
+            prj-dirc-03      =  Project Directory 03
+            prj-name-04      =  Project Name 04
+            prj-dirc-04      =  Project Directory 04
+            prj-name-05      =  Project Name 05
+            prj-dirc-05      =  Project Directory 05
+
+            opm-keywdir      = template keyword directory for OPMKEYW
+            opm-author1      = template author and author address for OPMKEYW
+            opm-author2      = template author and author address for OPMKEYW
+            opm-author3      = template author and author address for OPMKEYW
+            opm-author4      = template author and author address for OPMKEYW
+            opm-author5      = template author and author address for OPMKEYW
 
     Returns
     -------

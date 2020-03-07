@@ -1212,8 +1212,7 @@ def load_manual(filename):
             try:
                 subprocess.Popen(["xdg-open", filename])
             except:
-                sg.PopupError('OPM Flow Manual Error \n \n' +
-                              'Cannot run: \n \n' +
+                sg.PopupError('OPM Flow Manual Error \n \n' + 'Cannot run: \n \n' +
                               '"xdg-open ' + str(filename) + '" \n \n' +
                               'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
                               line_width=len(filename) + 12, no_titlebar=True, grab_anywhere=True, keep_on_top=True)
@@ -1264,35 +1263,67 @@ def load_options(opmoptn):
     opmoptn : dict
         Updated dictionary list of all OPMRUN options
     """
+    #
+    # Define Default Options
+    #
+    opmdef                     = dict()
+    opmdef['input-width'     ] = 144
+    opmdef['input-heigt'     ] = 10
+    opmdef['output-width'    ] = 140
+    opmdef['output-heigt'    ] = 30
+    opmdef['output-font'     ] = 'Courier'
+    opmdef['output-font-size'] = 10
+    opmdef['opm-keywdir'     ] = 'None'
+    opmdef['opm-flow-manual' ] = 'None'
+    opmdef['opm-resinsight'  ] = 'None'
+    opmdef['edit-command'    ] = 'None'
+    opmdef['prj-name-01'     ] = 'Home'
+    opmdef['prj-dirc-01'     ] = str(opm)
+    opmdef['prj-name-02'     ] = 'Home'
+    opmdef['prj-dirc-02'     ] = str(opm)
+    opmdef['prj-name-03'     ] = 'Home'
+    opmdef['prj-dirc-03'     ] = str(opm)
+    opmdef['prj-name-04'     ] = 'Home'
+    opmdef['prj-dirc-04'     ] = str(opm)
+    opmdef['prj-name-05'     ] = 'Home'
+    opmdef['prj-dirc-05'     ] = str(opm)
+    opmdef['opm-keywdir'     ] = 'None'
+    opmdef['opm-author1'     ] = None
+    opmdef['opm-author2'     ] = None
+    opmdef['opm-author3'     ] = None
+    opmdef['opm-author4'     ] = None
+    opmdef['opm-author5'     ] = None
 
     if opmini.is_file():
-        file  = open(opmini,'r')
-        for n, line in enumerate(file):
-            if ('=' in line):
-                key   = line[:line.find('=')]
-                value = line[line.find('=') + 1:].rstrip()
-                opmoptn[key] = value
-        file.close()
+        try:
+            file  = open(opmini,'r')
+            for n, line in enumerate(file):
+                if ('=' in line):
+                    key   = line[:line.find('=')]
+                    value = line[line.find('=') + 1:].rstrip()
+                    opmoptn[key] = value
+            file.close()
+        except IOError:
+           #
+           # PROGRAM EXIT DUE TO ERROR
+           #
+           sg.PopupError('OPMRUN Options Error \n \n' + 'Problem Reading: \n \n' + str(opmini) + '\n \n' +
+                         'Try Deleting the File and Restarting OPMRUN - Program Will Abort',
+                          no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+           exit('Error Reading ' + str(opmini) + 'Try Deleting the File and Restarting')
         #
-        # Check for Missing Options due to Additional Features Being Added
+        # Check for Missing Options
         #
-        if 'opm-keywdir' not in opmoptn:
-            opmoptn['opm-keywdir'     ] = 'None'
+        error = False
+        for key in opmdef:
+            if key not in opmoptn:
+                opmoptn[key] = opmdef[key]
+                error = True
 
-        if 'opm-author1' not in opmoptn:
-            opmoptn['opm-author1'   ]  = None
-
-        if 'opm-author2' not in opmoptn:
-            opmoptn['opm-author2'   ]  = None
-
-        if 'opm-author3' not in opmoptn:
-            opmoptn['opm-author3'   ]  = None
-
-        if 'opm-author4' not in opmoptn:
-            opmoptn['opm-author4'   ]  = None
-
-        if 'opm-author5' not in opmoptn:
-            opmoptn['opm-author5'   ]  = None
+        if error:
+            save_options(opmoptn, False)
+            sg.PopupOK('OPMRUN Options Have Been Created/Updated for this Release',
+                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
         '''
         for key,val in opmoptn.items():
@@ -1300,27 +1331,7 @@ def load_options(opmoptn):
         print(opmoptn)
         '''
     else:
-        opmoptn['input-width'     ] = 144
-        opmoptn['input-heigt'     ] = 10
-        opmoptn['output-width'    ] = 140
-        opmoptn['output-heigt'    ] = 30
-        opmoptn['output-font'     ] = 'Courier'
-        opmoptn['output-font-size'] = 10
-        opmoptn['opm-keywdir'     ] = 'None'
-        opmoptn['opm-flow-manual' ] = 'None'
-        opmoptn['opm-resinsight'  ] = 'None'
-        opmoptn['edit-command'    ] = 'None'
-        opmoptn['prj-name-01'     ] = 'Home'
-        opmoptn['prj-dirc-01'     ] = str(opm)
-        opmoptn['prj-name-02'     ] = 'Home'
-        opmoptn['prj-dirc-02'     ] = str(opm)
-        opmoptn['prj-name-03'     ] = 'Home'
-        opmoptn['prj-dirc-03'     ] = str(opm)
-        opmoptn['prj-name-04'     ] = 'Home'
-        opmoptn['prj-dirc-04'     ] = str(opm)
-        opmoptn['prj-name-05'     ] = 'Home'
-        opmoptn['prj-dirc-05'     ] = str(opm)
-
+        opmoptn = opmdef
         save_options(opmoptn, False)
         sg.PopupOK('OPMRUN Default Options Created and Saved',
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)

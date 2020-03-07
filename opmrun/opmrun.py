@@ -1772,8 +1772,8 @@ def run_process(command, outprt=True):
             print(out[0].decode("utf-8"))
 
     except:
-        out ,err = sp.communicate()
-        sg.PopupError('Subprocess Call Error: \n' + str(command),
+        sg.PopupError('Subprocess Call Error: ' + str(command) + '\n \n'
+                      'OUT:' + str(out.decode("utf-8")) + 'ERR:' + str(err) + '\n',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         pass
 

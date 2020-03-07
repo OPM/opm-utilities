@@ -236,7 +236,7 @@ if sys.version_info >= (3,7,3):
 #-----------------------------------------------------------------------------------------------------------------------
 # Define Global Constants Section
 #-----------------------------------------------------------------------------------------------------------------------
-opmvers  = '2020-04.01'
+opmvers  = '2020-04.02'
 opm      = Path.home()
 opmhome  = Path(opm  / 'OPM')
 #
@@ -1209,7 +1209,14 @@ def load_manual(filename):
         if (sys.platform.startswith('linux')):
             filename = "/" + str(filename[2:len(filename) - 1])
             print("xdg-open " + str(filename))
-            subprocess.Popen(["xdg-open", filename])
+            try:
+                subprocess.Popen(["xdg-open", filename])
+            except:
+                sg.PopupError('OPM Flow Manual Error \n \n' +
+                              'Cannot run: \n \n' +
+                              '"xdg-open ' + str(filename) + '" \n \n' +
+                              'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
+                              line_width=len(filename) + 12, no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         else:
            try:
                 os.startfile(filename)
@@ -2517,7 +2524,7 @@ def opmrun():
         #
         # Exit
         #
-        elif button == '_exit_' or button == 'Exit' or button is None:
+        elif button == '_exit_' or button == 'Exit':
             text = sg.PopupYesNo('Exit OPMRUN?', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             if (text == 'Yes'):
                 text = sg.PopupYesNo('Are You Sure You wish to Exit OPMRUN?', no_titlebar=True,

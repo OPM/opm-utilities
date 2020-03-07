@@ -28,18 +28,6 @@
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
-##
-## Beanshell Macro to Generate Dialog Box to Select Template Option
-##
-#beanshell (false)
-//
-//  Set File Location to Top of File
-//
-//    textArea.setCaretPosition(0);
-#end
-## 
-## Start of Template Setup for ACTIONX Keyword
-## 
 -- ---------------------------------------------------------------------------------------------------------------------------------
 -- GROUP PHASE-1 AUTOMATIC PHASING
 -- ---------------------------------------------------------------------------------------------------------------------------------

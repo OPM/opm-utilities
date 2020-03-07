@@ -48,10 +48,10 @@ NEXTSTEP
 --  WELL WELL   --LOCATION--  COMPLETION                                     
 --  NAME STAT     I   J    K  FIRST LAST                                     
 WELOPEN                                                                       
-SHD-INJ  SHUT                                                                  /
-SHD-INJ  SHUT     0   0    0     2     2                                       /
-SHD-INJ  OPEN                                                                  /
-SHD-INJ  OPEN     0   0    0     1     1                                       /
+GP01     SHUT                                                                  /
+GP01     SHUT     0   0    0     2     2                                       /
+GP01     OPEN                                                                  /
+GP01     OPEN     0   0    0     1     1                                       /
 /                                                                               
 
 ENDACTIO

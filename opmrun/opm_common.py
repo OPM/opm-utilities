@@ -103,7 +103,7 @@ def opm_initialize():
     #
     opmicon  = Path(str(os.path.dirname( __file__ )) + '/opmrun.png')
     if not os.path.isfile(opmicon):
-        sg.PopupTimed('Cannot Find ICON File opmrun.png - Program will Continue',
+        sg.PopupError('Cannot Find ICON File: \n \n' + str(opmicon) + '\n \n' + 'Program will Continue',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         opmicon = None
     #

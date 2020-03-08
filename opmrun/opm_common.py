@@ -82,6 +82,7 @@ def copy_to_clipboard(input):
     root.clipboard_clear()
     root.clipboard_append(input)
 
+
 def opm_initialize():
     """ Initialized OPMRUN
 
@@ -101,8 +102,8 @@ def opm_initialize():
     #
     # OPMRUN ICON Base64 Encoded PNG File
     #
-    opmicon  = Path(str(os.path.dirname( __file__ )) + '/opmrun.png')
-    if not os.path.isfile(opmicon):
+    opmicon  = Path(Path( __file__ ).parent.absolute() / 'opmrun.png')
+    if Path(opmicon).is_file() == False:
         sg.PopupError('Cannot Find ICON File: \n \n' + str(opmicon) + '\n \n' + 'Program will Continue',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         opmicon = None
@@ -141,10 +142,9 @@ def opm_initialize():
             window_location=(None,None),
             tooltip_time = None
             )
-#
-# Define OPMRUN Modules for Stand Alone Running
-#
-def opm_popup(opmvers, text,nrow):
+
+
+def opm_popup(opmvers, text, nrow):
     """Display Text Message in a Display Window
 
     Displays a text message in a multiline popup. Normally used for displaying help information, but any text string
@@ -172,5 +172,5 @@ def opm_popup(opmvers, text,nrow):
     return()
 
 # ======================================================================================================================
-# End of OPMKEYW
+# End of OPM_COMMON.PY
 # ======================================================================================================================

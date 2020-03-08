@@ -1201,31 +1201,38 @@ def load_manual(filename):
 
     if filename == 'None':
         sg.PopupOK('OPM Flow Manual has not been defined in the Options.',
-                   'Use the Edit Options menu to define the command.',
+                   'Use the Edit Options menu to set the File Name.',
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return()
 
-    elif (filename):
-        if (sys.platform.startswith('linux')):
-            filename = "/" + str(filename[2:len(filename) - 1])
-            print("xdg-open " + str(filename))
-            try:
-                subprocess.Popen(["xdg-open", filename])
-            except:
-                sg.PopupError('OPM Flow Manual Error \n \n' + 'Cannot run: \n \n' +
-                              '"xdg-open ' + str(filename) + '" \n \n' +
-                              'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
-                              line_width=len(filename) + 12, no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-        else:
-           try:
-                os.startfile(filename)
-           except:
-                sg.PopupError('OPM Flow Manual Not Found: ' + filename,
-                              no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-                pass
-    else:
-        sg.PopupError('OPM Flow Manual Not Found: ' + filename,
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+
+    if Path(filename).is_file() == False:
+        sg.PopupOK('OPM Flow Manual File Cannot be Found. \n', str(filename) + ' \n',
+                   'Use the Edit Options menu to set the File Name.',
+                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        return ()
+    #
+    # Linux System
+    #
+    if (sys.platform.startswith('linux')):
+        try:
+            subprocess.Popen(["xdg-open", filename])
+        except Exception:
+            sg.PopupError('OPM Flow Manual Error \n \n' + 'Cannot run: \n \n' +
+                          '"xdg-open ' + str(filename) + '" \n \n' +
+                          'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
+                          line_width=len(filename) + 12, no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+    #
+    # Windows System
+    #
+    if (sys.platform.startswith('win')):
+        try:
+            os.startfile(filename)
+        except Exception:
+            sg.PopupError('OPM Flow Manual Error \n \n' + 'Cannot run: \n \n' +
+                          str(filename) + ' \n \n' +
+                          'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
+                          line_width=len(filename) + 12, no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
     return()
 

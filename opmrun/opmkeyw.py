@@ -38,7 +38,8 @@ For OPMKEYW the integrated OPM Flow Keyword Generator the following additional m
 
 Program Documentation
 --------------------
-2020-04-02 - Added a MODEL filter option and selecte OPM Flow models as complete examples.
+2020-04-02 - Added a DATA (Set) option for data sets and added various data set templates.
+           - Added MODEL option and added various selected OPM Flow models as complete examples.
            - Fixed inconsistent Python major release check.
            - Updated SUMMARY template to cover additional variables and added dialog box to display the options in
              order to be consistent with the manual.
@@ -53,7 +54,7 @@ Copyright (C) 2018-2020 Equinox International Petroleum Consultants Pte Ltd.
 Author  : David Baxendale
           david.baxendale@eipc.co
 Version : 2020-04.01
-Date    : 30-Jan-2020
+Date    : 09-Mar-2020
 """
 # ----------------------------------------------------------------------------------------------------------------------
 # 3456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
@@ -120,7 +121,7 @@ if sys.version_info >= (3,7,3):
 # ----------------------------------------------------------------------------------------------------------------------
 # Define OPMRUN Constants for Stand Alone Running
 # ----------------------------------------------------------------------------------------------------------------------
-opmvers                = '2020-04.01'
+opmvers                = '2020-04.02'
 opmoptn                = dict()
 opmoptn['opm-keywdir'] = Path.home()
 opmoptn['opm-author1'] = None
@@ -237,7 +238,7 @@ def keyw_get_items(key):
     keyitems['yearstr' ] = None
     keyitems['yearend' ] = None
     keyheadr = ['HEADER-INCLUDE', 'HEADER-LONG', 'HEADER-SHORT']
-    keysectn = ['RUNSPEC', 'GRID', 'EDIT', 'PROPS', 'SOLUTION', 'SCHEDULE']
+    keysectn = ['RUNSPEC', 'GRID', 'EDIT', 'PROPS', 'SOLUTION']
     #
     # COMMENT Keyword Processing
     #
@@ -290,8 +291,19 @@ def keyw_get_items(key):
     if key ==  'SCHEDULE':
         keyitems['yearstr'] = 2000
         keyitems['yearend'] = 2020
-        keyitems['sch'    ] = sg.PopupYesNo('Do You Wish to Generate ' + key + ' Section Date Keywords?',
+        keyitems['ans']     = 'No'
+        keyitems['sch']     = 'No'
+        keyitems['step']    = 'Monthly'
+        #
+        # Standard Keywords
+        #
+        keyitems['ans'] = sg.PopupYesNo('Do You Wish to Generate ' + key + ' Section Standard Keywords?',
                                              no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        #
+        # Date Keywords
+        #
+        keyitems['sch'] = sg.PopupYesNo('Do You Wish to Generate ' + key + ' Section Date Keywords?',
+                             no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         if keyitems['sch'] == 'Yes':
             layout1  = [
                         [sg.Text('Generate ' + key + ' Section Date Keywords Parameters')                            ],
@@ -320,15 +332,6 @@ def keyw_get_items(key):
 
                 if values['_month_'] :
                     keyitems['step'] = 'Monthly'
-
-            else:
-                keyitems['sch' ] = 'No'
-                keyitems['step'] = 'Monthly'
-
-        else:
-            keyitems['sch' ]  = 'No'
-            keyitems['step'] = 'Monthly'
-
     #
     # Generate SCHEDULE Section Date Keywords
     #
@@ -745,7 +748,7 @@ def keyw_main(**opmoptn):
     ]
 
     window1 = sg.Window('OPMRUN Keyword Generation Utility',no_titlebar=False, grab_anywhere=True,
-                        layout=mainwind, disable_close=False, finalize=True)
+                        layout=mainwind, disable_close=True, finalize=True)
     #
     #   Define GUI Event Loop, Read Buttons, and Make Callbacks etc. Section
     #

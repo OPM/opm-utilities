@@ -1,0 +1,45 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Type              : amd64                               
+## File Name                 : AQUANCON.vm                                                         
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 30-Jan-2020
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+--                                                                              
+--                      ANALYTIC AQUIFER CONNECTION                            
+--                                                                              
+--       ID     ---------- BOX ---------   CONNECT  AQF    AQF     ADJOIN         
+--       NUMBER I1  I2   J1  J2   K1  K2   FACE     INFLX  MULTI   CELLS                                                                                            
+AQUANCON                                                                    
+         1     57  57   28  36   46  58    'I+'    1*     1*       'NO'        /                                                                            
+         1    111 111   38  41   22  31    'I+'    1*     1*       'NO'        /                                                                            
+         1     96  96   44  49   22  31    'I+'    1*     1*       'NO'        /                                                                         
+         1     43  43   28  35   54  58    'I+'    1*     1*       'NO'        /       
+         1     98  98   38  42   32  40    'I+'    1*     1*       'NO'        /       
+         1     79  79   41  67    5  11    'I+'    1*     1*       'NO'        /       
+         1     61  61   48  72   12  17    'I+'    1*     1*       'NO'        /
+/     
+## =================================================================================================================================

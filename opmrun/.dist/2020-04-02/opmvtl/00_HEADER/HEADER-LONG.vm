@@ -1,0 +1,149 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Type              : amd64                               
+## File Name                 : HEADER-LONG                                                         
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 30-Jan-2020
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+-- *********************************************************************************************************************************
+--                                                                              
+--                                              $FileType  
+--                                                                              
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- JOB DESCRIPTION                                                             
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- RUN NAME                  : $FileName                                                      
+-- DATE RUN                  : $Date                         
+-- TIME RUN                  : $Time         (HH:MM)                            
+-- RUN TYPE                  :               (HISTORY / PREDICTION)                                                   
+-- RUN STARTS                :               (YYYY-MM-DD)                                                  
+-- RUN ENDS                  :               (YYYY-MM-DD)                                                  
+-- RESTART                   :               (DD.MM.YYYY - RESTART 'NNNNNNxx  ??' / AT ????.? DAYS (??.?YEARS))
+-- MACHINE ID                :                                                 
+-- MACHINE OPERATING SYSTEM  : $OSName - $OSLevel                               
+-- MACHINE TYPE              : $OSArch                               
+-- MACHINE CPU TIME          :               (SECS)                            
+-- MACHINE ELAPSED TIME      :               (SECS)                            
+-- SIMULATED FROM - TO       :               (DAYS)                            
+-- SIMULATION STOPPED DUE TO :               (NORMAL/END/ABORT)                 
+--                                                                             
+-- COMMENTS                                                                    
+-- --------                                                                    
+--                                                                             
+--                                                                             
+--                                                                             
+--
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- MODEL DESCRIPTION                                                       
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- GRID SECTION                                                                
+-- ------------
+--
+--      FLUIDS IN-PLACE         ACTUAL        SIMULATAION             PRODUCED VOLUMES         ACTUAL        SIMULATAION        
+-- -------------------------  ----------     -------------        -------------------------  ----------     -------------       
+-- OIL             (MMSTB) :                                      OIL             (MMSTB) :                                     
+-- GAS FREE        (BSCF ) :                                      GAS FREE        (BSCF ) :                                     
+-- GAS SOLUTION    (BSCF ) :                                      GAS SOLUTION    (BSCF ) :                                     
+-- GAS TOTAL       (BSCF ) :                                      GAS TOTAL       (BSCF ) :                                     
+-- WATER RESERVOIR (MMSTB) :                                      WATER RESERVOIR (MMSTB) :                                     
+-- WATER AQUIFER   (MMSTB) :                                      WATER AQUIFER   (MMSTB) :                                     
+-- WATER TOTAL     (MMSTB) :                                      WATER TOTAL     (MMSTB) :                                     
+--                                                                             
+-- VERTICAL/ HORIZONTAL PERMERABILITY =                                        
+--                                                                             
+-- EDIT SECTION                                                                
+-- ------------                                                                
+--
+--
+-- PROPS SECTION                                                               
+-- -------------                                                               
+--                                                                             
+--                                                                             
+-- REGION SECTION                                                              
+-- --------------                                                              
+--                                                                             
+--                                                                             
+-- SOLUTION SECTION                                                            
+-- ----------------                                                            
+--                                                                             
+--                                                                             
+-- RESERVOIR NAME          BLOCK NAME         EQUIL REGION NUMBER                 
+-- --------------          ----------         -------------------                 
+--                                                                            
+--                          Aquifer                                                 
+--                                                                            
+-- THRESHOLD PRESSURE SPECIFICATION TO ENSURES STEADY STATE INITIAL CONDITIONS (LINE UP FOLLOWS FAULT THROWS), AND TO CONTROL 
+-- FAULT SEALS.      
+--                                                                             
+-- SCHEDULE SECTION                                                          
+-- ----------------
+--
+-- INJECTION PHASE        START OF INJECTION  END OF INJECTION
+-- ---------------        ------------------  ----------------
+-- GAS                       YYYY-MM-DD           YYYY-MM-DD               
+-- WATER                     YYYY-MM-DD           YYYY-MM-DD
+--                                                                              
+-- WELL ID     WELL CODE                   WELL NAME CONVENTION                       
+-- ----------  ---------  ---------------------------------------------------------------------------------------------  
+-- FIELD  ID              FIELD IDENTIFIER                                           
+-- WELL   ID   01         WELL NUMBER IDENTIFIER                                     
+-- STRING ID   L          LONG   STRING IDENTIFIER                                   
+--             S          SHORT  STRING IDENTIFIER                                   
+--             W          SINGLE STRING IDENTIFIER                                   
+-- DRILLING               ORIGINAL DRILLING CAMPAIGN WELL ORDER                      
+--             1          FIRST    DRILLING CAMPAIGN WELL ORDER                      
+--             2          SECOND   DRILLING CAMPAIGN WELL ORDER                      
+--             3          THIRD    DRILLING CAMPAIGN WELL ORDER                      
+-- WELL TYPE   OP         WELL IS CLASSIFIED AS A OIL PRODUCER (DEFAULT)             
+--             GP         WELL IS CLASSIFIED AS A GAS PRODUCER                       
+--             WP         WELL IS CLASSIFIED AS A WAT PRODUCER                       
+--             OI         WELL IS CLASSIFIED AS A OIL INJECTOR                       
+--             GI         WELL IS CLASSIFIED AS A GAS INJECTOR                       
+--             WI         WELL IS CLASSIFIED AS A WAT INJECTOR
+--                                          
+--                                                                              
+-- WELL NAME     ZONE       LAYERS    VFP TABLE    DATE                           COMMENTS                              
+-- ----------  ----------  --------   ---------  ----------  -----------------------------------------------------------  
+--                                               YYYY-MM-DD                              
+--                                                                            
+#if ($Ans == 'Yes')
+#parse ('HEADER-LICENSE.vm')
+#end
+--                                                                            
+-- FILE NAME : $FilePath                                                         
+-- AUTHOR    : $Author1                                                      
+--             $Author2
+--             $Author3
+--             $Author4
+--             $Author5
+-- DATE      : $Date
+--                                                                              
+-- 456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+--       1         2         3         4         5         6         7         8         9         0         1         2         3  
+--       0         0         0         0         0         0         0         0         0         1         1         1         1  
+-- *********************************************************************************************************************************
+--
+## =================================================================================================================================

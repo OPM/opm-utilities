@@ -1,0 +1,64 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Type              : amd64                               
+## File Name                 : PVZG.vm                                                         
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 30-Jan-2020
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+--                                                                                      
+--       GAS PVT TABLE USING GAS Z-FACTOR                                                                        
+--                                                                                      
+PVZG                                                                                    
+--       RESERVOIR TEMPERATURE FOR Z TO BG CONVERSION                                         
+--                                                                                      
+         180.0                                             /                                             
+--                                                                                      
+--        PRES       ZG          VISC                                                         
+--        PSIA     DIMLESS      CPOISE                                                        
+--       ------    ---------    -------                                                       
+           14.7    0.998970     0.0130                                                        
+          250.0    0.976260     0.0131                                                        
+          500.0    0.954790     0.0134                                                        
+          750.0    0.932050     0.0137                                                        
+         1000.0    0.912990     0.0142                                                        
+         1250.0    0.896320     0.0147                                                        
+         1500.0    0.881610     0.0152                                                        
+         1750.0    0.870830     0.0159                                                        
+         2000.0    0.863130     0.0166                                                        
+         2250.0    0.858920     0.0173                                                        
+         2500.0    0.857800     0.0181                                                        
+         2750.0    0.860430     0.0189                                                        
+         3000.0    0.866440     0.0197                                                        
+         3250.0    0.874980     0.0206                                                        
+         3500.0    0.885470     0.0214                                                        
+         3750.0    0.898350     0.0223                                                        
+         4000.0    0.913460     0.0231                                                        
+         4258.0    0.931930     0.0239                                                        
+         4500.0    0.947040     0.0247                                                        
+         4750.0    0.967750     0.0255                                                        
+         5000.0    0.985100     0.0262                                                        
+         5500.0    1.025120     0.0277                     / TABLE NO 01              
+## =================================================================================================================================

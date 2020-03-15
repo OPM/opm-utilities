@@ -1,0 +1,72 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Type              : amd64                               
+## File Name                 : COMPSEGS.vm                                                       
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 30-Jan-2020
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+--
+--       MULTISEGMENT WELL COMPLETION SEGMENT SPECIFICATION DATA                                                     
+--                                                                             
+-- WELL                                                         
+-- NAME      
+COMPSEGS
+OP01                                                                           /
+--                                                                             
+--      --LOCATION--  BRAN  TUBING  NODAL   DIR  LOC    MID    COMP    ISEG              
+--       II  JJ  K1   NO    LENGTH  DEPTH   PEN  I,J,K  PERFS  LENGTH  NO.              
+         10  10   1    1    2512.5  2525.0                                     /
+         10  10   2    1    2525.0  2550.0                                     /
+         10  10   3    1    2550.0  2575.0                                     /
+         10  10   4    1    2575.0  2600.0                                     /
+         10  10   5    1    2600.0  2625.0                                     /
+         10  10   6    1    2625.0  2650.0                                     /
+                                                                               
+          9  10   2    2    2637.5  2837.5                                     /                            
+          8  10   2    2    2837.5  3037.5                                     /
+          7  10   2    2    3037.5  3237.5                                     /
+          6  10   2    2    3237.5  3437.5                                     /
+          5  10   2    2    3437.5  3637.5                                     /
+                                                                               
+         10   9   3    3    2662.5  2862.5                                     /
+         10   8   3    3    2862.5  3062.5                                     /
+         10   7   3    3    3062.5  3262.5                                     /
+         10   6   3    3    3262.5  3462.5                                     /
+         10   5   3    3    3462.5  3662.5                                     /
+                                                                               
+          9  10   5    4    2712.5  2912.5                                     /
+          8  10   5    4    2912.5  3112.5                                     /
+          7  10   5    4    3112.5  3312.5                                     /
+          6  10   5    4    3312.5  3512.5                                     /
+          5  10   5    4    3512.5  3712.5                                     /
+                                                                               
+         10   9   6    5    2737.5  2937.5                                     /
+         10   8   6    5    2937.5  3137.5                                     /
+         10   7   6    5    3137.5  3337.5                                     /
+         10   6   6    5    3337.5  3537.5                                     /
+         10   5   6    5    3537.5  3737.5                                     /
+/
+## =================================================================================================================================

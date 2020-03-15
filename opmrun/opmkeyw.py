@@ -132,6 +132,38 @@ opmoptn['opm-author5'] = None
 #
 # Define OPMKEYW Specific Modules
 #
+def keyw_check_directory(keywdir):
+    """Check for the OPMKEYW Template Directory
+
+    Checks if keywdir is a valid OPMKEYW template directory
+
+    Parameters
+    ----------
+    keywdir : str
+        The directory to check for the OPMKEYW keyword templates
+
+    Returns
+    -------
+    patherr : boolean
+         True for valid template path, otherwise false.
+    """
+
+    pathchk = ''
+    try:
+        pathchk = Path(keywdir).joinpath('02_RUNSPEC')
+
+    except Exception as error:
+        patherr = True
+        return(patherr)
+
+    if pathchk.exists():
+        patherr = False
+    else:
+        patherr = True
+
+    return (patherr)
+
+
 def keyw_get_file(key):
     """ Get File Name for Keyword
 
@@ -490,46 +522,40 @@ def keyw_main(**opmoptn):
     #
     opm_initialize()
     keywdir = opmoptn['opm-keywdir']
-    pathchk = ''
-    try:
-        pathchk = Path(keywdir).joinpath('02_RUNSPEC')
-
-    except Exception as error:
-        patherr = True
-        pass
-
-    if pathchk.exists():
-        patherr = False
-    else:
-        patherr = True
+    patherr = keyw_check_directory(keywdir)
 
     if patherr:
-        sg.PopupError('Error in "keyw_main" Module \n',
-                      'Cannot Find Keyword Template Directory: \n \n' + str(keywdir) + '\n',
-                      'Please Set Keyword Template Directory',
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-
-        keywdir = sg.PopupGetFolder('Set Keyword Template Directory',  default_path=str(os.getcwd()),
-                                    initial_folder=str(os.getcwd()),
-                                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-
-        try:
-            pathchk = Path(keywdir).joinpath('02_RUNSPEC')
-
-        except Exception as error:
-            patherr = True
-
-        if pathchk.exists():
-            patherr = False
-        else:
-            patherr = True
+        keywdir = Path(os.getcwd()).joinpath('opmvtl')
+        patherr = keyw_check_directory(keywdir)
 
         if patherr:
-            sg.PopupError('Error in "keyw_main" Module RUNSPEC Directory Missing: \n ',
-                  str(pathchk) + '\n',
-                  'Does Not Contain Template Directories - Process Stopped',
-                  no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            return()
+            sg.PopupError('Error in "keyw_main" Module \n',
+                          'Cannot Find Keyword Template Directory: \n \n' + str(keywdir) + '\n',
+                          'Please Set Keyword Template Directory',
+                          no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+
+            keywdir = sg.PopupGetFolder('Set Keyword Template Directory',  default_path=str(os.getcwd()),
+                                        initial_folder=str(os.getcwd()),
+                                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+            #
+            # Process Cancel with Return to OPMRUN Main
+            #
+            if keywdir == None:
+                return()
+            #
+            # Process Directory
+            #
+            patherr = keyw_check_directory(keywdir)
+            if patherr:
+                sg.PopupError('Error in "keyw_main" Module RUNSPEC Directory Missing: \n ',
+                      str(keywdir) + '\n',
+                      'Does Not Contain Template Directories - Process Stopped',
+                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                return()
+            else:
+                opmoptn['opm-keywdir'] = keywdir
+        else:
+            opmoptn['opm-keywdir'] = keywdir
 
     sg.PopupOK('Using Keyword Template Directory \n \n' + str(keywdir) + '\n ',
                            no_titlebar=True, grab_anywhere=True, keep_on_top=True)

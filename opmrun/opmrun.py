@@ -722,6 +722,8 @@ def edit_job(job, opmuser, **jobhelp):
         sg.PopupError('Cannot Find Data File: ', str(filedata1),
                       'or ' , str(filedata2),
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        out_log('Cannot Find: ' + str(filedata1) + ' or ' + str(filedata2), True)
+
         return()
 
     fileparam1  = Path(job[istart:]).with_suffix('.param')
@@ -732,9 +734,10 @@ def edit_job(job, opmuser, **jobhelp):
     if not fileparam2.is_file():
         fileparam = fileparam2
     if fileparam == '':
-        sg.PopupError('Cannot Find Data File: ',  str(fileparam1),
+        sg.PopupError('Cannot Find Parameter File: ',  str(fileparam1),
                       'or ', str(fileparam2),
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        out_log('Cannot Find Parameter File: ' + str(fileparam1) + ' or ' + str(fileparam2), True)
         return()
     #
     # Files Found So Display Edit Options
@@ -758,13 +761,20 @@ def edit_job(job, opmuser, **jobhelp):
             sg.PopupOK('Editor command has not been set in the properties file',
                        'Use Edit OPMRUN Options to set the Editor Command',
                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+            out_log('Editor Command Has Not Been Set: ' + str(opmoptn['edit-command']), True)
             return()
         else:
             command = str(opmoptn['edit-command']).rstrip()
-            command = command.replace('"', '')
-            command = command
-            print(command + ' ' + str(filedata))
-            subprocess.Popen([command, filedata])
+            out_log('Executing Editor Command: ' + command + ' ' + str(filedata), True)
+
+            try:
+                subprocess.Popen([command, filedata])
+
+            except Exception:
+                sg.PopupError('Error Executing Editor Command: ' + command + ' ' + str(filedata),
+                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                out_log('Error Executing Editor Command: ' + command + ' ' + str(filedata), True)
+                return()
     #
     # Parameter File Processing
     #
@@ -783,8 +793,9 @@ def edit_job(job, opmuser, **jobhelp):
                 save_parameters(filedata, jobparam1, filebase, fileparam, opmuser)
 
         else:
-            sg.PopupError('Cannot Find File: ' + str(fileparam),
+            sg.PopupError('Cannot Find Parameter File: ' + str(fileparam),
                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+            out_log('Cannot Find Parameter File: ' + str(fileparam), True)
 
     return()
 
@@ -825,19 +836,34 @@ def edit_options(opmoptn):
 
     set_window_status(False)
     opmoptn0  =  opmoptn
+    if Path(opmoptn['opm-flow-manual']).exists():
+        defmanual = Path(opmoptn['opm-flow-manual']).parents[0]
+    else:
+        defmanual = opmhome
+
+    if Path(opmoptn['opm-keywdir']).exists():
+        defkeyw = Path(opmoptn['opm-keywdir']).parents[0]
+    else:
+        defkeyw = opmhome
+
+    if Path(opmoptn['opm-resinsight']).exists():
+        defresinsight = Path(opmoptn['opm-resinsight']).parents[0]
+    else:
+        defresinsight = opmhome
+
     column1   = [
                  [sg.Text('OPM Flow Manual Location'                                                  )],
                  [sg.InputText(opmoptn['opm-flow-manual' ], key = '_opm-flow-manual_', size=(80, None)) ,
                   sg.FileBrowse(target='_opm-flow-manual_',
-                                file_types=(('Manual Files', '*.pdf'),), initial_folder=opmhome)       ],
+                                file_types=(('Manual Files', '*.pdf'),), initial_folder=defmanual)     ],
 
                  [sg.Text('OPM Keyword Generator Template Directory'                                  )],
                  [sg.InputText(opmoptn['opm-keywdir'    ], key='_opm-keywdir_'       , size=(80, None)) ,
-                   sg.FolderBrowse(target='_opm-keywdir_', initial_folder=opmhome)                     ],
+                   sg.FolderBrowse(target='_opm-keywdir_', initial_folder=defkeyw)                     ],
 
                  [sg.Text('ResInsight Command'                                                        )],
                  [sg.InputText(opmoptn['opm-resinsight'  ], key='_opm-resinsight_'   , size=(80, None)) ,
-                   sg.FolderBrowse(target='_opm-resinsight_', initial_folder=opmhome)                  ],
+                   sg.FileBrowse(target='_opm-resinsight_', initial_folder=defresinsight)              ],
 
                  [sg.Text('Editor Command for Editing Input Files'                                    )],
                  [sg.InputText(opmoptn['edit-command'    ], key = '_edit-command_'   , size=(80, None))],
@@ -1808,16 +1834,18 @@ def run_resinsight(command):
         sg.PopupOK('OPM ResInsight Command has not been defined in the Options.',
                    'Use the Edit Options menu to define the command.',
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        out_log('ResInsight Command: ' + str(command) + ' is Undefined', True)
         return()
 
     try:
-        command = command.replace('"', '')
-        print(str(command))
+        out_log('Executing ResInsight Command: ' + str(command) , True)
         subprocess.Popen(command)
-    except:
+
+    except Exception:
         sg.PopupError('OPM ResInsight Not Found: ' + command,
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-        pass
+        out_log('Executing ResInsight Command Error: ' + str(command), True)
+
     return()
 
 

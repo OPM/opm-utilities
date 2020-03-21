@@ -41,17 +41,21 @@ if sys.version_info[0] == 2:
 try:
     import PySimpleGUI as sg
 except ImportError:
+    sg = None
     exit('OPMRUN Cannot Import PySimpleGUI - Please Install Using pip3')
 
 try:
     from pathlib import Path
 except ImportError:
+    Path = None
     exit('OPMRUN Cannot Import Path from pathlib module - Please Install Using pip3')
 
 try:
     import tkinter as tk
 except ImportError:
+    tk = None
     exit('OPMRUN Cannot Import tkinter - Please Install Using pip3')
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section
@@ -73,7 +77,7 @@ def copy_to_clipboard(input):
     #
     # Define Tk Window and Prevent from Showing
     #
-    root= tk.Tk()
+    root = tk.Tk()
     root.withdraw()
     #
     # Clear Clipboard and Append Text
@@ -90,7 +94,7 @@ def opm_initialize():
 
     Parameters
     ----------
-    None
+
 
     Returns
     -------
@@ -101,7 +105,7 @@ def opm_initialize():
     #
     # OPMRUN ICON Base64 Encoded PNG File
     #
-    opmicon  = Path(Path( __file__ ).parent.absolute() / 'opmrun.png')
+    opmicon = Path(Path(__file__).parent.absolute() / 'opmrun.png')
     if Path(opmicon).is_file() == False:
         sg.PopupError('Cannot Find ICON File: \n \n' + str(opmicon) + '\n \n' + 'Program will Continue',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
@@ -110,37 +114,37 @@ def opm_initialize():
     # Set PySimpleGUI Defaults
     #
     sg.SetOptions(icon=opmicon,
-            button_color=('green','white'),
-            element_size=(None,None),
-            margins=(None,None),
-            element_padding=(None,None),
-            auto_size_text=None,
-            auto_size_buttons=None,
-            font=None,
-            border_width=1,
-            slider_border_width=None,
-            slider_relief=None,
-            slider_orientation=None,
-            autoclose_time=5,
-            message_box_line_width=None,
-            progress_meter_border_depth=None,
-            progress_meter_style=None,
-            progress_meter_relief=None,
-            progress_meter_color=None,
-            progress_meter_size=None,
-            text_justification=None,
-            text_color='black',
-            background_color='white',
-            element_background_color='white',
-            text_element_background_color='white',
-            input_elements_background_color=None ,
-            element_text_color='green',
-            input_text_color=None,
-            scrollbar_color=None,
-            debug_win_size=(None,None),
-            window_location=(None,None),
-            tooltip_time = None
-            )
+                  button_color=('green', 'white'),
+                  element_size=(None, None),
+                  margins=(None, None),
+                  element_padding=(None, None),
+                  auto_size_text=None,
+                  auto_size_buttons=None,
+                  font=None,
+                  border_width=1,
+                  slider_border_width=None,
+                  slider_relief=None,
+                  slider_orientation=None,
+                  autoclose_time=5,
+                  message_box_line_width=None,
+                  progress_meter_border_depth=None,
+                  progress_meter_style=None,
+                  progress_meter_relief=None,
+                  progress_meter_color=None,
+                  progress_meter_size=None,
+                  text_justification=None,
+                  text_color='black',
+                  background_color='white',
+                  element_background_color='white',
+                  text_element_background_color='white',
+                  input_elements_background_color=None,
+                  element_text_color='green',
+                  input_text_color=None,
+                  scrollbar_color=None,
+                  debug_win_size=(None, None),
+                  window_location=(None, None),
+                  tooltip_time=None
+                  )
 
 
 def opm_popup(opmvers, text, nrow):
@@ -164,11 +168,11 @@ def opm_popup(opmvers, text, nrow):
     None
     """
 
-    layout1 = [ [sg.Multiline(text, size=(80,nrow), background_color='white', text_color='darkgreen')],
-                  [sg.CloseButton('OK')] ]
+    layout1 = [[sg.Multiline(text, size=(80, nrow), background_color='white', text_color='darkgreen')],
+               [sg.CloseButton('OK')]]
     window1 = sg.Window('OPMRUN - Flow Job Scheduler ' + opmvers, layout=layout1)
-    (button, values) = window1.Read()
-    return()
+    window1.Read()
+    return ()
 
 # ======================================================================================================================
 # End of OPM_COMMON.PY

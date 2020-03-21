@@ -426,10 +426,6 @@ def keyw_get_keywords(keywdir, keysection, keywords, keyall, keyfiles):
     """Searches a Template Directory and Generates a Keyword List from the Template Files
 
     This function searches the template directories and makes a dictionary list of both the templates and keywords
-    @param keysection : Simulation section (RUNSPEC, GRID etc.)
-    @param keywords   : Section keywords
-    @param keyall     : All keywords
-    @param keyfiles   : Keyword template files
 
     Parameters
     ----------
@@ -959,6 +955,7 @@ def keyw_main(**opmoptn):
         # Template
         #
         elif button == 'Template':
+            key = None
             try:
                 key = str(values['_keylist_'][0])
                 tempname = Path(keyfiles[key])

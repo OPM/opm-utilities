@@ -1,0 +1,83 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Type              : amd64                               
+## File Name                 : PVTGW.vm                                                         
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 11-May-2020
+##   
+##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+## 
+## =================================================================================================================================
+--                                                                                      
+--       GAS PVT TABLE FOR DRY GAS WITH VAPORIZED WATER (OPM FLOW KEYWORD)                                                                         
+--                                                                                      
+PVTGW
+--       PRES       RW           BG           VISC                                                         
+--       PSIA     STB/MSCF     RB/MSCF       CPOISE                                                        
+--      ------    ---------    -------       ------                                                
+          300     0.000479      0.042340      0.01344      
+                  0             0.042310      0.01389      /
+          600     0.000469      0.020460      0.01420      
+                  0             0.020430      0.01450      /
+          900     0.000403      0.013280      0.01526      
+                  0             0.013250      0.01532      /
+         1200     0.000354      0.009770      0.01660      
+                  0             0.009730      0.01634      /
+         1500     0.000272      0.007730      0.01818      
+                  0             0.007690      0.01752      /
+         1800     0.000225      0.006426      0.01994      
+                  0             0.006405      0.01883      /
+         2100     0.000191      0.005541      0.02181      
+                  0             0.005553      0.02021      /
+         2400     0.000163      0.004919      0.02370      
+                  0             0.004952      0.02163      /
+         2700     0.000149      0.004471      0.02559      
+                  0             0.004511      0.02305      /
+         2950     0.000135      0.004194      0.02714      
+                  0             0.004225      0.02423      /
+         3100     0.000132      0.004031      0.02806      
+                  0             0.004081      0.02492      /
+         3300     0.000126      0.003878      0.02925      
+                  0             0.003913      0.02583      /
+         5300     0.000124      0.003868      0.02935      
+                  0             0.003903      0.02593      /
+                                                           /  TABLE NO. 01               
+--       PRES       RW           BG           VISC                                                         
+--       PSIA     STB/MSCF     RB/MSCF       CPOISE                                                        
+--      ------    ---------    -------       ------                                                
+          300     0.000479      0.042340      0.01344      
+          600     0.000469      0.020460      0.01420      
+          900     0.000403      0.013280      0.01526      
+         1200     0.000354      0.009770      0.01660      
+         1500     0.000272      0.007730      0.01818      
+         1800     0.000225      0.006426      0.01994      
+         2100     0.000191      0.005541      0.02181      
+         2400     0.000163      0.004919      0.02370      
+         2700     0.000149      0.004471      0.02559      
+         2950     0.000135      0.004194      0.02714      
+         3100     0.000132      0.004031      0.02806      
+         3300     0.000126      0.003878      0.02925      
+         5300     0.000124      0.003868      0.02935      
+                  0             0.003903      0.02593      /
+                                                           /  TABLE NO. 02               
+## =================================================================================================================================

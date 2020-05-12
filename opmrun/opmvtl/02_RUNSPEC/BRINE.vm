@@ -23,13 +23,14 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
 --
---       ACTIVATE STANDARD BRINE MODEL
+--       ACTIVATE STANDARD BRINE MODEL IN THE RUN
 --
 BRINE
+/
 ## =================================================================================================================================

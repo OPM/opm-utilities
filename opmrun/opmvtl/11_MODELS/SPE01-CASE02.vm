@@ -60,7 +60,7 @@ RUNSPEC
 --       DEFINE THE TITLE FOR THE RUN  
 --
 TITLE                                                                           
-SPE01-CASE02.DATA - FULL GAS RESOLUTION SCENARIO
+SPE01-CASE02 - FULL GAS RESOLUTION SCENARIO
 --
 --       DEFINE THE START DATE FOR THE RUN 
 --

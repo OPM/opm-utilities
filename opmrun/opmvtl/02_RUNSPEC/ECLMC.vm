@@ -23,7 +23,7 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
@@ -37,5 +37,5 @@ ECLMC
 --
 --       SALT1   SALT2   SALT3   SALT4   SALT5                                
 BRINE                                                                              
-         NACL    CACL    MGC03                                                 /                                                                                                                                                                                                                    
+         NACL    CACL2   MGC03                                                 /                                                                                                                                                                                                                    
 ## =================================================================================================================================

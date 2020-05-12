@@ -23,16 +23,16 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
 --
---       -- SOURCE   DESTIN. --   ---------- BOX ---------                
---                                I1  I2   J1  J2   K1  K2                
-COPY                                                                
-         'PERMX'     'PERMY'      1*  1*   1*  1*   1*  1* / CREATE PERMY 
-         'PERMX'     'PERMZ'      1*  1*   1*  1*   1*  1* / CREATE PERMZ 
-/                                                                   
+--       SOURCE      DESTIN.      ---------- BOX ---------            
+--                                I1  I2   J1  J2   K1  K2            
+COPY                                                            
+         PERMX       PERMY        1*  1*   1*  1*   1*  1* / CREATE PERMY 
+         PERMX       PERMZ        1*  1*   1*  1*   1*  1* / CREATE PERMZ        
+/                                                               
 ## =================================================================================================================================

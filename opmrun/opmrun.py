@@ -995,7 +995,7 @@ def edit_parameters(jobparam, **jobhelp):
                 for n, text in enumerate(jobparam):
                     if text[:text.find('=')] == key:
                         jobparam[n] = param
-                        paramhelp = 'Parameter: ' + str(jobparam[n]) + ' has be updated'
+                        paramhelp = 'Parameter: ' + str(jobparam[n]) + ' has been updated'
                         window1.Element('_texthelp_').Update(paramhelp)
                         break
                 window1.Element('_listbox_').Update(jobparam)

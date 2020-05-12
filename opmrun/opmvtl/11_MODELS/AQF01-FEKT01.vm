@@ -53,7 +53,7 @@ RUNSPEC
 --       DEFINE THE TITLE FOR THE RUN
 --
 TITLE
-AQF01-FEKT0: FETKOVICH AQUIFER EXAMPLE
+AQF01-FEKT01 - FETKOVICH AQUIFER EXAMPLE
 --
 --       DEFINE THE START DATE FOR THE RUN
 --
@@ -247,8 +247,8 @@ PERMZ
           8.40   5.27  13.90  13.28  15.83  16.13  13.60  17.90
          31.56  28.86  16.67   2.47                                            /
 --
---       -- ARRAY    CONSTANT --  ---------- BOX ---------
---                                I1  I2   J1  J2   K1  K2
+--       ARRAY       CONSTANT     ---------- BOX ---------                 
+--                                I1  I2   J1  J2   K1  K2                
 EQUALS   ACTNUM      1            1*  1*    1   1    1   5 / SET CELLS TO ACTIVE
          ACTNUM      0            20  20    1   1    1   5 / SET CELLS TO INACTIVE
 /

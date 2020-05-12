@@ -23,7 +23,7 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
@@ -33,8 +33,8 @@
 --                                                                              
 --      ID   DATUM   AQF    AQF    AQF    AQF     AQF     AQF  INFL   PVT  AQU
 --      NUM  DEPTH   PRESS  PERM   PORO   RCOMP   RE      DZ   ANGLE  NUM  TAB
---
-AQUCT
+--                                                    
+AQUCT                                               
          1  2525.0   270.0  100.0  0.30   3.0E-5  250.0E1 100. 360.0  1    2   /
 /
 ## =================================================================================================================================

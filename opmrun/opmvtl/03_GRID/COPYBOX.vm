@@ -23,7 +23,7 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
@@ -32,7 +32,7 @@
 --       SOURCE     ------ SOURCE BOX ------   ---- DESTINATION BOX ----                 
 --       ARRAY      I1  I2   J1  J2   K1  K2   I1  I2   J1  J2   K1  K2                 
 COPYBOX                                                                               
-        'PORO'      1*  1*   1*  1*   12  14   1*  1*   1*  1*   15  17  / COPY PORO 
-        'PERMX'     1*  1*   1*  1*   12  14   1*  1*   1*  1*   15  17  / COPY PERMX 
+         PORO       1*  1*   1*  1*   12  14   1*  1*   1*  1*   15  17  / COPY PORO 
+         PERMX      1*  1*   1*  1*   12  14   1*  1*   1*  1*   15  17  / COPY PERMX 
 /                                                                   
 ## =================================================================================================================================

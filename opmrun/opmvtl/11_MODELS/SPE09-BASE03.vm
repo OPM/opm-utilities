@@ -53,7 +53,7 @@ RUNSPEC
 --       DEFINE THE TITLE FOR THE RUN  
 --
 TITLE                                                                           
-SPE9-BASE03-OPM1910-R01                                                                                  
+SPE9-BASE03 - BASED ON RUN 01                                                                                  
 --
 --       DEFINE THE START DATE FOR THE RUN 
 --
@@ -2605,17 +2605,17 @@ PERMX
          0.73993602E+01   0.19012421E+02   0.38472549E+02   0.47053421E+02
 /
 --
---       -- SOURCE   DESTIN. --   ---------- BOX ---------                
---                                I1  I2   J1  J2   K1  K2                
+--       SOURCE      DESTIN.      ---------- BOX ---------            
+--                                I1  I2   J1  J2   K1  K2            
 COPY                                                                
-         'PERMX'     'PERMY'      1*  1*   1*  1*   1*  1* / CREATE PERMY 
-         'PERMX'     'PERMZ'      1*  1*   1*  1*   1*  1* / CREATE PERMZ 
+         PERMX       PERMY        1*  1*   1*  1*   1*  1* / CREATE PERMY 
+         PERMX       PERMZ        1*  1*   1*  1*   1*  1* / CREATE PERMZ 
 /                                                                   
 --
---       -- ARRAY    CONSTANT --  ---------- BOX ---------                 
---                                I1  I2   J1  J2   K1  K2                 
+--       ARRAY       CONSTANT     ---------- BOX ---------             
+--                                I1  I2   J1  J2   K1  K2             
 MULTIPLY                                                             
-         'PERMZ'     0.01000      1*  1*   1*  1*   1*  1* / PERMZ * 0.01  
+         PERMZ       0.01000      1*  1*   1*  1*   1*  1* / PERMZ * 0.01  
 /
 
 -- =================================================================================================================================
@@ -2819,6 +2819,14 @@ BGSAT
 BWSAT
          10   25   15   /
 /
+--
+--       ACTIVATE COLUMNAR SUMMARY DATA REPORTING OPTION     
+--
+RUNSUM                                               
+--
+--       ACTIVATE SUMMARY DATA RSM FILE OUTPUT OPTION     
+--
+SEPARATE   
 
 -- =================================================================================================================================
 -- 

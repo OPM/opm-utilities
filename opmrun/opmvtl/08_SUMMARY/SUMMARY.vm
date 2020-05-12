@@ -22,7 +22,7 @@
 ##                             51 Goldhill Plaza,  #07-10/11,
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co
-## Date                      : 18-May-2017
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
@@ -560,7 +560,7 @@ WTPTFOA
 -- MULTI-SEGEMENT WELL VARIABLES                                                      
 -- ---------------------------------------------------------------------------------------------------------------------------------
 -- 
--- WELL MULTI-SEGMENT FLOW VARIABLES 
+--       WELL MULTI-SEGMENT FLOW VARIABLES 
 --
 SOFR
 /
@@ -583,7 +583,7 @@ SGOR
 SOGR
 /
 -- 
--- WELL MULTI-SEGMENT PRESSURE VARIABLES 
+--       WELL MULTI-SEGMENT PRESSURE VARIABLES 
 --
 SPR
 /

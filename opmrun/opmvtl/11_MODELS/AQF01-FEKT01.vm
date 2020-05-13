@@ -1,0 +1,471 @@
+-- *********************************************************************************************************************************
+--
+--                                              OPM FLOW SIMULATION FILE
+--
+--
+-- COPYRIGHT NOTICE
+-- ----------------
+-- This file is part of the Open Porous Media project (OPM).
+--
+-- OPM is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+--
+-- This file is made available under the Open Database License:
+--                                    http://opendatacommons.org/licenses/odbl/1.0/.
+--
+-- Any rights in individual contents of the database are licensed under the Database Contents License:
+--                                    http://opendatacommons.org/licenses/dbcl/1.0/
+--
+-- OPM is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the aforementioned GNU General Public Licenses for more details.
+--
+-- Copyright (C) 2020 Equinor ASA
+--
+-- COMMENTS
+-- --------
+-- This small X-Z cross section illustrates the use of the Fetkovich aquifer. The aquifer is connected to the base of the reservoir,
+-- and provides pressure support while the field is depleted by a production well in the centre of the grid. This model is not the
+-- Fetkovich aquifer test case but is instead based on the following:
+--
+--    (1) GRID rock properties from the Fetkovich aquifer test case.
+--    (2) PROPS relative permeability curves based on the SPE10 model.
+--    (3) PROPS fluid properties from the Fetkovich aquifer test case with oil viscosity set to 5 cP.
+--    (4) SOLUTION Fetkovich aquifer connected to the base of the reservoir and the volume increased to maintain reservoir pressure.
+--    (5) SCHEDULE OP set to produce 500 m3/d of liquid subject to a BHP of 25 bars.
+--    (6) Unified Binary output.
+--
+-- In the RUNSPEC section the aquifers are dimensioned by MXNAQN keyword, the maximum number of lines of AQUNUM data, and by MXNAQC
+-- the maximum number of lines of AQUCON data.
+--
+-- 456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012
+--       1         2         3         4         5         6         7         8         9         0         1         2         3
+--       0         0         0         0         0         0         0         0         0         1         1         1         1
+-- *********************************************************************************************************************************
+--
+-- =================================================================================================================================
+--
+-- RUNSPEC SECTION
+--
+-- =================================================================================================================================
+RUNSPEC
+
+--
+--       DEFINE THE TITLE FOR THE RUN
+--
+TITLE
+AQF01-FEKT01 - FETKOVICH AQUIFER EXAMPLE
+--
+--       DEFINE THE START DATE FOR THE RUN
+--
+START
+         01 'JAN' 2018                                                         /
+--
+--       SWITCH NO SIMULATION MODE FOR DATA CHECKING COMMENT OUT TO RUN THE MODEL
+--
+-- NOSIM
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- FLUID TYPES AND TRACER OPTIONS
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       OIL PHASE IS PRESENT IN THE RUN
+--
+OIL
+--
+--       WATER PHASE IS PRESENT IN THE RUN
+--
+WATER
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- GRID AND EQUILBRATION DIMENSIONS AND OPTIONS
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       MAX     MAX     MAX
+--       NDIVIX  NDIVIY  NDIVIZ
+DIMENS
+         20      1       5                                                     /
+--       AQF     AQF     AQF     AQF     AQF     AQF    AQF    AQF
+--       MXAQN   MXNAQC  NIFTBL  NRIFTB  NANAQ   NCAMAX MXNALI MXAAQL
+AQUDIMS
+         1*      1       5       100     2       1000                          /
+--
+--       MAX     MAX     RSVD    TVDP    TVDP
+--       EQLNUM  DEPTH   NODES   TABLE   NODES
+EQLDIMS
+         1       100     10      1       20                                    /
+--
+--       MAX     TOTAL   INDEP   FLUX    TRACK  CBM    OPERN  WORK  WORK  POLY
+--       FIPNUM  REGNS   REGNS   REGNS   REGNS  REGNS  REGNS  REAL  INTG  REGNS
+REGDIMS
+         9       9       1*      1*      1*     1*     1*     1*    1*    1*   /
+--
+--       NEG      MAX     MAX
+--       MULTS    MULTNUM PINCHNUM
+GRIDOPTS
+         NO       1*      1*                                                   /
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- ROCK AND SATURATION TABLES DIMENSIONS AND OPTIONS
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       MAX     MAX     MAX     MAX     MAX     MAX    E300
+--       NTSFUN  NTPVT   NSSFUN  NPPVT   NTFIP   NRPVT  BLANK  NTEND
+TABDIMS
+         1       1       22      12      1       12     1*     1               /
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- GROUP, WELL AND VFP TABLE DIMENSIONS
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       WELL    WELL    GRUPS   GRUPS
+--       MXWELS  MXCONS  MXGRPS  MXGRPW
+WELLDIMS
+         2       3       1       2                                             /
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- INPUT AND OUTPUT OPTIONS
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       METRIC SYSTEM OF UNITS FOR BOTH INPUT AND OUTPUT
+--
+METRIC
+--
+--       SWITCH ON THE UNIFIED INPUT FILES OPTION
+--
+UNIFIN
+--
+--       SWITCH ON THE UNIFIED OUTPUT FILES OPTION
+--
+UNIFOUT
+--
+--       MESS  COMMT WARN  PROBL ERROR BUG   MESS COMMT WARN  PROBL ERROR BUG
+--       LIMIT LIMIT LIMIT LIMIT LIMIT LIMIT STOP STOP  STOP  STOP  STOP  STOP
+MESSAGES
+         3000  1*    1000  1000  1*    1*    1*   1*    9000  1*    9000  1*   /
+--
+--       DEBUG PRINTING OPTIONS
+--
+DEBUG
+         8*0   1     11*0  0     30*0                                          /
+-- =================================================================================================================================
+--
+-- GRID SECTION
+--
+-- =================================================================================================================================
+GRID
+--
+--       GRID FILE OUTPUT OPTIONS
+--       GRID    EGRID
+--       OPTN    OPTN
+GRIDFILE
+         0       1                                                             /
+--
+--       ACTIVATE WRITING THE INIT FILE FOR POST-PROCESSING
+--
+INIT
+--
+--       DEFINE GRID BLOCK X DIRECTION CELL SIZE
+--
+DX
+         100*200                                                               /
+--
+--       DEFINE GRID BLOCK Y DIRECTION CELL SIZE
+--
+DY
+         100*200                                                               /
+--
+--       DEFINE GRID BLOCK Z DIRECTION CELL SIZE
+--
+DZ
+         100*25                                                                /
+--
+--       DEFINE GRID BLOCK TOPS FOR THE TOP LAYER
+--
+TOPS
+         20*2500.0  20*2525.0  20*2550  20*2575.0  20*2600.0                   /
+--
+--       DEFINE GRID BLOCK POROSITY DATA FOR ALL CELLS
+--
+PORO
+         0.0487  0.0805  0.1098  0.1201  0.0399  0.0550  0.0945  0.0960
+         0.1155  0.1194  0.0573  0.0488  0.0203  0.1152  0.0768  0.0321
+         0.0340  0.0108  0.0788  0.0595  0.1913  0.1325  0.0337  0.0661
+         0.0307  0.0675  0.1181  0.1170  0.1210  0.1498  0.0849  0.0840
+         0.0968  0.1116  0.1084  0.0867  0.0325  0.0252  0.1283  0.0684
+         0.1375  0.1254  0.0592  0.0651  0.0863  0.1124  0.1412  0.0975
+         0.1182  0.1464  0.0993  0.0658  0.0761  0.0785  0.0502  0.0745
+         0.0442  0.0555  0.0948  0.0496  0.0677  0.0923  0.0494  0.1352
+         0.2000  0.1549  0.0944  0.0770  0.0829  0.1686  0.1634  0.1155
+         0.0841  0.0978  0.0753  0.0702  0.0414  0.0238  0.0504  0.0767
+         0.0100  0.0947  0.0933  0.1426  0.1570  0.1183  0.0217  0.0222
+         0.0589  0.1298  0.1633  0.1243  0.1499  0.1500  0.1516  0.1015
+         0.0362  0.0052  0.0796  0.1406                                        /
+--
+--       DEFINE GRID BLOCK PERMX DATA FOR ALL CELLS
+--
+PERMX
+          46.33  179.47  146.06  143.05  194.98  186.42  203.28  295.83
+         325.52  230.27  241.64  247.92  203.28  165.03  102.16  183.92
+         249.17  270.04  357.05  182.26   65.90   98.98  289.60  300.00
+         188.96  201.72  228.19  208.73  238.33  258.75  341.52  402.08
+         119.39    0.00   28.45   73.20  122.25  152.26  213.14  198.51
+         193.68  288.30  400.61  332.83   94.03   27.60  198.32   86.80
+         190.78  287.78  392.63  261.03  101.64  125.94  155.40  146.27
+         115.67   88.40  175.96   68.27  164.23  296.43  256.47  250.94
+         209.77  158.67  305.37  214.29  272.38  292.94  227.39  130.36
+          99.28  118.86  174.99  217.96  257.78  235.07  262.09   87.15
+         287.93  198.31  226.03  288.96  186.84  206.62  442.01  351.86
+         227.57  258.64  193.09  271.75  280.01  86.543  281.90  376.35
+         321.43  393.22  249.03   20.98                                        /
+--
+--       DEFINE GRID BLOCK PERMY DATA FOR ALL CELLS
+--
+PERMY
+         436.61  290.41  165.30  194.30  229.37  253.87  330.56  229.50
+         179.43  239.41  283.60  264.97  174.58  250.72  305.26  396.31
+         292.25  218.36  112.35  103.09  357.04  297.21  285.87  247.59
+         389.82  360.53  370.18  266.87  260.99  315.61  284.97  165.95
+         126.85  137.14  162.59  252.60  221.28  134.49  113.08  237.58
+         304.82  300.97  348.02  291.35  341.96  332.81  288.87  224.04
+         253.24  255.69  219.59  186.85  247.30  175.22  229.73  237.95
+         171.45    0.00  101.30  139.03  195.89  259.96  282.40  348.80
+         289.79  250.14  176.23  200.31  217.36  290.38  327.45  310.81
+         228.16  160.84  358.90  442.01  281.83  162.77  258.29  164.50
+         227.88  305.06  136.35  118.37  282.98  321.06  284.64  338.53
+         398.14  390.27  308.33  362.22  290.55  184.04  217.84  359.72
+         285.86  248.65  189.48   72.19                                        /
+--
+--       DEFINE GRID BLOCK PERMZ DATA FOR ALL CELLS
+--
+PERMZ
+         23.57  21.63  32.20  35.40  29.57  13.68   8.83  10.50
+         28.23  44.00  30.99  18.24  21.28  11.05  10.38  18.57
+         16.64  24.51  31.56  28.28  24.52  14.12  27.33  36.15
+         25.40  10.84  12.86  13.15  22.59  28.05  23.96  18.48
+         16.04  17.12  20.78  12.61  17.23  22.97  21.82  25.88
+         17.99  14.99  19.23  20.44  19.68  15.09  16.30   9.01
+         12.17  11.81  16.33  20.81  17.29  23.25  24.48  18.16
+         23.90  25.60  18.88  19.96  12.28  22.25  15.89  11.39
+         22.46  21.64  19.25  12.46  5.961   0.00  15.90  18.64
+         18.37  20.39  13.53  16.61  29.60  26.70  11.67   1.61
+         14.11  23.93  26.19  18.45  15.34  19.03  11.95   9.54
+          8.40   5.27  13.90  13.28  15.83  16.13  13.60  17.90
+         31.56  28.86  16.67   2.47                                            /
+--
+--       ARRAY       CONSTANT     ---------- BOX ---------                 
+--                                I1  I2   J1  J2   K1  K2                
+EQUALS   ACTNUM      1            1*  1*    1   1    1   5 / SET CELLS TO ACTIVE
+         ACTNUM      0            20  20    1   1    1   5 / SET CELLS TO INACTIVE
+/
+--
+--       DEFINE GRID SECTION REPORT OPTIONS
+--
+RPTGRID
+         DX       DY       DZ       DEPTH    PORO     PERMX                    /
+
+-- =================================================================================================================================
+--
+-- PROPS SECTION
+--
+-- =================================================================================================================================
+PROPS
+
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- FLUID PROPERTIES
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       OIL PVT TABLE FOR DEAD WITH CONSTANT COMPRESSIBILITY
+--
+PVCDO
+--       REF PRES  BO         CO        VISC     VISC
+--       PSIA      RB/STB     1/PSIA    CPOISE   GRAD
+--       --------  --------   -------   ------   ------
+           277.0    1.05000   0.00000      5.0    0.0      / TABLE NO. 01
+--
+--       WATER PVT TABLE
+--
+PVTW
+--       REF PRES  BW         CW        VISC     VISC
+--       PSIA      RB/STB     1/PSIA    CPOISE   GRAD
+--       --------  --------   -------   ------   ------
+          277.0    1.038      4.67E-5   0.318    1*        / TABLE NO. 01
+--
+--       OIL      WAT        GAS
+--       DENSITY  DENSITY    DENSITY
+--       -------  -------    -------
+DENSITY
+         860.04   1033.0     0.853                         / DENSITY PVT DATA REGION 1
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- ROCK PROPERTIES
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       REFERENCE PRESSURE IS TAKEN FROM THE HCPV WEIGHTED FIELD RESERVOIR PRESSURE
+--       AS THE PORV IS ALREADY AT RESERVOIR CONDITIONS (ECLIPSE USES THE REFERENCE
+--       PRESSURE) TO CONVERT THE GIVEN PORV TO RESERVOIR CONDITIONS USING THE DATA
+--       ON THE ROCK KEYWORD)
+--
+--       REF PRES  CF
+--       PSIA      1/PSIA
+--       --------  --------
+ROCK
+         277.0     4.84E-5                                 / ROCK COMPRSSIBILITY
+--
+--       WATER-OIL RELATIVE PERMEABILITY TABLES (SWOF)
+--
+SWOF
+--       SWAT       KRW      KROW       PCOW
+--       FRAC                           PSIA
+--       --------   -------  -------    -------
+         0.180       0.0000  0.9100     0.0000
+         0.200	      0.0001  0.9000     0.0000
+         0.250	      0.0069  0.8403     0.0000
+         0.300	      0.0278  0.6944     0.0000
+         0.350	      0.0625  0.5625     0.0000
+         0.400	      0.1111  0.4444     0.0000
+         0.450	      0.1736  0.3403     0.0000
+         0.500	      0.2500  0.2500     0.0000
+         0.550	      0.3403  0.1736     0.0000
+         0.600	      0.4444  0.1111     0.0000
+         0.650	      0.5625  0.0625     0.0000
+         0.700	      0.6944  0.0278     0.0000
+         0.750	      0.8403  0.0069     0.0000
+         0.800	      0.9000  0.0000     0.0000             / TABLE No. 01
+
+-- =================================================================================================================================
+--
+-- SOLUTION SECTION
+--
+-- =================================================================================================================================
+SOLUTION
+--
+--       DATUM   DATUM   OWC     PCOW   GOC    PCGO   RS   RV   N
+--       DEPTH   PRESS   DEPTH   ----   DEPTH  ----   OPT  OPT  OPT
+EQUIL
+         2525.0   270.0  2600.0  0.00  2200.0  0.00   1    0    0              /
+--
+--                      FETKOVICH AQUIFER DESCRIPTION
+--
+--      ID   DATUM   AQF    AQF    AQF     AQF    AQF   SALT
+--      NUM  DEPTH   PRESS  VOLM   COMP    PI     PVT   CONC
+--
+AQUFETP
+         1  2525.0   270.0 4.0E+15 3.0E-5  5.0    1     0.0                    /
+/
+--
+--                      ANALYTIC AQUIFER CONNECTION
+--
+--       ID     ---------- BOX ---------   CONNECT  AQF    AQF     ADJOIN
+--       NUMBER I1  I2   J1  J2   K1  K2   FACE     INFLX  MULTI   CELLS
+AQUANCON
+         1      1   20    1   1   5   5    K+       1.0    1*      NO/
+/
+--
+--       DEFINE SOLUTION SECTION REPORT OPTIONS
+--
+RPTSOL
+         FIP=3    FIPRESV  RESTART=3                                           /
+
+-- =================================================================================================================================
+--
+-- SUMMARY SECTION
+--
+-- =================================================================================================================================
+SUMMARY
+--
+--       EXPORT STANDARD SUMMARY VARIABLE VECTORS TO FILE
+--
+ALL
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- ANALYTICAL AQUIFER INFLUX VARIABLES
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       ANALYTICAL AQUIFERS(FIELD)
+--
+FAQR
+FAQT
+--
+--       ANALYTICAL AQUIFERS
+--
+AAQP
+/
+AAQR
+/
+AAQT
+/
+--
+--       ACTIVATE COLUMNAR SUMMARY DATA REPORTING OPTION
+--
+RUNSUM
+--
+--       ACTIVATE SUMMARY DATA RSM FILE OUTPUT OPTION
+--
+SEPARATE
+
+-- =================================================================================================================================
+--
+-- SCHEDULE SECTION
+--
+-- =================================================================================================================================
+SCHEDULE
+
+--
+--       DEFINE SCHEDULE SECTION REPORT OPTION
+--
+RPTSCHED
+         PRES   SOIL   SWAT   SGAS   'WELLS=1'                                 /
+--
+--       RESTART CONTROL BASIC = 4 (YEARLY) 5 (MONTHLY)
+--
+RPTRST
+         BASIC=2  ALLPROPS                                                     /
+--
+--       SOLUTION GAS (RS) MAXIMUM RATE OF INCREASE FOR MODEL
+--
+DRSDT
+--       MAX RS    ALL/FREE
+--       DRSDT1    DRSDT2
+--       -------   --------
+         0.000     ALL                                     /
+--
+--       WELL SPECIFICATION DATA
+--
+-- WELL  GROUP     LOCATION  BHP    PHASE  DRAIN  INFLOW  OPEN  CROSS  PVT
+-- NAME  NAME        I    J  DEPTH  FLUID  AREA   EQUANS  SHUT  FLOW   TABLE
+WELSPECS
+OP01     MAIN       10    1  1*      OIL    1*    1*      1*    1*     1*      /
+/
+--
+--       WELL CONNECTION DATA
+--
+-- WELL  --- LOCATION ---  OPEN   SAT   CONN   WELL   KH    SKIN   D     DIR
+-- NAME   II  JJ  K1  K2   SHUT   TAB   FACT   DIA    FACT  FACT   FACT  PEN
+COMPDAT
+OP01      1*  1*   1   3   OPEN   1*    1*    0.500   1*    0.0    1*    'Z'   /
+/
+--
+--       WELL PRODUCTION WELL CONTROLS
+--
+-- WELL  OPEN/  CNTL   OIL    WAT    GAS   LIQ    RES    BHP   THP   VFP    VFP
+-- NAME  SHUT   MODE   RATE   RATE   RATE  RATE   RATE   PRES  PRES  TABLE  ALFQ
+WCONPROD
+OP01     OPEN   LRAT   1*     1*     1*    500    1*     25                    /
+/
+--
+--       ADVANCE SIMULATION BY REPORTING TIME FOR SIX YEARS
+--
+--       JAN  FEB  MAR  APR  MAY  JUN  JLY  AUG  SEP  OCT  NOV  DEC
+TSTEP
+         31   28   31   30   31   30   31   31   30   31   30   31
+         31   28   31   30   31   30   31   31   30   31   30   31
+         31   28   31   30   31   30   31   31   30   31   30   31
+         31   28   31   30   31   30   31   31   30   31   30   31
+         31   28   31   30   31   30   31   31   30   31   30   31
+         31   28   31   30   31   30   31   31   30   31   30   31
+         31   28   31   30   31   30   31   31   30   31   30   31
+         31   28   31   30   31   30   31   31   30   31   30   31
+         31   28   31   30   31   30   31   31   30   31   30   31
+         31   28   31   30   31   30   31   31   30   31   30   31
+/
+
+END
+
+ECHO
+--
+-- *********************************************************************************************************************************
+-- END OF FILE
+-- *********************************************************************************************************************************

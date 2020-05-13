@@ -23,20 +23,24 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
 --
---          DEFINE CONCENTRATION OF TRACERS IN THE INJECTION STREAMS, 
---          INJECTION TRACER CONCENTRATIONS NOT DEFINED USING THE WTRACER 
---          KEYWORD ARE ASSUMED TO BE ZERO.
+--       DEFINE CONCENTRATION OF TRACERS IN THE INJECTION STREAMS, 
+--       INJECTION TRACER CONCENTRATIONS NOT DEFINED USING THE WTRACER 
+--       KEYWORD ARE ASSUMED TO BE ZERO.
 --
--- WELL     NAME     TRACER TRACER TRACER        
--- NAME     TRACER   VALUE  CUM    GROUP         
+-- WELL  NAME    TRACER  TRACER  TRACER        
+-- NAME  TRACER  CONC    CUM     GROUP         
 WTRACER
-'GI01'     'GAS'      1.0                                                     /
-'WI01'     'WAT'      1.0                                                     /
+GI01     'GAS'   1.0                                       /
+GI02     'GAS'   1.0                                       /
+      
+WI01     'WAT'   1.0                                       /
+WI02     'WAT'   0.0                                       /
+WI03     'WAT'   1.0                                       /
 /                                              
 ## =================================================================================================================================

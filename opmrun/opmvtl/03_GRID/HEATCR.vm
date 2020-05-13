@@ -23,15 +23,16 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
 --                                                                              
---       DEFINE GRID BLOCK RESERVOIR ROCK HEAT CAPACITY
---       FOR ALL CELLS (BASED ON NX x NY x NZ = 300)                            
--- 
+--       DEFINE GRID BLOCK RESERVOIR ROCK HEAT CAPACITY FOR ALL CELLS
+--       KEYWORD IS INCOMPATIBLE WITH THE SPECROCK KEYWORD
+--       (OPM FLOW THERMAL OPTION ONLY)
+--
 HEATCR
          300*32.0                                                              /                                                                                 
 ## =================================================================================================================================

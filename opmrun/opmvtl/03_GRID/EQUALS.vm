@@ -23,17 +23,17 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
 --
---       -- ARRAY    CONSTANT --  ---------- BOX ---------                 
+--       ARRAY       CONSTANT     ---------- BOX ---------                 
 --                                I1  I2   J1  J2   K1  K2                
 EQUALS                                                  
-        'PERMX'      0.1000       1*  1*   1*  1*    5   5 / SET PERMX TO 0.10 IN LAYER 5
-        'PERMY'      0.1000       1*  1*   1*  1*    5   5 / SET PERMY TO 0.10 IN LAYER 5
-        'PERMZ'      0.0100       1*  1*   1*  1*    5   5 / SET PERMZ TO 0.01 IN LAYER 5
+         PERMX       0.1000       1*  1*   1*  1*    5   5 / SET PERMX TO 0.10 IN LAYER 5
+         PERMY       0.1000       1*  1*   1*  1*    5   5 / SET PERMY TO 0.10 IN LAYER 5
+         PERMZ       0.0100       1*  1*   1*  1*    5   5 / SET PERMZ TO 0.01 IN LAYER 5
 /                                                                                   
 ## =================================================================================================================================

@@ -23,7 +23,7 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
@@ -34,11 +34,12 @@
 -- 
 -- =================================================================================================================================
 SOLUTION
-
-#if ($Ans)
-#parse ('Eclipse\06 SOLUTION\EQUIL.vm' )
-#parse ('Eclipse\06 SOLUTION\DATUM.vm' )                                                                            
-#parse ('Eclipse\06 SOLUTION\RSVD.vm'  )                                                                             
-#parse ('Eclipse\06 SOLUTION\RPTSOL.vm')     
+    
+#yes_no ( "Generate Schedule keywords?" $Ans "Yes" "No")
+#if  ( $Ans )
+#parse ('Eclipse\07_SOLUTION\EQUIL.vm' )
+#parse ('Eclipse\07_SOLUTION\DATUM.vm' )                                                                            
+#parse ('Eclipse\07_SOLUTION\RSVD.vm'  )                                                                             
+#parse ('Eclipse\07_SOLUTION\RPTSOL.vm')     
 #end
 ## =================================================================================================================================

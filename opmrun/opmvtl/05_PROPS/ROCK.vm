@@ -23,11 +23,13 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
+--
+--       ROCK COMPRESSIBILITY                                                                 
 --                                                                                      
 --       REFERENCE PRESSURE IS TAKEN FROM THE HCPV WEIGHTED FIELD RESERVOIR PRESSURE      
 --       AS THE PORV IS ALREADY AT RESERVOIR CONDITIONS (ECLIPSE USES THE REFERENCE       
@@ -38,5 +40,5 @@
 --       PSIA      1/PSIA                                                                     
 --       --------  --------                                                                   
 ROCK                                                                                    
-         3966.9    5.0E-06                                 / ROCK COMPRSSIBILITY                 
+         3966.9    5.0E-06                                 / ROCK COMPRESSIBILITY                 
 ## =================================================================================================================================

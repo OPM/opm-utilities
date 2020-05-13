@@ -23,7 +23,7 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
@@ -48,10 +48,10 @@ NEXTSTEP
 --  WELL WELL   --LOCATION--  COMPLETION                                     
 --  NAME STAT     I   J    K  FIRST LAST                                     
 WELOPEN                                                                       
-SHD-INJ  SHUT                                                                  /
-SHD-INJ  SHUT     0   0    0     2     2                                       /
-SHD-INJ  OPEN                                                                  /
-SHD-INJ  OPEN     0   0    0     1     1                                       /
+GI01     SHUT                                                                  /
+GI01     SHUT     0   0    0     2     2                                       /
+GI01     OPEN                                                                  /
+GI01     OPEN     0   0    0     1     1                                       /
 /                                                                               
 
 ENDACTIO

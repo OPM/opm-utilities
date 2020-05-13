@@ -23,17 +23,17 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
 --
---       -- ARRAY    CONSTANT --  ---------- BOX ---------                 
+--       ARRAY    CONSTANT        ---------- BOX ---------                 
 --                                I1  I2   J1  J2   K1  K2                
 MINVALUE                                                             
-         'PERMX'     1.0E1        1*  1*   1*  1*   1*  1* / MINIMUM VALUE FOR PERMX
-         'PERMY'     1.0E1        1*  1*   1*  1*   1*  1* / MINIMUM VALUE FOR PERMY
-         'PERMZ'     1.0E-1       1*  1*   1*  1*   1*  1* / MINIMUM VALUE FOR PERMZ
+         PERMX    1.0E1           1*  1*   1*  1*   1*  1* / MINIMUM VALUE FOR PERMX
+         PERMY    1.0E1           1*  1*   1*  1*   1*  1* / MINIMUM VALUE FOR PERMY
+         PERMZ    1.0E-1          1*  1*   1*  1*   1*  1* / MINIMUM VALUE FOR PERMZ
 /         
 ## =================================================================================================================================

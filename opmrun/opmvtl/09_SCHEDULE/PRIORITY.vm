@@ -23,18 +23,18 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##                                                                    
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ##                                                
 ## =================================================================================================================================
 --
--- SETS COEFFICIENTS FOR WELL PRIORITIZATION OPTION
+--       SETS COEFFICIENTS FOR WELL PRIORITIZATION OPTION
 --
---  TIME    A      B      C      D      E      F      G      H                  
---  STEP           Qo     Qw     Qg            Qo     Qw     Qg                
+--       TIME    A      B      C      D      E      F      G      H                  
+--       STEP           Qo     Qw     Qg            Qo     Qw     Qg                
 PRIORITY   
-    0.0     0.0    1.0    0.0    0.0    1.0    0.0    0.0    0.0               /  Rank Wells By High Oi Potential      
---  0.0     0.0    1.0    1.0    0.0    0.0    0.0    1.0    0.0               /  Rank Wells By Low Watercut  
---  0.0     0.0    1.0    0.0    0.0    0.0    0.0    0.0    1.0               /  Rank Wells By Low GOR  
+         0.0     0.0    1.0    0.0    0.0    1.0    0.0    0.0    0.0          / Rank Wells By High Oil Potential      
+--       0.0     0.0    1.0    1.0    0.0    0.0    0.0    1.0    0.0          / Rank Wells By Low Watercut  
+--       0.0     0.0    1.0    0.0    0.0    0.0    0.0    0.0    1.0          / Rank Wells By Low GOR  
 ## =================================================================================================================================

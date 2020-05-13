@@ -23,7 +23,7 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
@@ -34,6 +34,6 @@
 --       OUTPUT  ---------- BOX ---------  OPERATION  INPUT   ALPHA   BETA 
 --       ARRAY   I1  I2   J1  J2   K1  K2  ---------  ARRAY   -----   ----          
 OPERATE                                                                                           
-         'SGU'   1*  1*   1*  1*   1*  1*  'MULTA'    'SWL'  -1.0     1.0      / RESET GAS MAX AS (1-SWL)
+         SGU     1*  1*   1*  1*   1*  1*  'MULTA'    SWL     -1.0    1.0      / RESET GAS MAX AS (1-SWL)
 /                                           
 ## =================================================================================================================================

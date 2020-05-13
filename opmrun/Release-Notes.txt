@@ -1,5 +1,23 @@
 Release Notes
 ------------
+2020-04.02 - Fix a bug with Compress/Uncompress windows preventing printing to the main Out element. This was because
+             these two windows used an an Out element as well, and there can be only one Out element in the application.
+             The fix was to use the Multiline element for the Compress/Uncompress windows, this resulted in various
+             code changes to other functions.
+             Fix initial directory bug when loading a queue. Need to set default and initial directory variables in
+             PopupGetFile() call.
+           - Moved main code into function to comply with PEP8 and refactored where necessary. Changed button status
+             when running jobs. Also fixed some typos in the Help and About text.
+           - Fixed inconsistent Python major release check.
+           - Changed the job queue list so that the current job is highlighted in the list when running in
+             foreground mode.
+           - Fixed potential bug in the add_job() function by using the set_window_status() function to enable and
+             disable the main window. Previously the direct methods were used and this may cause the application to
+             freeze under Linux.
+           - Fixed some typos.
+           - Used NumPy/SciPy Docstrings documentation format and document all functions.
+           - Move several functions to opm_common to reduce code duplication.
+
 2020-04.01 - Fixed a tKinter bug that centers windows by the total x-direction display space, rather than the using
            - just the primary display size (multi-monitor issue). All pops are now based on the current main window
              location.

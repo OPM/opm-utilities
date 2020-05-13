@@ -23,11 +23,87 @@
 ##                             51 Goldhill Plaza,  #07-10/11,
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
-#yes_no ( "Generate Standard SUMMARY keywords?" $Ans "Yes" "No")
+#beanshell (false)
+//
+//  Get Simulation Data File Options
+//
+    Label 	    = new Object[ 1];                                             
+    Options 	 = new Object[10];                                             
+    Panel       = new JPanel(new GridLayout(11, 1));
+    Label[0]    = new JLabel("SELECT SUMMARY VARIABLE OPTIONS", SwingConstants.LEFT);
+    Options[ 0] = new JCheckBox("API and Tracer Tracking"                            ,false);
+    Options[ 1] = new JCheckBox("Aquifer (Analytical) Variables"                     ,false);
+    Options[ 2] = new JCheckBox("Aquifer (Numerical) Variables"                      ,false);
+    Options[ 3] = new JCheckBox("Brine Variables"                                    ,false);
+    Options[ 4] = new JCheckBox("Foam Variables"                                     ,false);
+    Options[ 5] = new JCheckBox("Multi-Segment Wells Variables"                      ,false);
+    Options[ 6] = new JCheckBox("Polymer Variables"                                  ,false);
+    Options[ 7] = new JCheckBox("Solvent Variables"                                  ,false);
+    Options[ 8] = new JCheckBox("Standard Production and Injection Summary Variables",false);
+    Options[ 9] = new JCheckBox("Thermal Variables"                                  ,false);
+// 
+//  Simulator Option
+//
+    Panel.add(Label[0]);
+    Panel.add(Options[ 0]);      
+    Panel.add(Options[ 1]);
+    Panel.add(Options[ 2]);
+    Panel.add(Options[ 3]);
+    Panel.add(Options[ 4]);
+    Panel.add(Options[ 5]);
+    Panel.add(Options[ 6]);
+    Panel.add(Options[ 7]);
+    Panel.add(Options[ 8]);                                     
+    Panel.add(Options[ 9]);                         
+//    
+    message = new Object[1];
+    message[0] = Panel;                                
+//    
+    if( JOptionPane.OK_OPTION !=JOptionPane.showConfirmDialog(view, message, "Select Options",
+        JOptionPane.OK_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE))
+        return null;
+//    
+//  Get Options
+//
+    if (Options[0].isSelected())    {
+      context.put("SumOpt01" , "Yes");
+    } 
+    if (Options[1].isSelected())    {
+      context.put("SumOpt02" , "Yes");
+    } 
+    if (Options[2].isSelected())    {
+      context.put("SumOpt03" , "Yes");
+    } 
+    if (Options[3].isSelected())    {
+      context.put("SumOpt04" , "Yes");
+    } 
+    if (Options[4].isSelected())    {
+      context.put("SumOpt05" , "Yes");
+    } 
+    if (Options[5].isSelected())    {
+      context.put("SumOpt06" , "Yes");
+    } 
+    if (Options[6].isSelected())    {
+      context.put("SumOpt07" , "Yes");
+    } 
+    if (Options[7].isSelected())    {
+      context.put("SumOpt08" , "Yes");
+    } 
+    if (Options[8].isSelected())    {
+      context.put("SumOpt09" , "Yes");
+    } 
+    if (Options[9].isSelected())    {
+      context.put("SumOpt10" , "Yes");
+    } 
+//                           
+//  Set File Location to Top of File
+//
+    textArea.setCaretPosition(0);    
+#end
 #parse ('Eclipse\08_SUMMARY\SUMMARY.vm')      
 ## =================================================================================================================================

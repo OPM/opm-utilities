@@ -7,3 +7,4 @@ opmrun/setup.py
 opmrun/LICENSE
 *.xml
 *.iml
+opmrun/.compile.py

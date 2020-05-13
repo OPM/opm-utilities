@@ -23,23 +23,11 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 30-Jan-2020
+## Date                      : 11-May-2020
 ##   
 ##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
-##
-## Beanshell Macro to Generate Dialog Box to Select Template Option
-##
-#beanshell (false)
-//
-//  Set File Location to Top of File
-//
-//    textArea.setCaretPosition(0);
-#end
-## 
-## Start of Template Setup for ACTIONX Keyword
-## 
 -- ---------------------------------------------------------------------------------------------------------------------------------
 -- GROUP PHASE-1 AUTOMATIC PHASING
 -- ---------------------------------------------------------------------------------------------------------------------------------
@@ -48,10 +36,9 @@ ACTIONX
         GGPR  'FIELD' < 600E3 AND                                              /
         YEAR          > 2013  AND                                              /
         GMWDT 'FIELD' = 12                                                     /
---      GMWDT 'FIELD' = 15                                                     /
 /
        
--- WELL PRODUCTION STATUS                                                       
+--  WELL PRODUCTION STATUS                                                       
 --                                                                              
 --  WELL    WELL   --LOCATION--  COMPLETION                                     
 --  NAME    STAT     I   J    K  FIRST LAST                                     
@@ -79,7 +66,6 @@ ACTIONX
         PHASE-2         1                                                      /
         GGPR  'FIELD' < 600E3 AND                                              /
         YEAR          > 2013  AND                                              /
---      GMWDT 'FIELD' = 12                                                     /
         GMWDT 'FIELD' = 17                                                     /
 /
        
@@ -102,14 +88,11 @@ WDRILPRI
 /
 ENDACTIO
 
-INCLUDE
- 'SHG05-A00-WELVFP-MYP2.INC'  			               	               / 
-
 -- ---------------------------------------------------------------------------------------------------------------------------------
 -- FIELD PHASE-3 AUTOMATIC COMPRESSION
 -- ---------------------------------------------------------------------------------------------------------------------------------
-ACTIONX
-	PHASE-3         1                                                      /
+ACTIONX 
+        PHASE-3         1                                                      /
         GGPR  'FIELD' < 600E3 AND                                              /
         GMWDT 'FIELD' = 20                                                     /
 /

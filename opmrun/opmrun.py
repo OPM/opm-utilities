@@ -10,6 +10,10 @@ details.
 
 Program Documentation
 ---------------------
+2020-04.03 - Changed version number.
+           - Updated all templates to be consistent with OPM Flow manual.
+           - Updated documentation for this release.
+
 2020-04.02 - Fix a bug with Compress/Uncompress windows preventing printing to the main Out element. This was because
              these two windows used an an Out element as well, and there can be only one Out element in the application.
              The fix was to use the Multiline element for the Compress/Uncompress windows, this resulted in various
@@ -154,7 +158,7 @@ Copyright (C) 2018-2020 Equinox International Petroleum Consultants Pte Ltd.
 Author  : David Baxendale
           david.baxendale@eipc.co
 Version : 2020-04.01
-Date    : 09-Mar-2020
+Date    : 13-May-2020
 """
 #-----------------------------------------------------------------------------------------------------------------------
 # 3456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
@@ -238,7 +242,7 @@ if sys.version_info >= (3,7,3):
 #-----------------------------------------------------------------------------------------------------------------------
 # Define Global Constants Section
 #-----------------------------------------------------------------------------------------------------------------------
-opmvers  = '2020-04.02'
+opmvers  = '2020-04.03'
 opm      = Path.home()
 opmhome  = Path(opm  / 'OPM')
 #

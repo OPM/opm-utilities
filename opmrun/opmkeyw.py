@@ -29,7 +29,6 @@ libraries are used in this version.
 (1) datetime
 (2) platform
 (3) pathlib
-(4) tkinter as tk
 
 For OPMKEYW the integrated OPM Flow Keyword Generator the following additional modules are required:
 
@@ -38,6 +37,8 @@ For OPMKEYW the integrated OPM Flow Keyword Generator the following additional m
 
 Program Documentation
 --------------------
+2020-04-03 - Removed the option for stand alone running to simplify code base.
+           -
 2020-04-02 - Added a DATA (Set) option for data sets and added various data set templates.
            - Added MODEL option and added various selected OPM Flow models as complete examples.
            - Fixed inconsistent Python major release check.
@@ -61,84 +62,26 @@ Date    : 09-Mar-2020
 #        1         2         3         4         5         6         7         8         9         0         1         2
 #        0         0         0         0         0         0         0         0         0         1         1         1
 # ----------------------------------------------------------------------------------------------------------------------
-
+#
 # ----------------------------------------------------------------------------------------------------------------------
 # Import Modules Section
 # ----------------------------------------------------------------------------------------------------------------------
-import os
-import sys
-from os.path import exists
+import platform
 from datetime import datetime
+from pathlib import Path
+#
+# Import Required Non-Standard Modules
+#
+import airspeed
+import PySimpleGUI as sg
 #
 # Import OPM Common Modules
 #
-from opm_common import opm_initialize
-from opm_common import opm_popup
-from opm_common import copy_to_clipboard
-#
-# Check for Python Version and Import Required Non-Standard Modules
-#
-if sys.version_info[0] == 2:
-    exit('OPMRUN Only Works with Python 3, Python 2 Support is Depreciated')
-
-try:
-    import PySimpleGUI as sg
-except ImportError:
-    sg = None
-    exit('OPMRUN Cannot Import PySimpleGUI - Please Install Using pip3')
-
-try:
-    from pathlib import Path
-except ImportError:
-    Path = None
-    exit('OPMRUN Cannot Import Path from pathlib module - Please Install Using pip3')
-
-try:
-    import platform
-except ImportError:
-    platform = None
-    exit('OPMRUN Cannot Import platform module - Please Install Using pip3')
-
-try:
-    import tkinter as tk
-except ImportError:
-    tk = None
-    exit('OPMRUN Cannot Import tkinter - Please Install Using pip3')
-
-try:
-    import airspeed
-except ImportError:
-    airspeed = None
-    exit('OPMRUN Cannot Import airspeed - Please Install Using pip3')
-
-#
-# Check for Python Version for 3.7 and Issue Warning Message and Continue
-#
-if sys.version_info >= (3, 7, 3):
-    sg.PopupError('Python 3.7.3 and Greater Detected OPMRUN May Not Work \n' +
-                  '\n' +
-                  'PySimpleGUI with Python 3.7.3 and 3.7.4+ is known to have problems due to the implementation \n' +
-                  'of tkinter in those versions of Python. If you must run 3.7, try 3.7.2 as this version works \n' +
-                  'with PySimpleGUI with no known issues. \n' +
-                  '\n' +
-                  'Will try to continue', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+from opm_common import copy_to_clipboard, opm_initialize, opm_popup, opm_prtdict
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Define OPMRUN Constants for Stand Alone Running
-# ----------------------------------------------------------------------------------------------------------------------
-opmvers = '2020-04.02'
-opmoptn = dict()
-opmoptn['opm-keywdir'] = Path.home()
-opmoptn['opm-author1'] = None
-opmoptn['opm-author2'] = None
-opmoptn['opm-author3'] = None
-opmoptn['opm-author4'] = None
-opmoptn['opm-author5'] = None
-
-
-#
 # Define OPMKEYW Specific Modules
-#
+# ----------------------------------------------------------------------------------------------------------------------
 def keyw_check_directory(keywdir):
     """Check for the OPMKEYW Template Directory
 
@@ -300,8 +243,8 @@ def keyw_get_items(key):
     # HEADER File Processing
     #
     if key in keyheadr:
-        filename = sg.PopupGetFile('Save ' + key + ' to File', save_as=True, initial_folder=str(os.getcwd()),
-                                   default_path=str(os.getcwd()),
+        filename = sg.PopupGetFile('Save ' + key + ' to File', save_as=True, initial_folder=str(Path().absolute()),
+                                   default_path=str(Path().absolute()),
                                    file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')],
                                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         try:
@@ -480,7 +423,7 @@ def keyw_save_keywords(text):
     Nothing
     """
 
-    filename = sg.PopupGetFile('Save Keywords to File', save_as=True, default_path=str(os.getcwd()),
+    filename = sg.PopupGetFile('Save Keywords to File', save_as=True, default_path=str(Path().absolute()),
                                no_titlebar=True, grab_anywhere=True, keep_on_top=True,
                                file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')])
     if filename is None:
@@ -495,7 +438,7 @@ def keyw_save_keywords(text):
                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
 
-def keyw_main(**opmoptn):
+def keyw_main(opmvers, **opmoptn):
     """OPMRUN Keyword Generation Utility
 
     OPM Flow Keyword Generation Utility is a Graphical User Interface ("GUI") program for the Open Porous Media ("OPM")
@@ -512,6 +455,8 @@ def keyw_main(**opmoptn):
 
     Parameters
     ----------
+    opmvers; str
+        The version of OPMRUN currently running
     opmoptn; dict
         A dictionary containing the OPMRUN default parameters
 
@@ -528,7 +473,7 @@ def keyw_main(**opmoptn):
     patherr = keyw_check_directory(keywdir)
 
     if patherr:
-        keywdir = Path(os.getcwd()).joinpath('opmvtl')
+        keywdir = Path(Path().absolute()).joinpath('opmvtl')
         patherr = keyw_check_directory(keywdir)
 
         if patherr:
@@ -537,8 +482,8 @@ def keyw_main(**opmoptn):
                           'Please Set Keyword Template Directory',
                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
-            keywdir = sg.PopupGetFolder('Set Keyword Template Directory', default_path=str(os.getcwd()),
-                                        initial_folder=str(os.getcwd()),
+            keywdir = sg.PopupGetFolder('Set Keyword Template Directory', default_path=str(Path().absolute()),
+                                        initial_folder=str(Path().absolute()),
                                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             #
             # Process Cancel with Return to OPMRUN Main
@@ -697,9 +642,7 @@ def keyw_main(**opmoptn):
     #
     debug = False
     if debug:
-        sg.Print('Dictionary Variable: opmoptn')
-        for item in opmoptn:
-            sg.Print("Key : {} , Value : {}".format(item, opmoptn[item]))
+        opm_prtdict('opmoptn', opmoptn, option='debug')
     #
     # Get Keyword Templates
     #
@@ -719,9 +662,7 @@ def keyw_main(**opmoptn):
     keyw_get_keywords(keywdir, 'SCHEDULE', keywords, keylist, keyfiles)
 
     if debug:
-        sg.Print('Dictionary Variable: keyfiles')
-        for item in keyfiles:
-            sg.Print("Key : {} , Value : {}".format(item, keyfiles[item]))
+        opm_prtdict('keyfiles', keyfiles, option='debug')
     #
     # Make ALL Keyword List
     #
@@ -734,9 +675,7 @@ def keyw_main(**opmoptn):
     keyw_get_keywords(keywdir, 'MODELS', keywords, keylist, keyfiles)
     keyw_get_keywords(keywdir, 'USER'  , keywords, keylist, keyfiles)
     if debug:
-        sg.Print('Dictionary Variable: keyfiles')
-        for item in keyfiles:
-            sg.Print("Key : {} , Value : {}".format(item, keyfiles[item]))
+        opm_prtdict('keyfiles', keyfiles, option='debug')
     #
     # Set Initial Keyword List to Display
     #
@@ -801,13 +740,13 @@ def keyw_main(**opmoptn):
         # Clear
         #
         if button == '_clear_':
-            window1.Element('_deckinput_').Update('')
+            window1['_deckinput_'].update('')
             continue
         #
         # Copy
         #
         elif button == '_copy_':
-            copy_to_clipboard(window1.Element('_deckinput_').Get())
+            copy_to_clipboard(window1['_deckinput_'].get())
             sg.PopupTimed('Deck Copied to Clipboard', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             continue
         #
@@ -827,7 +766,7 @@ def keyw_main(**opmoptn):
         # Help
         #
         elif button == '_help_':
-            opm_popup(opmvers, helptext, 22)
+            opm_popup('Keyword Generator Help', helptext, 22)
             continue
         #
         # Keywords
@@ -858,14 +797,12 @@ def keyw_main(**opmoptn):
                 continue
 
             if debug:
-                sg.Print('Dictionary Variable: opmoptn')
-                for item in opmoptn:
-                    sg.Print("Key : {} , Value : {}".format(item, opmoptn[item]))
+                opm_prtdict('opmoptn', opmoptn, option='debug')
 
             date = datetime.now().strftime('%d-%b-%Y')
             time = datetime.now().strftime('%H:%M:%S')
             try:
-                window1.Element('_deckinput_').Update(template.merge({'FileType' : filetype,
+                window1['_deckinput_'].update(template.merge({'FileType' : filetype,
                                                                       'Date'     : str(date),
                                                                       'Time'     : str(time),
                                                                       'OSName'   : platform.system(),
@@ -906,50 +843,50 @@ def keyw_main(**opmoptn):
         #
         elif button == '_filter_':
             if values['_header_']:
-                window1.Element('_keylist_').Update(keywords['HEADER'])
+                window1['_keylist_'].update(keywords['HEADER'])
 
             if values['_global_']:
-                window1.Element('_keylist_').Update(keywords['GLOBAL'])
+                window1['_keylist_'].update(keywords['GLOBAL'])
 
             if values['_runspec']:
-                window1.Element('_keylist_').Update(keywords['RUNSPEC'])
+                window1['_keylist_'].update(keywords['RUNSPEC'])
 
             if values['_grid_']:
-                window1.Element('_keylist_').Update(keywords['GRID'])
+                window1['_keylist_'].update(keywords['GRID'])
 
             if values['_edit_']:
-                window1.Element('_keylist_').Update(keywords['EDIT'])
+                window1['_keylist_'].update(keywords['EDIT'])
 
             if values['_props_']:
-                window1.Element('_keylist_').Update(keywords['PROPS'])
+                window1['_keylist_'].update(keywords['PROPS'])
 
             if values['_solution_']:
-                window1.Element('_keylist_').Update(keywords['SOLUTION'])
+                window1['_keylist_'].update(keywords['SOLUTION'])
 
             if values['_summary_']:
-                window1.Element('_keylist_').Update(keywords['SUMMARY'])
+                window1['_keylist_'].update(keywords['SUMMARY'])
 
             if values['_schedule_']:
-                window1.Element('_keylist_').Update(keywords['SCHEDULE'])
+                window1['_keylist_'].update(keywords['SCHEDULE'])
 
             if values['_all_']:
-                window1.Element('_keylist_').Update(keywords['ALL'])
+                window1['_keylist_'].update(keywords['ALL'])
 
             if values['_data_']:
-                window1.Element('_keylist_').Update(keywords['DATA'])
+                window1['_keylist_'].update(keywords['DATA'])
 
             if values['_models_']:
-                window1.Element('_keylist_').Update(keywords['MODELS'])
+                window1['_keylist_'].update(keywords['MODELS'])
 
             if values['_user_']:
-                window1.Element('_keylist_').Update(keywords['USER'])
+                window1['_keylist_'].update(keywords['USER'])
 
             continue
         #
         # Save
         #
         elif button == '_save_':
-            keyw_save_keywords(window1.Element('_deckinput_').Get())
+            keyw_save_keywords(window1['_deckinput_'].get())
             continue
         #
         # Template
@@ -960,8 +897,8 @@ def keyw_main(**opmoptn):
                 key = str(values['_keylist_'][0])
                 tempname = Path(keyfiles[key])
                 tempfile = open(tempname, "r")
-                window1.Element('_deckinput_').Update('')
-                window1.Element('_deckinput_').Update(tempfile.read())
+                window1['_deckinput_'].update('')
+                window1['_deckinput_'].update(tempfile.read())
                 tempfile.close()
             except Exception as error:
                 sg.PopupError('Error Displaying Velocity Template Source: ' + str(key) + '\n  \n' + str(error),
@@ -973,7 +910,7 @@ def keyw_main(**opmoptn):
         #
         #
         elif button == 'Template Help':
-            opm_popup(opmvers, helptemp, 22)
+            opm_popup('Keyword Generator Template Help', helptemp, 22)
             continue
     #
     # Define Post Processing Section
@@ -981,18 +918,12 @@ def keyw_main(**opmoptn):
     ans = sg.PopupYesNo('Do You Wish to Save the Keyword to File?',
                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
     if ans == 'Yes':
-        keyw_save_keywords(window1.Element('_deckinput_').Get())
+        keyw_save_keywords(window1['_deckinput_'].get())
 
     window1.Close()
     sg.PopupOK('Keyword Generation Processing Complete',
                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Execute Module
-# ----------------------------------------------------------------------------------------------------------------------
-if __name__ == '__main__':
-    keyw_main(**opmoptn)
 
 # ======================================================================================================================
 # End of OPMKEYW

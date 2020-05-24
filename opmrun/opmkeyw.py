@@ -149,7 +149,7 @@ def keyw_get_file(key):
 
             window2 = sg.Window('Generate Schedule Date Keywords', layout=layout1,
                                 no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            (event, values) = window2.Read()
+            (event, values) = window2.read()
             window2.Close()
             if event == 'Submit':
                 file = "'" + str(values['_file_'][0]) + "'"
@@ -299,7 +299,7 @@ def keyw_get_items(key):
 
             window2 = sg.Window('Generate Schedule Date Keywords', layout=layout1,
                                 no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            (event, values) = window2.Read()
+            (event, values) = window2.read()
             window2.Close()
 
             if event == 'Submit':
@@ -334,7 +334,7 @@ def keyw_get_items(key):
 
         window2 = sg.Window('Generate Summary Date Keywords', layout=layout1,
                             no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-        (event, values) = window2.Read()
+        (event, values) = window2.read()
         window2.Close()
 
         if event == 'Submit':
@@ -724,7 +724,7 @@ def keyw_main(opmvers, **opmoptn):
         #
         # Read the Window and Process
         #
-        event, values = window1.Read()
+        event, values = window1.read()
         if debug:
             sg.Print('Buttons')
             sg.Print(event)

@@ -1,0 +1,7 @@
+setuptools~=45.2.0
+psutil~=5.5.1
+airspeed~=0.5.16
+PySimpleGUI~=4.19.0
+pandas~=1.0.3
+pyDOE2~=1.3.0
+tkinter

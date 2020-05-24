@@ -274,7 +274,7 @@ def opmsens_edit_factor(header, nrow, factors):
                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
     while True:
-        (event, values) = window2.Read()
+        (event, values) = window2.read()
 
         if event == 'Factors':
             layout3 = [[sg.Text('Standard Factors')],
@@ -282,7 +282,7 @@ def opmsens_edit_factor(header, nrow, factors):
                        [sg.Text('')]]
             window3 = sg.Window('Standard Factors', layout=layout3, finalize=True,
                                 no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            (button3, values3) = window3.Read()
+            (button3, values3) = window3.read()
             window3.Close()
 
             window2['_var02_'].update(value=(values3[0][0]))
@@ -658,7 +658,7 @@ def opmsens_write_queue(jobs):
     window2 = sg.Window('Select OPM Flow Input File', layout=layout2, finalize=True,
                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
-    (event, values) = window2.Read()
+    (event, values) = window2.read()
     window2.Close()
 
     jobfile = values['_jobfile_']
@@ -834,7 +834,7 @@ def opmsens_main(**opmoptn):
         #
         # Read the Window and Process
         #
-        event, values = window1.Read()
+        event, values = window1.read()
         debug = False
         if debug:
             sg.Print('Buttons')

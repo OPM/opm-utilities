@@ -127,7 +127,7 @@ def keyw_get_file(key):
 
     Returns
     -------
-    button : str
+    event : str
         Set to Cancel if Popup window is cancelled
     file : str
         The file name in the desired format or None if the Popup was cancelled
@@ -149,17 +149,17 @@ def keyw_get_file(key):
 
             window2 = sg.Window('Generate Schedule Date Keywords', layout=layout1,
                                 no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            (button, values) = window2.Read()
+            (event, values) = window2.Read()
             window2.Close()
-            if button == 'Submit':
+            if event == 'Submit':
                 file = "'" + str(values['_file_'][0]) + "'"
 
-            if button == 'Cancel':
+            if event == 'Cancel':
                 file = None
 
         else:
             file = None
-            button = 'Cancel'
+            event = 'Cancel'
     #
     # Get LOAD File
     #
@@ -167,18 +167,18 @@ def keyw_get_file(key):
         file = sg.PopupGetFile('Select ' + key + ' File to be Loaded',
                                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         if file is not None:
-            button = 'Submit'
+            event = 'Submit'
             file = "'" + str(Path(file).stem) + "'"
 
         else:
             file = None
-            button = 'Cancel'
+            event = 'Cancel'
 
     else:
         file = None
-        button = 'Submit'
+        event = 'Submit'
 
-    return button, file
+    return event, file
 
 
 def keyw_get_items(key):
@@ -299,10 +299,10 @@ def keyw_get_items(key):
 
             window2 = sg.Window('Generate Schedule Date Keywords', layout=layout1,
                                 no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            (button, values) = window2.Read()
+            (event, values) = window2.Read()
             window2.Close()
 
-            if button == 'Submit':
+            if event == 'Submit':
                 keyitems['sch']     = 'Yes'
                 keyitems['yearstr'] = int(values['_yearstr_'])
                 keyitems['yearend'] = int(values['_yearend_'])
@@ -334,10 +334,10 @@ def keyw_get_items(key):
 
         window2 = sg.Window('Generate Summary Date Keywords', layout=layout1,
                             no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-        (button, values) = window2.Read()
+        (event, values) = window2.Read()
         window2.Close()
 
-        if button == 'Submit':
+        if event == 'Submit':
             if values['_sumopt01_']:
                 keyitems['sumopt01'] = 'Yes'
             if values['_sumopt02_']:
@@ -724,10 +724,10 @@ def keyw_main(opmvers, **opmoptn):
         #
         # Read the Window and Process
         #
-        button, values = window1.Read()
+        event, values = window1.Read()
         if debug:
             sg.Print('Buttons')
-            sg.Print(button)
+            sg.Print(event)
             sg.Print('Values')
             sg.Print(values)
         #
@@ -739,25 +739,25 @@ def keyw_main(opmvers, **opmoptn):
         #
         # Clear
         #
-        if button == '_clear_':
+        if event == '_clear_':
             window1['_deckinput_'].update('')
             continue
         #
         # Copy
         #
-        elif button == '_copy_':
+        elif event == '_copy_':
             copy_to_clipboard(window1['_deckinput_'].get())
             sg.PopupTimed('Deck Copied to Clipboard', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             continue
         #
         # File Name
         #
-        elif button == '_deckfile_':
+        elif event == '_deckfile_':
             continue
         #
         # Exit
         #
-        elif button == '_exit_' or button is None:
+        elif event == '_exit_' or event is None:
             ans = sg.PopupYesNo('Exit Keyword Generation?',
                                 no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             if ans == 'Yes':
@@ -765,13 +765,13 @@ def keyw_main(opmvers, **opmoptn):
         #
         # Help
         #
-        elif button == '_help_':
+        elif event == '_help_':
             opm_popup('Keyword Generator Help', helptext, 22)
             continue
         #
         # Keywords
         #
-        elif button == '_keylist_':
+        elif event == '_keylist_':
             if values['_keylist_'] == []:
                 continue
 
@@ -841,7 +841,7 @@ def keyw_main(opmvers, **opmoptn):
         #
         # Keyword Filter
         #
-        elif button == '_filter_':
+        elif event == '_filter_':
             if values['_header_']:
                 window1['_keylist_'].update(keywords['HEADER'])
 
@@ -885,13 +885,13 @@ def keyw_main(opmvers, **opmoptn):
         #
         # Save
         #
-        elif button == '_save_':
+        elif event == '_save_':
             keyw_save_keywords(window1['_deckinput_'].get())
             continue
         #
         # Template
         #
-        elif button == 'Template':
+        elif event == 'Template':
             key = None
             try:
                 key = str(values['_keylist_'][0])
@@ -909,7 +909,7 @@ def keyw_main(opmvers, **opmoptn):
         # Template Help
         #
         #
-        elif button == 'Template Help':
+        elif event == 'Template Help':
             opm_popup('Keyword Generator Template Help', helptemp, 22)
             continue
     #

@@ -274,9 +274,9 @@ def opmsens_edit_factor(header, nrow, factors):
                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
     while True:
-        (button, values) = window2.Read()
+        (event, values) = window2.Read()
 
-        if button == 'Factors':
+        if event == 'Factors':
             layout3 = [[sg.Text('Standard Factors')],
                        [sg.Listbox(values=factorlst, enable_events=True, size=(30, 15))],
                        [sg.Text('')]]
@@ -288,7 +288,7 @@ def opmsens_edit_factor(header, nrow, factors):
             window2['_var02_'].update(value=(values3[0][0]))
             continue
 
-        elif button == 'Submit':
+        elif event == 'Submit':
             factors[nrow] = [values['_var01_'], values['_var02_'], values['_var03_'],
                              values['_var04_'], values['_var05_']]
             window2.Close()
@@ -658,7 +658,7 @@ def opmsens_write_queue(jobs):
     window2 = sg.Window('Select OPM Flow Input File', layout=layout2, finalize=True,
                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
-    (button, values) = window2.Read()
+    (event, values) = window2.Read()
     window2.Close()
 
     jobfile = values['_jobfile_']
@@ -669,7 +669,7 @@ def opmsens_write_queue(jobs):
     if jobpar:
         jobcmd = 'mpirun -np ' + str(jobnode).strip("[]") + ' flow --parameter-file='
 
-    if button == 'Submit':
+    if event == 'Submit':
         if jobfile:
             file = open(jobfile, 'w')
             file.write('# \n')
@@ -834,11 +834,11 @@ def opmsens_main(**opmoptn):
         #
         # Read the Window and Process
         #
-        button, values = window1.Read()
+        event, values = window1.Read()
         debug = False
         if debug:
             sg.Print('Buttons')
-            sg.Print(button)
+            sg.Print(event)
             sg.Print('Values')
             sg.Print(values)
 
@@ -852,7 +852,7 @@ def opmsens_main(**opmoptn):
         #
         # Base (Input Deck Template)
         #
-        if button == '_base_':
+        if event == '_base_':
             basefile = sg.PopupGetFile('OPMSENS Set OPM Flow Input Deck Template', default_path=str(os.getcwd()),
                                        initial_folder=str(os.getcwd()),
                                        file_types=[('OPM', ['*.data', '*.DATA'])],
@@ -877,7 +877,7 @@ def opmsens_main(**opmoptn):
         #
         # Clear
         #
-        elif button == '_clear_':
+        elif event == '_clear_':
             window1['_tab_factors_'].select()
             text = sg.PopupYesNo('Do You Wish to Clear All the Factor Properties?',
                                  no_titlebar=True, grab_anywhere=True, keep_on_top=True)
@@ -890,7 +890,7 @@ def opmsens_main(**opmoptn):
         #
         # Copy
         #
-        elif button == '_copy_':
+        elif event == '_copy_':
             window1['_tab_factors_'].select()
             dt = window1['_factors_'].get()
             df = pd.DataFrame(dt, columns=header)
@@ -909,7 +909,7 @@ def opmsens_main(**opmoptn):
         #
         # Exit
         #
-        elif button == '_exit_' or button is None:
+        elif event == '_exit_' or event is None:
             ans = sg.PopupYesNo('Exit OPMSENS Sensitivity Generation?',
                                 no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             if ans == 'Yes':
@@ -917,14 +917,14 @@ def opmsens_main(**opmoptn):
         #
         # Factors (Edit)
         #
-        elif button == '_factors_':
+        elif event == '_factors_':
             factors = opmsens_edit_factor(header, values['_factors_'][0], factors)
             window1['_factors_'].update(factors)
             continue
         #
         # Generate
         #
-        elif button == '_generate_':
+        elif event == '_generate_':
             window1['_outlog_'].Update('')
             basefile = window1['_basefile_'].get()
             factors  = window1['_factors_'].get()
@@ -934,13 +934,13 @@ def opmsens_main(**opmoptn):
         #
         # Help
         #
-        elif button == '_help_':
+        elif event == '_help_':
             opm_popup('OPMRUN Sensitivity Case Generator Utility', helptext, 22)
             continue
         #
         # Load
         #
-        elif button == '_load_':
+        elif event == '_load_':
             file = sg.PopupGetFile('Load OPMSENS Sensitivity Factor File', default_path=str(os.getcwd()),
                                    initial_folder=str(os.getcwd()), save_as=False,
                                    file_types=[('OPMSENS Factors', '*.fac'), ('All', '*.*')],
@@ -959,7 +959,7 @@ def opmsens_main(**opmoptn):
         #
         # Save
         #
-        elif button == '_save_':
+        elif event == '_save_':
             window1['_tab_factors_'].select()
             file = sg.PopupGetFile('Save OMPSENS Sensitivity Factor File', default_path=str(os.getcwd()),
                                    initial_folder=str(os.getcwd()), save_as=True,

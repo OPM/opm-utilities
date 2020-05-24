@@ -26,7 +26,7 @@ Program Documentation
              code changes to other functions.
              Fix initial directory bug when loading a queue. Need to set default and initial directory variables in
              PopupGetFile() call.
-           - Moved main code into function to comply with PEP8 and refactored where necessary. Changed event status
+           - Moved main code into function to comply with PEP8 and refactored where necessary. Changed button status
              when running jobs. Also fixed some typos in the Help and About text.
            - Fixed inconsistent Python major release check.
            - Changed the job queue list so that the current job is highlighted in the list when running in
@@ -82,7 +82,7 @@ Program Documentation
            - Added windows dialog sizes to OPMRUN.ini file so that user can change the windows size at next re-start.
            - Moved pre-processing code to separate module for code readability (after suggestion by Joakim Hove).
            - Upgraded to PySimpleGUI 3.36.0.
-           - Disable X close event or check for None.
+           - Disable X close button or check for None.
            - Added option to Edit OPMRUN options.
            - When adding a job clear the file name field after the job has been added to the queue.
            - Added Compress Jobs and Uncompress Jobss to the Tools menu.
@@ -189,9 +189,7 @@ import subprocess
 import tkinter as tk
 from pathlib import Path
 from psutil import cpu_count
-#
-# Non Standard Library Modules
-#
+
 import PySimpleGUI
 import pandas
 import airspeed
@@ -211,7 +209,7 @@ for package in required:
         dist = pkg_resources.get_distribution(package)
         if package == 'PySimpleGUI':
             sg = importlib.import_module(package)
-        elif package == 'pandas':
+        if package == 'pandas':
             pd = importlib.import_module(package)
         else:
             importlib.import_module(package)
@@ -284,7 +282,7 @@ def add_job(joblist, jobparam, jobsys):
     window1 = sg.Window('Select OPM Flow Input File', layout=layout1)
 
     while True:
-        (event, values) = window1.Read()
+        (button, values) = window1.Read()
         jobs    = values['_job_']
         jobseq  = values[0]
         jobpar  = values[1]
@@ -292,7 +290,7 @@ def add_job(joblist, jobparam, jobsys):
         if not jobnode:
             jobnode = 2
 
-        if event == 'Submit' and len(jobs) != 0:
+        if button == 'Submit' and len(jobs) != 0:
             jobs = jobs.split(';')
             for job in jobs:
                 jobpath = Path(job).parents[0]
@@ -321,7 +319,7 @@ def add_job(joblist, jobparam, jobsys):
 
                 window1['_job_'].update(value='')
 
-        elif event == 'Cancel' or event == None:
+        elif button == 'Cancel' or button == None:
             break
 
     window1.Close()
@@ -388,12 +386,12 @@ def compress_job(opmoptn):
     window1 = sg.Window('Compress Job Files', layout=layout1)
 
     while True:
-        (event, values) = window1.Read()
+        (button, values) = window1.Read()
         jobopt  = values[0]
         #
         # Add Files
         #
-        if event == 'Add':
+        if button == 'Add':
             jobs = sg.PopupGetFile('Select Job Data Files to Compress', no_window=False,
                                    default_path=str(Path().absolute()), initial_folder=str(Path().absolute()),
                                    multiple_files=True, file_types=[('OPM', ['*.data','*.DATA'])])
@@ -407,13 +405,13 @@ def compress_job(opmoptn):
         #
         # Clear Output
         #
-        if event == 'Clear':
+        if button == 'Clear':
             window1['_outlog1_'].update('')
             continue
         #
         # Get Directory and List Files
         #
-        if event == 'List':
+        if button == 'List':
             jobpath = sg.PopupGetFolder('Select Directory', no_window=False,
                                         default_path=str(Path().absolute()), initial_folder=str(Path().absolute()))
             if jobpath != None:
@@ -431,14 +429,14 @@ def compress_job(opmoptn):
         #
         # Remove Files
         #
-        if event == 'Remove':
+        if button == 'Remove':
             joblist1 = []
             window1['_joblist1_'].update(joblist1)
             continue
         #
         # Compress Files
         #
-        if event == 'Submit':
+        if button == 'Submit':
             if jobopt:
                 zipcmd = 'zip -uv '
             else:
@@ -456,14 +454,14 @@ def compress_job(opmoptn):
                 out_log('   ' + jobcmd, True, False, window1)
                 run_command(jobcmd, timeout=None, window=window1)
                 out_log('End Compression', True, False, window1)
-                window1.refresh()
+                window1.Refresh()
 
             window1['_joblist1_'].update(joblist1)
             continue
         #
         # Cancel
         #
-        if event == 'Cancel' or event == None:
+        if button == 'Cancel' or button == None:
             break
 
     window1.Close()
@@ -504,8 +502,8 @@ def default_parameters(jobparam, fileparam):
     window1   = sg.Window('Define OPM Flow Default Run Time Parameters', layout=layout1)
 
     while True:
-        (event, values) = window1.Read()
-        if event == 'Submit':
+        (button, values) = window1.Read()
+        if button == 'Submit':
             if values[0]:
                 jobparam, jobhelp = load_parameters(fileparam)
                 break
@@ -544,7 +542,7 @@ def default_parameters(jobparam, fileparam):
                             break
                     break
 
-        elif event == 'Cancel' or event == None:
+        elif button == 'Cancel' or button == None:
             break
 
     window1.Close()
@@ -656,15 +654,15 @@ def edit_job(job, jobsys, **jobhelp):
                  [sg.Submit(), sg.Cancel()]]
     window1   = sg.Window('Edit Job Options', layout=layout1)
 
-    (event, values) = window1.Read()
+    (button, values) = window1.Read()
     window1.Close()
 
-    if event == 'Cancel' or event == None:
+    if button == 'Cancel' or button == None:
         return()
     #
     # Data File Processing
     #
-    if event == 'Submit' and values[0] == True:
+    if button == 'Submit' and values[0] == True:
         if opmoptn['edit-command'] == 'None':
             sg.PopupOK('Editor command has not been set in the properties file',
                        'Use Edit OPMRUN Options to set the Editor Command',
@@ -686,7 +684,7 @@ def edit_job(job, jobsys, **jobhelp):
     #
     # Parameter File Processing
     #
-    if event == 'Submit' and values[1] == True:
+    if button == 'Submit' and values[1] == True:
         if fileparam.is_file():
             file  = open(str(fileparam).rstrip(), 'r')
             for n, line in enumerate(file):
@@ -812,13 +810,13 @@ def edit_options(opmsys1, opmoptn1):
 
     window1   = sg.Window('Edit Options', layout=layout1)
 
-    (event, values) = window1.Read()
+    (button, values) = window1.Read()
     window1.Close()
 
-    if event == 'Cancel' or event == None:
+    if button == 'Cancel' or button == None:
         opmoptn1 = opmoptn0
 
-    if event == 'Submit':
+    if button == 'Submit':
         opmoptn1['opm-flow-manual' ] = values['_opm-flow-manual_' ]
         opmoptn1['opm-keywdir'     ] = values['_opm-keywdir_'     ]
         opmoptn1['opm-resinsight'  ] = values['_opm-resinsight_'  ]
@@ -882,9 +880,9 @@ def edit_parameters(jobparam, **jobhelp):
         window1 = sg.Window('Edit Parameters', layout=layout1)
 
         while True:
-            (event, values) = window1.Read()
+            (button, values) = window1.Read()
 
-            if event == 'Edit' or event == '_listbox_':
+            if button == 'Edit' or button == '_listbox_':
                 if values['_listbox_'] == []:
                     sg.PopupError('Please select a parameter from the list',
                                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
@@ -898,7 +896,7 @@ def edit_parameters(jobparam, **jobhelp):
                         paramhelp = 'Help not found for ' + texthelp
                     window1['_texthelp_'].update(paramhelp)
 
-            if event == 'Save':
+            if button == 'Save':
                 param = values['_text_']
                 key   = param[:param.find('=')]
                 for n, text in enumerate(jobparam):
@@ -909,23 +907,23 @@ def edit_parameters(jobparam, **jobhelp):
                         break
                 window1['_listbox_'].update(jobparam)
 
-            if event == 'Cancel' or event == None:
+            if button == 'Cancel' or button == None:
                 text = sg.PopupYesNo('Cancel Changes?',
                                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
                 if text == 'Yes':
                     jobparam  = jobparam0
-                    exitcode  = event
+                    exitcode  = button
                     break
                 else:
-                    event = 'Edit'
+                    button = 'Edit'
                     continue
 
-            if event == 'Exit':
+            if button == 'Exit':
                 text = sg.PopupYesNo('Save and Exit?',
                                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
                 if text == 'Yes':
                     jobparam = window1['_listbox_'].get_list_values()
-                    exitcode = event
+                    exitcode = button
                     break
 
         window1.Close()
@@ -991,13 +989,13 @@ def edit_projects(opmoptn1, opmsys1):
 
     window1   = sg.Window('Edit Projects', layout=layout1)
 
-    (event, values) = window1.Read()
+    (button, values) = window1.Read()
     window1.Close()
 
-    if event == 'Cancel' or event == None:
+    if button == 'Cancel' or button == None:
         opmoptn1 = opmoptn0
 
-    if event == 'Submit':
+    if button == 'Submit':
         opmoptn1['prj-name-01'] = values['_prj-name-01_']
         opmoptn1['prj-name-02'] = values['_prj-name-02_']
         opmoptn1['prj-name-03'] = values['_prj-name-03_']
@@ -1086,8 +1084,8 @@ def kill_job(jobpid):
     None
     """
 
-    event, values = window0.Read(timeout=1)
-    if event != '_kill_job_':
+    button, values = window0.Read(timeout=1)
+    if button != '_kill_job_':
         return()
 
     text = sg.PopupYesNo('Do You Wish to Kill the Current OPM Flow Job ' + str(jobpid) + ' ?'
@@ -1463,7 +1461,7 @@ def run_command(command, timeout=None, window=None):
             if line == '' and process.poll() is not None:
                 break
             window['_outlog1_'].print(line)
-            window.refresh()
+            window.Refresh()
 
     except Exception as e:
         window['_outlog1_'].print(e, type(e))
@@ -1500,7 +1498,7 @@ def run_job(command):
     while True:
         i = i + 1
         out_log('Getting Process PID Pass ' + str(i), True)
-        window0.refresh()
+        window0.Refresh()
         jobpid  = subprocess.run(['pidof', '-s', 'flow'], stdout=subprocess.PIPE).stdout
         if jobpid.decode() != '':
             break
@@ -1519,7 +1517,7 @@ def run_job(command):
         if line == '' and process.poll() is not None:
             break
         print(line)
-        window0.refresh()
+        window0.Refresh()
         kill_job(jobpid)
     #
     # Process Complete - Get Last Output
@@ -1576,7 +1574,7 @@ def run_jobs(joblist, jobsys, outlog):
                [sg.Text(''                                                                         )],
                [sg.Submit(), sg.Cancel()]]
     window1 = sg.Window('Select Run Option', layout=layout1)
-    (event, values) = window1.Read()
+    (button, values) = window1.Read()
     window1.Close()
     #
     # Background Processing
@@ -1607,11 +1605,11 @@ def run_jobs(joblist, jobsys, outlog):
         if values['_rusim_']:
             jobcase = jobcmd + str(jobbase)  + ' | tee ' + str(joblog)
 
-        if event == 'Cancel' or event == None:
+        if button == 'Cancel' or button == None:
             out_log('Job Processing Canceled', outlog, True)
             return()
 
-        if event == 'Submit':
+        if button == 'Submit':
             #
             # Disable Buttons 
             #
@@ -2154,7 +2152,7 @@ def set_window_status(status):
         # window0.enable()   Not Working Causes Display to Freeze on Linux Systems
         set_button_status(False, True)
         window0.SetAlpha(1.00)
-        window0.refresh()
+        window0.Refresh()
 
     else:
         window0.SetAlpha(0.85)
@@ -2241,9 +2239,9 @@ def uncompress_job(opmoptn):
     window1 = sg.Window('Uncompress Job Files', layout=layout1)
 
     while True:
-        (event, values) = window1.Read()
+        (button, values) = window1.Read()
 
-        if event == 'Add':
+        if button == 'Add':
             jobs = sg.PopupGetFile('Select ZIP Files to Uncompress', no_window=False,
                                    default_path=str(Path().absolute()), initial_folder=str(Path().absolute()),
                                    multiple_files=True, file_types=[('zip', ['*.zip', '*.ZIP'])])
@@ -2257,13 +2255,13 @@ def uncompress_job(opmoptn):
         #
         # Clear Output
         #
-        if event == 'Clear':
+        if button == 'Clear':
             window1['_outlog1_'].update('')
             continue
         #
         # Get Directory and List Files
         #
-        if event == 'List':
+        if button == 'List':
             jobpath = sg.PopupGetFolder('Select Directory', no_window=False,
                                         default_path=str(Path().absolute()), initial_folder=str(Path().absolute()))
             if jobpath != None:
@@ -2281,14 +2279,14 @@ def uncompress_job(opmoptn):
         #
         # Remove Files
         #
-        if event == 'Remove':
+        if button == 'Remove':
             joblist1 = []
             window1['_joblist1_'].update(joblist1)
             continue
         #
         # Uncompress Files
         #
-        if event == 'Submit':
+        if button == 'Submit':
             if values['_bRadio1_']:
                 zipcmd = 'unzip -u -n '
             else:
@@ -2312,12 +2310,12 @@ def uncompress_job(opmoptn):
                     run_command(jobcmd, timeout=None, window=window1)
 
                 out_log('End Uncompressing', True, False, window1)
-                window1.refresh()
+                window1.Refresh()
 
             window1['_joblist1_'].update(joblist1)
             continue
 
-        if event == 'Cancel' or event == None:
+        if button == 'Cancel' or button == None:
             break
 
     window1.Close()
@@ -2497,9 +2495,9 @@ def opmrun():
     # ------------------------------------------------------------------------------------------------------------------
     while True:
         #
-        # Read the Form and Process and Take appropriate action based on event
+        # Read the Form and Process and Take appropriate action based on button
         #
-        event, values = window0.Read()
+        button, values = window0.Read()
         joblist = window0['_joblist_'].GetListValues()
         #
         # Get Main Window Location and Set Default Location for other Windows
@@ -2510,19 +2508,19 @@ def opmrun():
         #
         # About
         #
-        if event == 'About':
+        if button == 'About':
             opm_popup('About', abouttext, 20)
             continue
         #
         # Add Job
         #
-        elif event == '_add_job_':
+        elif button == '_add_job_':
             add_job(joblist, jobparam, opmsys)
             continue
         #
         # Clear Log
         #
-        elif event == '_clear_':
+        elif button == '_clear_':
             if window0['_tab_out_'].get() == '_tab_outlog_':
                 window0['_outlog_'].update('')
             if window0['_tab_out_'].get() == '_tab_outflow_':
@@ -2531,43 +2529,43 @@ def opmrun():
         #
         # Clear Queue
         #
-        elif event == '_clear_queue_':
+        elif button == '_clear_queue_':
             clear_queue(values['_joblist_'])
             continue
         #
         # Compress Jobs
         #
-        elif event == 'Compress Jobs':
+        elif button == 'Compress Jobs':
             compress_job(opmoptn)
             continue
         #
         # Delete Job
         #
-        elif event == '_delete_job_':
+        elif button == '_delete_job_':
             delete_job(joblist, values['_joblist_'])
             continue
         #
         # Edit Job
         #
-        elif event == '_edit_job_':
+        elif button == '_edit_job_':
             edit_job(values['_joblist_'], opmsys, **jobhelp)
             continue
         #
         # Edit Options
         #
-        elif event == 'Options':
+        elif button == 'Options':
             opmoptn = edit_options(opmsys, opmoptn)
             continue
         #
         # Edit Parameters
         #
-        elif event == 'Edit Parameters':
+        elif button == 'Edit Parameters':
             (jobparam, exitcode) = edit_parameters(jobparam, **jobhelp)
             continue
         #
         # Edit Projects
         #
-        elif event == 'Projects':
+        elif button == 'Projects':
             opmoptn    = edit_projects(opmoptn, opmsys)
             menulayout = set_menu(opmoptn)
             mainmenu.update(menulayout)
@@ -2575,7 +2573,7 @@ def opmrun():
         #
         # Exit
         #
-        elif event == '_exit_' or event == 'Exit':
+        elif button == '_exit_' or button == 'Exit':
             text = sg.PopupYesNo('Exit OPMRUN?', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             if text == 'Yes':
                 text = sg.PopupYesNo('Are You Sure You wish to Exit OPMRUN?', no_titlebar=True,
@@ -2585,13 +2583,13 @@ def opmrun():
         #
         # Help
         #
-        elif event == 'Help':
+        elif button == 'Help':
             opm_popup('Help', helptext, 35)
             continue
         #
         # List Parameters
         #
-        elif event == 'List Parameters':
+        elif button == 'List Parameters':
             if jobparam:
                 print('Start of OPM Flow Parameters')
                 for k in enumerate(jobparam):
@@ -2604,7 +2602,7 @@ def opmrun():
         #
         # Keyword Generator
         #
-        elif event == 'Keyword Generator':
+        elif button == 'Keyword Generator':
             set_window_status(False)
             keyw_main(opmsys['opmvers'], **opmoptn)
             set_window_status(True)
@@ -2612,49 +2610,49 @@ def opmrun():
         #
         # Load Queue
         #
-        elif event == '_load_queue_' or event == 'Open':
+        elif button == '_load_queue_' or button == 'Open':
             joblist = load_queue(joblist, jobparam)
             continue
         #
         # Manual
         #
-        elif event == 'Manual':
+        elif button == 'Manual':
             load_manual(opmsys, opmoptn['opm-flow-manual'])
             continue
         #
         # ResInsight
         #
-        elif event == 'ResInsight':
+        elif button == 'ResInsight':
             run_resinsight(opmoptn['opm-resinsight'])
             continue
         #
         # Run Jobs
         #
-        elif event == '_run_jobs_':
+        elif button == '_run_jobs_':
             run_jobs(joblist, opmsys, True)
             continue
         #
         # Save Queue
         #
-        elif event == '_save_queue_' or event == 'Save':
+        elif button == '_save_queue_' or button == 'Save':
             save_queue(joblist, opmsys['opmuser'])
             continue
         #
         # Set Parameters
         #
-        elif event == 'Set Parameters':
+        elif button == 'Set Parameters':
             jobparam = default_parameters(jobparam, opmsys['opmparam'])
             continue
         #
         # Set Project
         #
-        elif event.find('::_prj-name') != -1:
-            set_directory_project(event, opmoptn)
+        elif button.find('::_prj-name') != -1:
+            set_directory_project(button, opmoptn)
             continue
         #
         # Uncompress Jobs
         #
-        elif event == 'Uncompress Jobs':
+        elif button == 'Uncompress Jobs':
             uncompress_job(opmoptn)
             continue
 
@@ -2683,4 +2681,4 @@ if __name__ == '__main__':
 
 # ======================================================================================================================
 # End of OPMRUN.py
-# ==========================================================================================================           
+# ======================================================================================================================

@@ -190,13 +190,6 @@ import tkinter as tk
 from pathlib import Path
 from psutil import cpu_count
 #
-# Non Standard Library Modules
-#
-import PySimpleGUI
-import pandas
-import airspeed
-import pyDOE2
-#
 # Check for Python 2 Version
 #
 if platform.python_version_tuple()[0] == '2':
@@ -218,7 +211,8 @@ for package in required:
         print('Startup: Require Module - ' + dist.key + '(' + dist.version + ') Imported')
     except pkg_resources.DistributionNotFound:
         print('Startup: Import Require Package - ' + package + ' Failed')
-        print('Startup: Use "python3 -m pip install --user ' + package + '" to install')
+#       print('Startup: Use "python3 -m pip install --user ' + package + '" to install')
+        print('Startup: Use "pip3 install ' + package + '" to install')
         starterr = True
 
 if starterr:
@@ -284,7 +278,7 @@ def add_job(joblist, jobparam, jobsys):
     window1 = sg.Window('Select OPM Flow Input File', layout=layout1)
 
     while True:
-        (event, values) = window1.Read()
+        (event, values) = window1.read()
         jobs    = values['_job_']
         jobseq  = values[0]
         jobpar  = values[1]
@@ -388,7 +382,7 @@ def compress_job(opmoptn):
     window1 = sg.Window('Compress Job Files', layout=layout1)
 
     while True:
-        (event, values) = window1.Read()
+        (event, values) = window1.read()
         jobopt  = values[0]
         #
         # Add Files
@@ -504,7 +498,7 @@ def default_parameters(jobparam, fileparam):
     window1   = sg.Window('Define OPM Flow Default Run Time Parameters', layout=layout1)
 
     while True:
-        (event, values) = window1.Read()
+        (event, values) = window1.read()
         if event == 'Submit':
             if values[0]:
                 jobparam, jobhelp = load_parameters(fileparam)
@@ -656,7 +650,7 @@ def edit_job(job, jobsys, **jobhelp):
                  [sg.Submit(), sg.Cancel()]]
     window1   = sg.Window('Edit Job Options', layout=layout1)
 
-    (event, values) = window1.Read()
+    (event, values) = window1.read()
     window1.Close()
 
     if event == 'Cancel' or event == None:
@@ -812,7 +806,7 @@ def edit_options(opmsys1, opmoptn1):
 
     window1   = sg.Window('Edit Options', layout=layout1)
 
-    (event, values) = window1.Read()
+    (event, values) = window1.read()
     window1.Close()
 
     if event == 'Cancel' or event == None:
@@ -882,7 +876,7 @@ def edit_parameters(jobparam, **jobhelp):
         window1 = sg.Window('Edit Parameters', layout=layout1)
 
         while True:
-            (event, values) = window1.Read()
+            (event, values) = window1.read()
 
             if event == 'Edit' or event == '_listbox_':
                 if values['_listbox_'] == []:
@@ -991,7 +985,7 @@ def edit_projects(opmoptn1, opmsys1):
 
     window1   = sg.Window('Edit Projects', layout=layout1)
 
-    (event, values) = window1.Read()
+    (event, values) = window1.read()
     window1.Close()
 
     if event == 'Cancel' or event == None:
@@ -1576,7 +1570,7 @@ def run_jobs(joblist, jobsys, outlog):
                [sg.Text(''                                                                         )],
                [sg.Submit(), sg.Cancel()]]
     window1 = sg.Window('Select Run Option', layout=layout1)
-    (event, values) = window1.Read()
+    (event, values) = window1.read()
     window1.Close()
     #
     # Background Processing
@@ -2241,7 +2235,7 @@ def uncompress_job(opmoptn):
     window1 = sg.Window('Uncompress Job Files', layout=layout1)
 
     while True:
-        (event, values) = window1.Read()
+        (event, values) = window1.read()
 
         if event == 'Add':
             jobs = sg.PopupGetFile('Select ZIP Files to Uncompress', no_window=False,
@@ -2499,7 +2493,7 @@ def opmrun():
         #
         # Read the Form and Process and Take appropriate action based on event
         #
-        event, values = window0.Read()
+        event, values = window0.read()
         joblist = window0['_joblist_'].GetListValues()
         #
         # Get Main Window Location and Set Default Location for other Windows

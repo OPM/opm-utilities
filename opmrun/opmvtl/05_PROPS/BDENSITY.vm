@@ -31,7 +31,7 @@
 --
 --       BRINE WATER DENSITY DATA FOR PVTWSALT KEYWORD
 --
---       SALT-1   SALT-2   SALT-3   SALT-4   SALT-5                                          
+--       SALTCON  SALTCON  SALTCON  SALTCON  SALTCON                                          
 --       DENSITY  DENSITY  DENSITY  DENSITY  DENSITY                                     
 --       -------  -------  -------  -------  -------                                       
 BDENSITY                                                                                

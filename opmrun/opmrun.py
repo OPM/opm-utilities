@@ -1,4 +1,4 @@
-#=======================================================================================================================
+# ======================================================================================================================
 #
 """OPMRUN.py - Run OPM Flow
 
@@ -10,6 +10,17 @@ details.
 
 Program Documentation
 ---------------------
+2020-04.04 - Add right-click menu options to the status table to edit files, view results, load results into ResInsight,
+             etc.
+           - Refactor code to improve maintainability, including moving some functions to the opm-common module.
+           - Moved various global variables to global dictionary variable opmsys to simplify code, the intention is
+             to eventually remove all global variables.
+           - Re-factored the manner in which imports are loaded to be more robust and moved to PySimpleGUI~=4.19.0
+           - Refactored compress and uncompress routines to be use the print to multiline option.
+           - Re-factored job run functions to be more robust in checking for OPM Flow aborts and segmentation faults,
+             also added code to kill orphaned mpirun processes caused by segmentation faults.
+           - Changed version number and added __version__  variable.
+
 2020-04.03 - Changed version number.
            - Updated all templates to be consistent with OPM Flow manual.
            - Updated documentation for this release.
@@ -19,8 +30,8 @@ Program Documentation
              The fix was to use the Multiline element for the Compress/Uncompress windows, this resulted in various
              code changes to other functions.
              Fix initial directory bug when loading a queue. Need to set default and initial directory variables in
-             PopupGetFile() call.
-           - Moved main code into function to comply with PEP8 and refactored where necessary. Changed button status
+             popup_get_file() call.
+           - Moved main code into function to comply with PEP8 and refactored where necessary. Changed event status
              when running jobs. Also fixed some typos in the Help and About text.
            - Fixed inconsistent Python major release check.
            - Changed the job queue list so that the current job is highlighted in the list when running in
@@ -47,7 +58,7 @@ Program Documentation
            - Initial release of OPMKEYW.
 
 2019-04.05 - Added checks and warnings for importing PySimpleGUI and pathlib/pathlib2 for robustness.
-           - Fixed display bug in several PopupGetFile() calls and add_job and load_queue functions.
+           - Fixed display bug in several popup_get_file() calls and add_job and load_queue functions.
            - Updated program code documentation and the Release-Notes.txt file.
            - Updated README.md file fixing some minor layout issues
 
@@ -76,7 +87,7 @@ Program Documentation
            - Added windows dialog sizes to OPMRUN.ini file so that user can change the windows size at next re-start.
            - Moved pre-processing code to separate module for code readability (after suggestion by Joakim Hove).
            - Upgraded to PySimpleGUI 3.36.0.
-           - Disable X close button or check for None.
+           - Disable X close event or check for None.
            - Added option to Edit OPMRUN options.
            - When adding a job clear the file name field after the job has been added to the queue.
            - Added Compress Jobs and Uncompress Jobss to the Tools menu.
@@ -88,30 +99,34 @@ Program Documentation
            - Added option to run job queue in foreground (that is under OPMRUN) and background via xterm (should be
              computationally more efficient).
            - Major re-factoring of code and code clean up.
-           - Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04).
+           - Create stand alone executable for Linux systems (works on Ubuntu-Mate 18-04).
 
 2018-10.02 - Fix printing bug associated with listing of jobparam.
-             Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04)
+             Create stand alone executable for Linux systems (works on Ubuntu-Mate 18-04)
 
 2018-10.01 - Initial release.
 
 Notes:
 ------
-Only Python 3 is currently supported and tested Python2 support has been depreciated. The following standard module
-libraries are used in this version.
+Only Python 3 is supported and tested Python2 support has been depreciated. The following standard module libraries are
+used in this version.
 
 (1) datetime
 (2) getpass
 (3) os
 (4) pathlib
 (5) psutil
-(6) sys
+(6) platform
 (7) re
 (8) subprocess
 
 For OPMRUN the following Python modules are required:
 
-(1) PySimpleGUI
+(1) airspeed
+(2) pandas
+(3) psutil
+(4) pyDOE2
+(5) PySimpleGUI
 
 PySimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated
 for fixes and new features. Each release of OPMRUN will update to the latest release of PySimpleGUI.
@@ -120,8 +135,7 @@ To Do List
 ----------
 (1) Add a status tab to the bottom element with a table showing the project name, job name start time and end time,
     and job status (Aborted, Completed, Killed, Running, etc.)
-(2) Add right-click menu options to the status table to edit files, view results, load results into ResInsight, etc.
-(3) Write job status files to update status table for both foreground and background jobs.
+(2) Write job status files to update status table for both foreground and background jobs.
 
 Compiling Source
 ----------------
@@ -157,124 +171,126 @@ Copyright (C) 2018-2020 Equinox International Petroleum Consultants Pte Ltd.
 
 Author  : David Baxendale
           david.baxendale@eipc.co
-Version : 2020-04.01
-Date    : 13-May-2020
+Date    : 09-June-2020
 """
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # 3456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 #        1         2         3         4         5         6         7         8         9         0         1         2
 #        0         0         0         0         0         0         0         0         0         1         1         1
-#-----------------------------------------------------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------------------------------------------------
-# Import Modules Section 
-#-----------------------------------------------------------------------------------------------------------------------
-import datetime
-import getpass
-import os
-import sys
-import re
-import subprocess
+# ----------------------------------------------------------------------------------------------------------------------
 #
-# Import OPM Common Modules
+# Set OPMRUN Version Number
 #
-from opm_common import opm_initialize
-from opm_common import opm_popup
-from opm_common import copy_to_clipboard
+__version__ = '2020-04.04'
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Import Modules and Start Up Section
+# ----------------------------------------------------------------------------------------------------------------------
+
+print('OPMRUN Startup: Importing Standard Modules')
 #
-# Import OPMKEYW Modules
+# Check if tkinter Has Been Installed on the System
 #
-from opmkeyw import keyw_get_file
-from opmkeyw import keyw_get_keywords
-from opmkeyw import keyw_get_items
-from opmkeyw import keyw_save_keywords
-from opmkeyw import keyw_main
-#
-# Check for Python Version and Import Required Non-Standard Modules
-#
-if sys.version_info[0] == 2:
-    exit('OPMRUN Only Works with Python 3, Python 2 Support is Depreciated')
-
-try:
-    import airspeed
-except ImportError:
-    exit('OPMRUN Cannot Import airspeed - Please Install Using pip3')
-
-try:
-    from psutil import cpu_count
-except ImportError:
-    cpu_count = None
-    exit('OPMRUN Cannot Import cpu_count from psutil - Please Install Using pip3')
-
-try:
-    import PySimpleGUI as sg
-except ImportError:
-    sg = None
-    exit('OPMRUN Cannot Import PySimpleGUI - Please Install Using pip3')
-
-try:
-    from pathlib import Path
-except ImportError:
-    Path = None
-    exit('OPMRUN Cannot Import Path from pathlib module - Please Install Using pip3')
-
-try:
-    import platform
-except ImportError:
-    exit('OPMRUN Cannot Import platform module - Please Install Using pip3')
-
 try:
     import tkinter as tk
-except ImportError:
-    exit('OPMRUN Cannot Import tkinter - Please Install Using pip3')
+
+except ImportError as error:
+    print('   Error importing module')
+    print('   ' + str(error) + ' ' + str(type(error)))
+    print('   On Linux based systems install tkinter via package manager. \n' +
+          '   Debian versions of Linux you have to install it manually by \n' +
+          '   using the following command: sudo apt-get install python3-tk')
+    print('OPMRUN Startup: Importing Standard Modules Failed')
+    exit('Program Will Exit')
+#
+# Standard Library Modules
+#
+import datetime
+import getpass
+import importlib
+import os
+import pkg_resources
+import platform
+import re
+import subprocess
+from pathlib import Path
+print('OPMRUN Startup: Importing Standard Modules Complete')
+#
+# Check for Python 2 Version
+#
+print('OPMRUN Startup: Python Version Check')
+if platform.python_version_tuple()[0] == '2':
+    print('OPMRUN Startup: Program only works with Python 3, Python 2 Support is Depreciated')
+    exit('Program Will Exit')
+print('OPMRUN Startup: Python Version Check Complete')
+#
+# Import Required Non-Standard Modules
+#
+print('OPMRUN Startup: Importing Non-Standard Modules')
+starterr = False
+required = {'airspeed', 'pandas', 'psutil', 'pyDOE2', 'PySimpleGUI'}
+for package in required:
+    try:
+        dist = pkg_resources.get_distribution(package)
+        if package == 'PySimpleGUI':
+            sg = importlib.import_module(package)
+        elif package == 'pandas':
+            pd = importlib.import_module(package)
+        elif package == 'psutil':
+            from psutil import cpu_count
+        else:
+            importlib.import_module(package)
+        print('   Require Module - ' + dist.key + '(' + dist.version + ') Imported')
+    except pkg_resources.DistributionNotFound:
+        print('   Import Require Package - ' + package + ' Failed')
+#       print('Startup: Use "python3 -m pip install --user ' + package + '" to install')
+        print('   Use "pip3 install ' + package + '" to install')
+        starterr = True
+
+if starterr:
+    print('   Alternatively use: pip3 install -r requirements.txt to install required packages')
+    print('   Use "python3 -m pip --verbose list" to get a list of installed packages')
+    print('OPMRUN Startup: Importing Non-Standard Modules Failed')
+    exit('Program Will Exit')
+
+print('OPMRUN Startup: Importing Non-Standard Modules Complete')
+#
+# Import OPMRUN Modules
+#
+from opm_common import (convert_string, get_time, kill_job, opm_initialize, opm_popup, opm_startup,
+                        remove_ansii_escape_codes, run_command)
+from opmkeyw    import keyw_main
 #
 # Check for Python Version for 3.7 and Issue Warning Message and Continue
 #
-if sys.version_info >= (3,7,3):
-    sg.PopupError('Python 3.7.3 and Greater Detected OPMRUN May Not Work \n' +
-                  '\n' +
-                  'PySimpleGUI with Python 3.7.3 and 3.7.4+ is known to have problems due to the implementation \n' +
-                  'of tkinter in those versions of Python. If you must run 3.7, try 3.7.2 as this version works \n' +
-                  'with PySimpleGUI with no known issues. \n' +
-                  '\n' +
-                  'Will try to continue', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+# if platform.python_version_tuple() >=  ('3' ,'7', '3'):
+#     sg.popup_error('Python 3.7.3 and Greater Detected OPMRUN May Have Problems \n' +
+#                   '\n' +
+#                   'The version of tkinter that is being supplied with the 3.7.3 and later versions of Python is \n' +
+#                   'known to have a problem with table colors, basically they do not work. As a result, if you wish \n'
+#                   'to use the plain PySimpleGUI running on tkinter, you should be using 3.7.2 or less. \n' +
+#                   '\n' +
+#                   'Note that PySimpleGUI version 3.6 is the recommended version for most users. \n'
+#                   '\n' +
+#                   'Program will continue', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
-#-----------------------------------------------------------------------------------------------------------------------
-# Define Global Constants Section
-#-----------------------------------------------------------------------------------------------------------------------
-opmvers  = '2020-04.03'
-opm      = Path.home()
-opmhome  = Path(opm  / 'OPM')
-#
-# Create OPM Directory if Missing
-#
-if not opmhome.is_dir():
-    try:
-        opmhome.mkdir()
-    except OSError:
-        sg.PopupError('Cannot Create: ' + str(opmhome) + ' Directory \n  Will try and continue',
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-
-opmini   = Path(opmhome / 'OPMRUN.ini')
-opmque   = Path(opmhome / 'OPMRUN.que')
-opmfile  = Path(opmhome / 'OPMRUN.log')
-opmjob   = Path(opmhome / 'OPMRUN.job')
-opmlog   = open(opmfile, 'w')
-opmparam = Path(opmhome / 'OPMRUN.param')
-opmuser  = getpass.getuser()
-#
-# Global OPMRUN Variables
-#
+# ----------------------------------------------------------------------------------------------------------------------
+# Initialize Global Variables
+# ----------------------------------------------------------------------------------------------------------------------
+jobhelp  = dict()
 joblist  = []
 jobparam = []
-jobhelp  = dict()
+
 opmoptn  = dict()
+opmlog   = None
+opmsys   = dict()
+window0  = None
 
 
-#-----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section 
-#-----------------------------------------------------------------------------------------------------------------------
-def add_job(joblist, jobparam, opmuser):
+# ----------------------------------------------------------------------------------------------------------------------
+def add_job(joblist, jobparam, jobsys):
     """Add a OPM Flow Simulation job to the Job List Queue
 
     The function adds a DATA file to the job list queue by selecting the file via a window, and also defining the job
@@ -286,33 +302,39 @@ def add_job(joblist, jobparam, opmuser):
         Job list for queue
     jobparam : list
         OPM Flow PARAM file data set
-    opmuser : str
-        User name
+    jobsys : dict
+        Contains a dictionary list of all OPMRUN System parameters
 
     Returns
     -------
     joblist : list
         The updated joblist
     """
+    ncpu = cpu_count()
+    if ncpu > 1:
+        bcpu = False
+    else:
+        bcpu = True
 
-    if jobparam == []:
-        sg.PopupError('Job Parameters Missing; Cannot Add Cases - Check if OPM Flow is Installed',
+    if not jobparam:
+        sg.popup_error('Job Parameters Missing; Cannot Add Cases - Check if OPM Flow is Installed',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return()
+
     set_window_status(False)
     layout1 = [[sg.Text('File to Add to Queue')],
                [sg.InputText(key='_job_', size=(80, None)),
-                sg.FilesBrowse(target='_job_', initial_folder=os.getcwd,
-                               file_types=[('OPM', ['*.data','*.DATA']), ('All', '*.*')])],
+                sg.FilesBrowse(target='_job_', initial_folder=Path().absolute(),
+                               file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')])],
                [sg.Text('Run Parameters')],
-               [sg.Radio('Sequential Run' , "bRadio", default=True)],
-               [sg.Radio('Parallel Run   ', "bRadio"              ), sg.Text('No. of Nodes'),
-                sg.Listbox(values=list(range(1, cpu_count() + 1)), size=(5, 3))],
-               [sg.Submit(), sg.Cancel()]]
+               [sg.Radio('Sequential Run' , "bRadio", default =True)],
+               [sg.Radio('Parallel Run Number of Nodes' , "bRadio", disabled=bcpu),
+                sg.Listbox(values=list(range(1, ncpu + 1)), size=(5, 3), default_values=[ncpu], disabled=bcpu)],
+              [sg.Submit(), sg.Cancel()]]
     window1 = sg.Window('Select OPM Flow Input File', layout=layout1)
 
     while True:
-        (button, values) = window1.Read()
+        (event, values) = window1.read()
         jobs    = values['_job_']
         jobseq  = values[0]
         jobpar  = values[1]
@@ -320,7 +342,7 @@ def add_job(joblist, jobparam, opmuser):
         if not jobnode:
             jobnode = 2
 
-        if button == 'Submit' and len(jobs) != 0:
+        if event == 'Submit' and len(jobs) != 0:
             jobs = jobs.split(';')
             for job in jobs:
                 jobpath = Path(job).parents[0]
@@ -331,25 +353,27 @@ def add_job(joblist, jobparam, opmuser):
                 if jobpar:
                     joblist.append('mpirun -np ' + str(jobnode).strip("[]") + ' flow --parameter-file=' + str(jobfile))
                 set_window_status(True)
-                window0.Element('_joblist_').Update(joblist)
+                window0['_joblist_'].update(joblist)
                 set_window_status(False)
                 #
                 # Write Out PARAM File?
                 #
                 if jobfile.is_file():
-                    text = sg.PopupYesNo('Parameter file:', str(jobfile),
-                                         'Already exists; do you wish to overwite it with the current defaults?',
-                                         'Press YES to overwrite the file and NO to keep existing file',
-                                         '', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                    text = sg.popup('Parameter file:', str(jobfile),
+                                         'Already exists; do you wish to overwrite it with the current defaults,'
+                                         ' or keep the existing parameter file?',
+                                         custom_text=('Overwrite', 'Keep', None),
+                                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+
                 else:
-                    text = 'Yes'
+                    text = 'Overwrite'
 
-                if text == 'Yes':
-                    save_parameters(job, jobparam, jobbase, jobfile, opmuser)
+                if text == 'Overwrite':
+                    save_parameters(job, jobparam, jobbase, jobfile, jobsys)
 
-                window1.Element('_job_').Update(value='')
+                window1['_job_'].update(value='')
 
-        elif button == 'Cancel' or button == None:
+        elif event == 'Cancel' or event is None:
             break
 
     window1.Close()
@@ -357,67 +381,33 @@ def add_job(joblist, jobparam, opmuser):
     return()
 
 
-def clear_output():
-    """Clears An Output Display
-
-    Clears the requested Output and Log elements in the main window.
-
-    Parameters
-    ----------
-
-
-    Returns
-    -------
-    None
-
-    """
-
-    layout1  = [
-                [sg.Radio('Clear Log Display'           , 'bRadio', key='_log_'               )],
-                [sg.Radio('Clear Output Display'        , 'bRadio', key='_out_', default=True )],
-                [sg.Radio('Clear Log and Output Display', 'bRadio', key='_all_'               )],
-                [sg.Submit(), sg.Cancel()                                                      ]
-                ]
-
-    window1 = sg.Window('Clear Display Options', layout=layout1)
-    (button, values) = window1.Read()
-    window1.Close()
-
-    if button == 'Submit':
-        if values['_log_'] or values['_all_']:
-            window0.Element('_outlog_').Update('')
-
-        if values['_out_'] or values['_all_']:
-            window0.Element('_outflow_').Update('')
-
-
-def clear_queue(joblist):
+def clear_queue(joblist1):
     """ Clear Job Queue
 
     Clears the job queue of all jobs
 
     Parameters
     ----------
-    joblist : list
+    joblist1 : list
         List of jobs in the job queue
 
     Returns
     ------
     None
     """
-
-    if joblist == []:
-        sg.PopupOK('No Cases In Job Queue to Delete', no_titlebar=True,
+    if joblist1 == []:
+        sg.popup_ok('No Cases In Job Queue to Delete', no_titlebar=True,
                    grab_anywhere=True, keep_on_top=True)
     else:
-        text = sg.PopupYesNo('Delete All Cases in Queue?', no_titlebar=True,
+        text = sg.popup_yes_no('Delete All Cases in Queue?', no_titlebar=True,
                              grab_anywhere=True, keep_on_top=True)
         if text == 'Yes':
-            joblist = []
-            window0.Element('_joblist_').Update(joblist)
+            joblist1 = []
+            window0['_joblist_'].update(joblist1)
+    return joblist1
 
 
-def compress_job():
+def compress_job(opmoptn):
     """ Compress All Jobs Input and Output into a Zip File Using the Base Name
 
     The function allows the use to select a group of DATA files for compression of all files associated with the case
@@ -425,7 +415,8 @@ def compress_job():
 
     Parameters
     ----------
-
+    opmoptn; dict
+        A dictionary containing the OPMRUN default parameters
 
     Returns
     ------
@@ -436,58 +427,80 @@ def compress_job():
 
     joblist1 = []
     layout1  = [[sg.Text('Select Multiple Job Data Files to Compress'                             )],
-                [sg.Listbox(values='', size=(100, 10), key='_joblist1_'                           )],
+                [sg.Listbox(values='', size=(100, 10), key='_joblist1_',
+                            font=(opmoptn['output-font'], opmoptn['output-font-size'])            )],
                 [sg.Text('Output'                                                                 )],
-                [sg.Multiline(key='_outlog1_', size=(100, 15), font=('Courier', 9), text_color='blue',
-                              autoscroll=True                                                     )],
+                [sg.Multiline(key='_outlog1_', size=(100, 15), text_color='blue', autoscroll=True,
+                              font=(opmoptn['output-font'], opmoptn['output-font-size'])          )],
                 [sg.Text('Compression Options'                                                    )],
                 [sg.Radio('Compress Job' , "bRadio", default=True                                 )],
                 [sg.Radio('Compress Job and then Remove Job Files', "bRadio"                      )],
-                [sg.Button('Add'), sg.Button('List'), sg.Submit(), sg.Cancel()                    ]]
+                [sg.Button('Add'), sg.Button('Clear',  tooltip='Clear Output'), sg.Button('List'),
+                                   sg.Button('Remove', tooltip='Remove Data Files'), sg.Submit(), sg.Cancel()]]
     window1 = sg.Window('Compress Job Files', layout=layout1)
 
     while True:
-        (button, values) = window1.Read()
+        (event, values) = window1.read()
         jobopt  = values[0]
         #
         # Add Files
         #
-        if button == 'Add':
-            jobs = sg.PopupGetFile('Select Job Data Files to Compress', no_window=False,
-                                   default_path=str(os.getcwd()), initial_folder=str(os.getcwd()),
-                                   multiple_files=True, file_types=[('OPM', ['*.data','*.DATA'])])
-            if jobs != None:
+        if event == 'Add':
+            jobs = sg.popup_get_file('Select Job Data Files to Compress', no_window=False,
+                                   default_path=str(Path().absolute()), initial_folder=str(Path().absolute()),
+                                   multiple_files=True, file_types=[('OPM', ['*.data', '*.DATA'])])
+            if jobs is not None:
                 jobs = jobs.split(';')
                 for job in jobs:
                     joblist1.append(job)
 
-                window1.Element('_joblist1_').Update(joblist1)
+                window1['_joblist1_'].update(joblist1)
+            continue
+        #
+        # Clear Output
+        #
+        if event == 'Clear':
+            window1['_outlog1_'].update('')
+            continue
         #
         # Get Directory and List Files
         #
-        if button == 'List':
-            jobpath = sg.PopupGetFolder('Select Directory', no_window=False,
-                                        default_path=str(os.getcwd()), initial_folder=str(os.getcwd()))
-            if jobpath != None:
+        if event == 'List':
+            jobpath = sg.popup_get_folder('Select Directory', no_window=False,
+                                        default_path=str(Path().absolute()), initial_folder=str(Path().absolute()))
+            if jobpath is not None:
                 set_directory(jobpath, outlog=False, outpop=False, outprt=False, window=window1)
 
-            jobpath = os.getcwd()
+            jobpath = Path().absolute()
             for file in Path(jobpath).glob("*.data"):
-                window1.Element('_outlog1_').Update(str(Path(file).name) + '\n', append=True)
+                window1['_outlog1_'].update(str(Path(file).name) + '\n', append=True)
 
             for file in Path(jobpath).glob('*.DATA'):
-                window1.Element('_outlog1_').Update(str(Path(file).name) + '\n', append=True)
+                window1['_outlog1_'].update(str(Path(file).name) + '\n', append=True)
+
+            window1['_outlog1_'].update('Listing Complete ' + str(jobpath) + '\n', append=True)
+            continue
+        #
+        # Remove Files
+        #
+        if event == 'Remove':
+            joblist1 = []
+            window1['_joblist1_'].update(joblist1)
+            continue
         #
         # Compress Files
         #
-        if button == 'Submit':
+        if event == 'Submit':
             if jobopt:
                 zipcmd = 'zip -uv '
             else:
                 zipcmd = 'zip -mv '
 
+            jobnum = -1
             for cmd in joblist1:
-                window1.Element('_outlog1_').Update('\n', append=True)
+                jobnum = jobnum + 1
+                window1['_joblist1_'].update(set_to_index=jobnum, scroll_to_index=jobnum)
+                window1['_outlog1_'].update('\n', append=True)
                 out_log('Start Compression', True, False, window1)
                 (job, jobcmd, jobpath, jobbase, jobroot, jobfile, jobzip) = get_job(cmd, option='zip')
                 set_directory(jobpath, outlog=False, outpop=False, outprt=False, window=window1)
@@ -495,79 +508,22 @@ def compress_job():
                 out_log('   ' + jobcmd, True, False, window1)
                 run_command(jobcmd, timeout=None, window=window1)
                 out_log('End Compression', True, False, window1)
-                window1.Refresh()
+                window1.refresh()
 
-            joblist1 = []
-            window1.Element('_joblist1_').Update(joblist1)
+            window1['_joblist1_'].update(joblist1)
+            continue
         #
         # Cancel
         #
-        if button == 'Cancel' or button == None:
+        if event == 'Cancel' or event is None:
             break
 
-    joblist1 = []
     window1.Close()
     set_window_status(True)
     return()
 
 
-def convert_string(string, option):
-    """Convert a String from One Format to Another
-
-    The regular expression looks for letters that are either at the beginning of the string,
-    or preceded by an underscore. The given letter is captured.
-    Each of those occurrences (underscore + letter) is replaced by the uppercase version of
-    the found letter.
-
-    Parameters
-    ----------
-    string : str
-        String to be converted
-    option :str
-        String conversion format
-
-    Returns
-    -------
-    Converted String
-    """
-
-    if option  == 'snake2camel':
-        return re.sub(r'(?:^|_)([a-z])', lambda x: x.group(1).upper(), string)
-    '''
-    This method works exactly as snake2camel, except that the first character is not
-    taken into account for capitalization.
-    '''
-    if option == 'snake2camelback':
-        return re.sub(r'_([a-z])', lambda x: x.group(1).upper(), string)
-    '''
-    The regular expression capture every capital letters in the given string.
-    For each of these groups, the character found is replaced by an underscore,
-    followed by the lowercase version of the character.
-    '''
-    if option  == 'camel2snake':
-        return string[0].lower() + re.sub(r'(?!^)[A-Z]', lambda x: '_' + x.group(0).lower(), string[1:])
-    '''
-    The conversion is very similar to the one performed in camelback2snake,
-    except that the first character is processed out of the regular expression.
-    '''
-    if option  == 'camelback2snake':
-        return re.sub(r'[A-Z]', lambda x: '_' + x.group(0).lower(), string)
-    '''
-    The regular expression capture every capital letters in the given string.
-    For each of these groups, the character found is replaced by a '-',
-    followed by the lowercase version of the character.
-    '''
-    if option  == 'camel2flow':
-        return string[0].lower() + re.sub(r'(?!^)[A-Z]', lambda x: '-' + x.group(0).lower(), string[1:])
-    '''
-    The conversion is very similar to the one performed in camelback2snake,
-    except that the first character is processed out of the regular expression.
-    '''
-    if option  == 'camelback2flow':
-        return re.sub(r'[A-Z]', lambda x: '-' + x.group(0).lower(), string)
-
-
-def default_parameters(jobparam, opmparam):
+def default_parameters(jobparam, fileparam):
     """Define OPM Flow Default PARAM Parameters
 
     Function sets the default PARAM parameters for all new cases by loading the parameters from the default set from
@@ -577,12 +533,12 @@ def default_parameters(jobparam, opmparam):
     ----------
     jobparam : list
         Current default PARAM data set
-    opmparam : list
-        Existing PARAM data set
+    fileparam : str
+        Job file name that is used to store the OPM Flow help information
 
     Returns
     -------
-   jobparam : list
+    jobparam : list
         Updated default PARAM data set
     """
 
@@ -600,14 +556,14 @@ def default_parameters(jobparam, opmparam):
     window1   = sg.Window('Define OPM Flow Default Run Time Parameters', layout=layout1)
 
     while True:
-        (button, values) = window1.Read()
-        if button == 'Submit':
+        (event, values) = window1.read()
+        if event == 'Submit':
             if values[0]:
-                jobparam, jobhelp = load_parameters(opmparam)
+                jobparam, jobhelp = load_parameters(fileparam)
                 break
 
             elif values[1]:
-                filename = sg.PopupGetFile('OPM Flow Parameter File Name', default_extension='param', save_as=False,
+                filename = sg.popup_get_file('OPM Flow Parameter File Name', default_extension='param', save_as=False,
                                            file_types=[('Parameter File', ['*.param', '*.PARAM']), ('All', '*.*')],
                                            keep_on_top=False)
                 if filename:
@@ -616,12 +572,12 @@ def default_parameters(jobparam, opmparam):
                         if '=' in x:
                             jobparam.append(x.rstrip())
                     file.close()
-                    sg.PopupOK('OPM Flow User Parameters Loaded from: ' + filename,
+                    sg.popup_ok('OPM Flow User Parameters Loaded from: ' + filename,
                                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
                     break
 
             elif values[2]:
-                filename = sg.PopupGetFile('OPM Flow PRT File Name', default_extension='prt', save_as=False,
+                filename = sg.popup_get_file('OPM Flow PRT File Name', default_extension='prt', save_as=False,
                                            file_types=[('Print File', ['*.prt', '*.PRT']), ('All', '*.*')],
                                            keep_on_top=False)
                 if filename:
@@ -635,17 +591,17 @@ def default_parameters(jobparam, opmparam):
                                 jobparam.append(x.rstrip())
                         elif '==Saturation' in x:
                             file.close()
-                            sg.PopupOK('OPM Flow User Parameters Loaded from: ' + filename,
+                            sg.popup_ok('OPM Flow User Parameters Loaded from: ' + filename,
                                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
                             break
                     break
 
-        elif button == 'Cancel' or button == None:
+        elif event == 'Cancel' or event is None:
             break
 
     window1.Close()
     if not jobparam:
-        sg.PopupOK('OPM Flow User Parameters Not Set, Using Previous Values Instead',
+        sg.popup_ok('OPM Flow User Parameters Not Set, Using Previous Values Instead',
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         jobparam = jobparam0
 
@@ -653,8 +609,8 @@ def default_parameters(jobparam, opmparam):
     return jobparam
 
 
-def delete_job(joblist, Job):
-    """ Delete OPM Flow Job form Job Queue
+def delete_job(joblist, job):
+    """ Delete OPM Flow job form job Queue
 
     Deletes an existing job in the job queue from the job queue
 
@@ -662,7 +618,7 @@ def delete_job(joblist, Job):
     ----------
     joblist : list
         The list of jobs in the jb queue
-    Job : str
+    job : str
         The currently selected job to be deleted from the job queue
 
     Returns
@@ -672,18 +628,81 @@ def delete_job(joblist, Job):
     """
 
     if not joblist:
-        sg.PopupOK('No Cases in Job Queue', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        sg.popup_ok('No Cases in job Queue', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
-    elif not Job:
-        sg.PopupOK('No Case Selected', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+    elif not job:
+        sg.popup_ok('No Case Selected', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
     else:
-        text = sg.PopupYesNo('Delete \n ' + Job[0] + '?', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        text = sg.popup_yes_no('Delete \n ' + job[0] + '?', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         if text == 'Yes':
-            joblist.remove(Job[0])
-            window0.Element('_joblist_').Update(joblist)
+            joblist.remove(job[0])
+            window0['_joblist_'].update(joblist)
 
 
-def edit_job(job, opmuser, **jobhelp):
+def edit_data(job, jobsys, filetype='.data'):
+    """Edit Job Input/Output File
+
+    The function sets up the parameters to call the default editor to edit the selected DATA file .
+
+    Parameters
+    ----------
+    job : str
+        The selected job
+    filetype : str
+        File suffix type to check if job input/output file exists, checks for upper and lower suffices.
+
+    Returns
+    -------
+    None
+    """
+
+    if not job:
+        sg.popup_ok('No Case Selected', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        return()
+    #
+    # Edit Data File or Parameter File Option
+    #
+    job    = str(job[0]).rstrip()
+    istart = job.find('=') + 1
+    file1  = Path(job[istart:]).with_suffix(filetype.lower())
+    file2  = Path(job[istart:]).with_suffix(filetype.upper())
+    if file1.is_file():
+        file0 = file1
+    elif file2.is_file():
+        file0 = file2
+    else:
+        sg.popup_error('Cannot Find  File: ', str(file1),
+                      'or ' , str(file2),
+                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        out_log('Cannot Find: ' + str(file1) + ' or ' + str(file2), True)
+
+        return()
+    #
+    # Data File Processing
+    #
+    if opmoptn['edit-command'] == 'None':
+        sg.popup_ok('Editor command has not been set in the properties file',
+                   'Use Edit OPMRUN Options to set the Editor Command',
+                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        out_log('Editor Command Has Not Been Set: ' + str(opmoptn['edit-command']), True)
+        return()
+    else:
+        command = str(opmoptn['edit-command']).rstrip()
+        out_log('Executing Editor Command: ' + command + ' ' + str(file0), True)
+
+        try:
+            subprocess.Popen([command, file0])
+
+        except Exception:
+            sg.popup_error('Error Executing Editor Command: ' + command + ' ' + str(file0),
+                          no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+            out_log('Error Executing Editor Command: ' + command + ' ' + str(file0), True)
+            return()
+
+    return()
+
+
+def edit_job(job, jobsys, **jobhelp):
     """Edit Job DATA or PARAM File
 
     The function sets up the parameters to call the default editor to edit the selected DATA file and also the
@@ -693,8 +712,8 @@ def edit_job(job, opmuser, **jobhelp):
     ----------
     job : str
         The selected job
-    opmuser: str
-        User name
+    jobsys : dict
+        Contains a dictionary list of all OPMRUN System parameters
     jobhelp : dict
         OPM Flow PARAM list help information stored in a dictionary with the key being the PARAM variable
 
@@ -703,8 +722,61 @@ def edit_job(job, opmuser, **jobhelp):
     None
     """
 
-    if job == []:
-        sg.PopupOK('No Case Selected', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+    if not job:
+        sg.popup_ok('No Case Selected', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        return()
+    #
+    # Display Edit Options
+    #
+    #
+    jobfile  = str(job[0]).rstrip()
+    istart   = jobfile.find('=') + 1
+    filebase = Path(jobfile[istart:]).stem
+    layout1  = [[sg.Text('Edit Options for Job: ' + str(filebase))],
+                [sg.Radio('Edit Data File'     , 'bRadio', default=True)],
+                [sg.Radio('Edit Parameter File', 'bRadio'              )],
+                [sg.Submit(), sg.Cancel()]]
+    window1  = sg.Window('Edit Job Options', layout=layout1)
+    (event, values) = window1.read()
+    window1.Close()
+    #
+    # Data File Processing
+    #
+    if event == 'Submit' and values[0] is True:
+        edit_data(job, jobsys, filetype='.data')
+        return()
+    #
+    # Parameter File Processing
+    #
+    elif event == 'Submit' and values[1] is True:
+        edit_param(job, jobsys, **jobhelp)
+        return()
+
+    else:
+        return()
+
+
+def edit_param(job, jobsys, **jobhelp):
+    """Edit Job DATA or PARAM File
+
+    The function sets up the parameters to call the edit_parameters function that allows the user to edit the PARAM file.
+
+    Parameters
+    ----------
+    job : str
+        The selected job
+    jobsys : dict
+        Contains a dictionary list of all OPMRUN System parameters
+    jobhelp : dict
+        OPM Flow PARAM list help information stored in a dictionary with the key being the PARAM variable
+
+    Returns
+    -------
+    None
+    """
+
+    if not job:
+        sg.popup_ok('No Case Selected', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return()
     #
     # Edit Data File or Parameter File Option
@@ -713,7 +785,9 @@ def edit_job(job, opmuser, **jobhelp):
     jobparam1  = []
     job        = str(job[0]).rstrip()
     istart     = job.find('=') + 1
-
+    #
+    # Check for Data File
+    #
     filebase   = Path(job[istart:]).stem
     filedata1  = Path(job[istart:]).with_suffix('.data')
     filedata2  = Path(job[istart:]).with_suffix('.DATA')
@@ -723,88 +797,54 @@ def edit_job(job, opmuser, **jobhelp):
     if filedata2.is_file():
         filedata = filedata2
     if filedata == '':
-        sg.PopupError('Cannot Find Data File: ', str(filedata1),
+        sg.popup_error('Cannot Find Data File: ', str(filedata1),
                       'or ' , str(filedata2),
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         out_log('Cannot Find: ' + str(filedata1) + ' or ' + str(filedata2), True)
 
         return()
-
-    fileparam1  = Path(job[istart:]).with_suffix('.param')
-    fileparam2  = Path(job[istart:]).with_suffix('.PARAM')
-    fileparam   = ''
+    #
+    # Check for PARAM File
+    #
+    filebase   = Path(job[istart:]).stem
+    fileparam1 = Path(job[istart:]).with_suffix('.param')
+    fileparam2 = Path(job[istart:]).with_suffix('.PARAM')
+    fileparam  = ''
     if fileparam1.is_file():
         fileparam = fileparam1
     if not fileparam2.is_file():
         fileparam = fileparam2
     if fileparam == '':
-        sg.PopupError('Cannot Find Parameter File: ',  str(fileparam1),
+        sg.popup_error('Cannot Find Parameter File: ',  str(fileparam1),
                       'or ', str(fileparam2),
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         out_log('Cannot Find Parameter File: ' + str(fileparam1) + ' or ' + str(fileparam2), True)
         return()
     #
-    # Files Found So Display Edit Options
-    #
-    layout1   = [[sg.Text('Edit Options for Job: ' + str(filebase))],
-                 [sg.Radio('Edit Data File'     , 'bRadio', default=True)],
-                 [sg.Radio('Edit Parameter File', 'bRadio'              )],
-                 [sg.Submit(), sg.Cancel()]]
-    window1   = sg.Window('Edit Job Options', layout=layout1)
-
-    (button, values) = window1.Read()
-    window1.Close()
-
-    if button == 'Cancel' or button == None:
-        return()
-    #
-    # Data File Processing
-    #
-    if button == 'Submit' and values[0] == True:
-        if opmoptn['edit-command'] == 'None':
-            sg.PopupOK('Editor command has not been set in the properties file',
-                       'Use Edit OPMRUN Options to set the Editor Command',
-                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            out_log('Editor Command Has Not Been Set: ' + str(opmoptn['edit-command']), True)
-            return()
-        else:
-            command = str(opmoptn['edit-command']).rstrip()
-            out_log('Executing Editor Command: ' + command + ' ' + str(filedata), True)
-
-            try:
-                subprocess.Popen([command, filedata])
-
-            except Exception:
-                sg.PopupError('Error Executing Editor Command: ' + command + ' ' + str(filedata),
-                              no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-                out_log('Error Executing Editor Command: ' + command + ' ' + str(filedata), True)
-                return()
-    #
     # Parameter File Processing
     #
-    if button == 'Submit' and values[1] == True:
-        if fileparam.is_file():
-            file  = open(str(fileparam).rstrip(), 'r')
-            for n, line in enumerate(file):
-                if '=' in line:
-                    jobparam.append(line.rstrip())
-            file.close()
-            #
-            # Edit Job Parameters
-            #
-            (jobparam1, exitcode) = edit_parameters(jobparam, **jobhelp)
-            if exitcode == 'Exit':
-                save_parameters(filedata, jobparam1, filebase, fileparam, opmuser)
+    if fileparam.is_file():
+        file  = open(str(fileparam).rstrip(), 'r')
+        for n, line in enumerate(file):
+            if '=' in line:
+                jobparam.append(line.rstrip())
+        file.close()
+        #
+        # Edit Job Parameters
+        #
+        (jobparam1, exitcode) = edit_parameters(jobparam, **jobhelp)
+        if exitcode == 'Exit':
+            save_parameters(filedata, jobparam1, filebase, fileparam, jobsys)
 
-        else:
-            sg.PopupError('Cannot Find Parameter File: ' + str(fileparam),
-                          no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            out_log('Cannot Find Parameter File: ' + str(fileparam), True)
+    else:
+        sg.popup_error('Cannot Find Parameter File: ' + str(fileparam),
+                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        out_log('Cannot Find Parameter File: ' + str(fileparam), True)
 
     return()
 
 
-def edit_options(opmoptn):
+def edit_options(opmsys1, opmoptn1):
     """ Edit OPMRUN Options that Define Various Configuration Options
 
     The routine allows the editing of the module's options stored in the OPMINI file that is read into the opmoptn
@@ -812,7 +852,9 @@ def edit_options(opmoptn):
 
     Parameters
     ----------
-    opmoptn : dict
+    opmsys1 : dict
+        Contains a dictionary list of all OPMRUN System parameters
+    opmoptn1 : dict
         Contains the various options for the program as outlined below
             opm-author1      = Author
             opm-author2      = Company Name
@@ -834,71 +876,71 @@ def edit_options(opmoptn):
 
     Returns
     -------
-    opmoptn : dict
+    opmoptn1 : dict
         Updated via global variable
     """
 
     set_window_status(False)
-    opmoptn0  =  opmoptn
-    if Path(opmoptn['opm-flow-manual']).exists():
+    opmoptn0  =  opmoptn1
+    if Path(opmoptn1['opm-flow-manual']).exists():
         defmanual = Path(opmoptn['opm-flow-manual']).parents[0]
     else:
-        defmanual = opmhome
+        defmanual = opmsys1['opmhome']
 
-    if Path(opmoptn['opm-keywdir']).exists():
+    if Path(opmoptn1['opm-keywdir']).exists():
         defkeyw = Path(opmoptn['opm-keywdir']).parents[0]
     else:
-        defkeyw = opmhome
+        defkeyw = opmsys1['opmhome']
 
-    if Path(opmoptn['opm-resinsight']).exists():
+    if Path(opmoptn1['opm-resinsight']).exists():
         defresinsight = Path(opmoptn['opm-resinsight']).parents[0]
     else:
-        defresinsight = opmhome
+        defresinsight = opmsys1['opmhome']
 
     column1   = [
                  [sg.Text('OPM Flow Manual Location'                                                  )],
-                 [sg.InputText(opmoptn['opm-flow-manual'], key='_opm-flow-manual_', size=(80, None))    ,
+                 [sg.InputText(opmoptn1['opm-flow-manual'], key='_opm-flow-manual_', size=(80, None))   ,
                   sg.FileBrowse(target='_opm-flow-manual_',
                                 file_types=(('Manual Files', '*.pdf'),), initial_folder=defmanual)     ],
 
                  [sg.Text('OPM Keyword Generator Template Directory'                                  )],
-                 [sg.InputText(opmoptn['opm-keywdir'    ], key='_opm-keywdir_'       , size=(80, None)) ,
+                 [sg.InputText(opmoptn1['opm-keywdir'    ], key='_opm-keywdir_'       , size=(80, None)),
                   sg.FolderBrowse(target='_opm-keywdir_', initial_folder=defkeyw)                      ],
 
                  [sg.Text('ResInsight Command'                                                        )],
-                 [sg.InputText(opmoptn['opm-resinsight'  ], key='_opm-resinsight_'   , size=(80, None)) ,
-                  sg.FileBrowse(target='_opm-resinsight_', initial_folder=defresinsight)              ],
+                 [sg.InputText(opmoptn1['opm-resinsight'  ], key='_opm-resinsight_'   , size=(80, None)),
+                  sg.FileBrowse(target='_opm-resinsight_', initial_folder=defresinsight)               ],
 
                  [sg.Text('Editor Command for Editing Input Files'                                    )],
-                 [sg.InputText(opmoptn['edit-command'    ], key='_edit-command_'     , size=(80, None))],
+                 [sg.InputText(opmoptn1['edit-command'   ], key='_edit-command_'     , size=(80, None))],
 
                  [sg.Text(''                                                                          )],
                  [sg.Text('OPM Keyword Generator Variables'                                           )],
-                 [sg.Text('Author'                                                  , size=(30, None)) ,
-                  sg.InputText(opmoptn['opm-author1'    ], key='_opm-author1_'      , size=(48, None))],
-                 [sg.Text('Company Name'                                            , size=(30, None)) ,
-                  sg.InputText(opmoptn['opm-author2'    ], key='_opm-author2_'      , size=(48, None))],
-                 [sg.Text('Address Line 1'                                          , size=(30, None)) ,
-                  sg.InputText(opmoptn['opm-author3'    ], key='_opm-author3_'      , size=(48, None))],
-                 [sg.Text('Address Line 2'                                          , size=(30, None)) ,
-                  sg.InputText(opmoptn['opm-author4'    ], key='_opm-author4_'      , size=(48, None))],
-                 [sg.Text('Email Address'                                           , size=(30, None)) ,
-                  sg.InputText(opmoptn['opm-author5'    ], key='_opm-author5_'      , size=(48, None))],
+                 [sg.Text('Author'                                                   , size=(30, None)) ,
+                  sg.InputText(opmoptn1['opm-author1'    ], key='_opm-author1_'      , size=(48, None))],
+                 [sg.Text('Company Name'                                             , size=(30, None)) ,
+                  sg.InputText(opmoptn1['opm-author2'    ], key='_opm-author2_'      , size=(48, None))],
+                 [sg.Text('Address Line 1'                                           , size=(30, None)) ,
+                  sg.InputText(opmoptn1['opm-author3'    ], key='_opm-author3_'      , size=(48, None))],
+                 [sg.Text('Address Line 2'                                           , size=(30, None)) ,
+                  sg.InputText(opmoptn1['opm-author4'    ], key='_opm-author4_'      , size=(48, None))],
+                 [sg.Text('Email Address'                                            , size=(30, None)) ,
+                  sg.InputText(opmoptn1['opm-author5'    ], key='_opm-author5_'      , size=(48, None))],
 
                  [sg.Text(''                                                                          )],
                  [sg.Text('Main Window Configuration Setting'                                         )],
                  [sg.Text('Input Element Width '                                     , size=(30, None)) ,
-                  sg.InputText(opmoptn['input-width'     ], key='_input-width_'      , size=(10, None))],
+                  sg.InputText(opmoptn1['input-width'     ], key='_input-width_'     , size=(20, None))],
                  [sg.Text('Input Element Height'                                     , size=(30, None)) ,
-                  sg.InputText(opmoptn['input-heigt'     ], key='_input-heigt_'      , size=(10, None))],
+                  sg.InputText(opmoptn1['input-heigt'     ], key='_input-heigt_'     , size=(20, None))],
                  [sg.Text('Output Element Width'                                     , size=(30, None)) ,
-                  sg.InputText(opmoptn['output-width'    ], key='_output-width_'     , size=(10, None))],
+                  sg.InputText(opmoptn1['output-width'    ], key='_output-width_'    , size=(20, None))],
                  [sg.Text('Output Element Height'                                    , size=(30, None)) ,
-                  sg.InputText(opmoptn['output-heigt'    ], key='_output-heigt_'     , size=(10, None))],
+                  sg.InputText(opmoptn1['output-heigt'    ], key='_output-heigt_'    , size=(20, None))],
                  [sg.Text('Output Element Font'                                      , size=(30, None)) ,
-                  sg.InputText(opmoptn['output-font'     ], key='_output-font_'      , size=(10, None))],
+                  sg.InputText(opmoptn1['output-font'     ], key='_output-font_'     , size=(20, None))],
                  [sg.Text('Output Element Font Size'                                 , size=(30, None)) ,
-                  sg.InputText(opmoptn['output-font-size'], key='_output-font-size_' , size=(10, None))]
+                  sg.InputText(opmoptn1['output-font-size'], key='_output-font-size_', size=(20, None))]
                 ]
 
     layout1   = [[sg.Column(column1)      ],
@@ -906,35 +948,34 @@ def edit_options(opmoptn):
 
     window1   = sg.Window('Edit Options', layout=layout1)
 
-    (button, values) = window1.Read()
+    (event, values) = window1.read()
     window1.Close()
 
-    if button == 'Cancel' or button == None:
-        opmoptn = opmoptn0
+    if event == 'Cancel' or event is None:
+        opmoptn1 = opmoptn0
 
-    if button == 'Submit':
-        opmoptn['opm-flow-manual' ] = values['_opm-flow-manual_' ]
-        opmoptn['opm-keywdir'     ] = values['_opm-keywdir_'     ]
-        opmoptn['opm-resinsight'  ] = values['_opm-resinsight_'  ]
-        opmoptn['edit-command'    ] = values['_edit-command_'    ]
+    if event == 'Submit':
+        opmoptn1['opm-flow-manual' ] = values['_opm-flow-manual_' ]
+        opmoptn1['opm-keywdir'     ] = values['_opm-keywdir_'     ]
+        opmoptn1['opm-resinsight'  ] = values['_opm-resinsight_'  ]
+        opmoptn1['edit-command'    ] = values['_edit-command_'    ]
 
-        opmoptn['opm-author1'     ] = values['_opm-author1_'     ]
-        opmoptn['opm-author2'     ] = values['_opm-author2_'     ]
-        opmoptn['opm-author3'     ] = values['_opm-author3_'     ]
-        opmoptn['opm-author4'     ] = values['_opm-author4_'     ]
+        opmoptn1['opm-author1'     ] = values['_opm-author1_'     ]
+        opmoptn1['opm-author2'     ] = values['_opm-author2_'     ]
+        opmoptn1['opm-author3'     ] = values['_opm-author3_'     ]
+        opmoptn1['opm-author4'     ] = values['_opm-author4_'     ]
 
+        opmoptn1['input-width'     ] = values['_input-width_'     ]
+        opmoptn1['input-heigt'     ] = values['_input-heigt_'     ]
+        opmoptn1['output-width'    ] = values['_output-width_'    ]
+        opmoptn1['output-heigt'    ] = values['_output-heigt_'    ]
+        opmoptn1['output-font'     ] = values['_output-font_'     ]
+        opmoptn1['output-font-size'] = values['_output-font-size_']
 
-        opmoptn['input-width'     ] = values['_input-width_'     ]
-        opmoptn['input-heigt'     ] = values['_input-heigt_'     ]
-        opmoptn['output-width'    ] = values['_output-width_'    ]
-        opmoptn['output-heigt'    ] = values['_output-heigt_'    ]
-        opmoptn['output-font'     ] = values['_output-font_'     ]
-        opmoptn['output-font-size'] = values['_output-font-size_']
-
-        save_options(opmoptn)
+        save_options(opmsys1, opmoptn1)
 
     set_window_status(True)
-    return opmoptn
+    return opmoptn1
 
 
 def edit_parameters(jobparam, **jobhelp):
@@ -977,65 +1018,65 @@ def edit_parameters(jobparam, **jobhelp):
         window1 = sg.Window('Edit Parameters', layout=layout1)
 
         while True:
-            (button, values) = window1.Read()
+            (event, values) = window1.read()
 
-            if button == 'Edit' or button == '_listbox_':
-                if values['_listbox_'] == []:
-                    sg.PopupError('Please select a parameter from the list',
+            if event == 'Edit' or event == '_listbox_':
+                if not values['_listbox_']:
+                    sg.popup_error('Please select a parameter from the list',
                                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
                 else:
-                    window1.Element('_text_').Update(values['_listbox_'][0])
+                    window1['_text_'].update(values['_listbox_'][0])
                     texthelp = values['_listbox_'][0]
                     texthelp = texthelp[:texthelp.find('=')]
                     if texthelp in jobhelp:
                         paramhelp = jobhelp[texthelp]
                     else:
                         paramhelp = 'Help not found for ' + texthelp
-                    window1.Element('_texthelp_').Update(paramhelp)
+                    window1['_texthelp_'].update(paramhelp)
 
-            if button == 'Save':
+            if event == 'Save':
                 param = values['_text_']
                 key   = param[:param.find('=')]
                 for n, text in enumerate(jobparam):
                     if text[:text.find('=')] == key:
                         jobparam[n] = param
                         paramhelp = 'Parameter: ' + str(jobparam[n]) + ' has been updated'
-                        window1.Element('_texthelp_').Update(paramhelp)
+                        window1['_texthelp_'].update(paramhelp)
                         break
-                window1.Element('_listbox_').Update(jobparam)
+                window1['_listbox_'].update(jobparam)
 
-            if button == 'Cancel' or button == None:
-                text = sg.PopupYesNo('Cancel Changes?',
+            if event == 'Cancel' or event is None:
+                text = sg.popup_yes_no('Cancel Changes?',
                                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
                 if text == 'Yes':
                     jobparam  = jobparam0
-                    exitcode  = button
+                    exitcode  = event
                     break
                 else:
-                    button = 'Edit'
+                    event = 'Edit'
                     continue
 
-            if button == 'Exit':
-                text = sg.PopupYesNo('Save and Exit?',
+            if event == 'Exit':
+                text = sg.popup_yes_no('Save and Exit?',
                                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
                 if text == 'Yes':
-                    jobparam = window1.Element('_listbox_').GetListValues()
-                    exitcode = button
+                    jobparam = window1['_listbox_'].get_list_values()
+                    exitcode = event
                     break
 
         window1.Close()
         set_window_status(True)
-        window0.Element('_outlog_').Update()
+        window0['_outlog_'].update()
 
     else:
         exitcode  = 'Cancel'
-        sg.PopupError('OPM Flow Parameters Have Not Been Set',
+        sg.popup_error('OPM Flow Parameters Have Not Been Set',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
     return jobparam, exitcode
 
 
-def edit_projects(opmoptn):
+def edit_projects(opmoptn1, opmsys1):
     """Edit Project Names and Directories
 
     Function allows the editing of project names and their associated directories. Projects are basically shortcuts to
@@ -1043,68 +1084,70 @@ def edit_projects(opmoptn):
 
     Parameters
     ----------
-    opmoptn : dict
+    opmoptn1 : dict
         Contains the project names and their associated directories
+    opmsys1 : dict
+        Contains a dictionary list of all OPMRUN System parameters
 
     Returns
     -------
-    opmoptn : dict
+    opmoptn1 : dict
         Updated via global variable
     """
 
     set_window_status(False)
 
-    opmoptn0  =  opmoptn
-    column1   = [[sg.Text('No.'              , justification='center', size=( 3, 1)),
+    opmoptn0  =  opmoptn1
+    column1   = [[sg.Text('No.'              , justification='center', size=( 3, 1)), 
                   sg.Text('Project Name'     , justification='center', size=(20, 1)),
                   sg.Text('Project Directory', justification='center', size=(80, 1))],
                  [sg.Text('1. '),
-                  sg.InputText(opmoptn['prj-name-01'], key='_prj-name-01_', size=(20, 1)),
-                  sg.InputText(opmoptn['prj-dirc-01'], key='_prj-dirc-01_', size=(80, 1)),
-                  sg.FolderBrowse(                  target='_prj-dirc-01_')],
+                  sg.InputText(opmoptn1['prj-name-01'], key='_prj-name-01_', size=(20, 1)),
+                  sg.InputText(opmoptn1['prj-dirc-01'], key='_prj-dirc-01_', size=(80, 1)),
+                  sg.FolderBrowse(                   target='_prj-dirc-01_')],
                  [sg.Text('2. '),
-                  sg.InputText(opmoptn['prj-name-02'], key='_prj-name-02_', size=(20, 1)),
-                  sg.InputText(opmoptn['prj-dirc-02'], key='_prj-dirc-02_', size=(80, 1)),
-                  sg.FolderBrowse(                  target='_prj-dirc-02_')],
+                  sg.InputText(opmoptn1['prj-name-02'], key='_prj-name-02_', size=(20, 1)),
+                  sg.InputText(opmoptn1['prj-dirc-02'], key='_prj-dirc-02_', size=(80, 1)),
+                  sg.FolderBrowse(                   target='_prj-dirc-02_')],
                  [sg.Text('3. '),
-                  sg.InputText(opmoptn['prj-name-03'], key='_prj-name-03_', size=(20, 1)),
-                  sg.InputText(opmoptn['prj-dirc-03'], key='_prj-dirc-03_', size=(80, 1)),
-                  sg.FolderBrowse(                  target='_prj-dirc-03_')],
+                  sg.InputText(opmoptn1['prj-name-03'], key='_prj-name-03_', size=(20, 1)),
+                  sg.InputText(opmoptn1['prj-dirc-03'], key='_prj-dirc-03_', size=(80, 1)),
+                  sg.FolderBrowse(                   target='_prj-dirc-03_')],
                  [sg.Text('4. '),
-                  sg.InputText(opmoptn['prj-name-04'], key='_prj-name-04_', size=(20, 1)),
-                  sg.InputText(opmoptn['prj-dirc-04'], key='_prj-dirc-04_', size=(80, 1)),
-                  sg.FolderBrowse(                  target='_prj-dirc-04_')],
+                  sg.InputText(opmoptn1['prj-name-04'], key='_prj-name-04_', size=(20, 1)),
+                  sg.InputText(opmoptn1['prj-dirc-04'], key='_prj-dirc-04_', size=(80, 1)),
+                  sg.FolderBrowse(                   target='_prj-dirc-04_')],
                  [sg.Text('5. '),
-                  sg.InputText(opmoptn['prj-name-05'], key='_prj-name-05_', size=(20, 1)),
-                  sg.InputText(opmoptn['prj-dirc-05'], key='_prj-dirc-05_', size=(80, 1)),
-                  sg.FolderBrowse(                  target='_prj-dirc-05_')]]
+                  sg.InputText(opmoptn1['prj-name-05'], key='_prj-name-05_', size=(20, 1)),
+                  sg.InputText(opmoptn1['prj-dirc-05'], key='_prj-dirc-05_', size=(80, 1)),
+                  sg.FolderBrowse(                   target='_prj-dirc-05_')]]
 
     layout1   = [[sg.Column(column1) ],
                  [sg.Submit(), sg.Cancel()]]
 
     window1   = sg.Window('Edit Projects', layout=layout1)
 
-    (button, values) = window1.Read()
+    (event, values) = window1.read()
     window1.Close()
 
-    if button == 'Cancel' or button == None:
-        opmoptn = opmoptn0
+    if event == 'Cancel' or event is None:
+        opmoptn1 = opmoptn0
 
-    if button == 'Submit':
-        opmoptn['prj-name-01'] = values['_prj-name-01_']
-        opmoptn['prj-name-02'] = values['_prj-name-02_']
-        opmoptn['prj-name-03'] = values['_prj-name-03_']
-        opmoptn['prj-name-04'] = values['_prj-name-04_']
-        opmoptn['prj-name-05'] = values['_prj-name-05_']
-        opmoptn['prj-dirc-01'] = values['_prj-dirc-01_']
-        opmoptn['prj-dirc-02'] = values['_prj-dirc-02_']
-        opmoptn['prj-dirc-03'] = values['_prj-dirc-03_']
-        opmoptn['prj-dirc-04'] = values['_prj-dirc-04_']
-        opmoptn['prj-dirc-05'] = values['_prj-dirc-05_']
-        save_options(opmoptn)
+    if event == 'Submit':
+        opmoptn1['prj-name-01'] = values['_prj-name-01_']
+        opmoptn1['prj-name-02'] = values['_prj-name-02_']
+        opmoptn1['prj-name-03'] = values['_prj-name-03_']
+        opmoptn1['prj-name-04'] = values['_prj-name-04_']
+        opmoptn1['prj-name-05'] = values['_prj-name-05_']
+        opmoptn1['prj-dirc-01'] = values['_prj-dirc-01_']
+        opmoptn1['prj-dirc-02'] = values['_prj-dirc-02_']
+        opmoptn1['prj-dirc-03'] = values['_prj-dirc-03_']
+        opmoptn1['prj-dirc-04'] = values['_prj-dirc-04_']
+        opmoptn1['prj-dirc-05'] = values['_prj-dirc-05_']
+        save_options(opmsys1, opmoptn1)
 
     set_window_status(True)
-    return opmoptn
+    return opmoptn1
 
 
 def get_job(cmd, option='opmflow'):
@@ -1164,63 +1207,16 @@ def get_job(cmd, option='opmflow'):
         return job, jobcmd, jobpath, jobbase, jobroot, jobfile, jobzip
 
 
-def get_time():
-    """Gets the Current Time and Data
-
-    Gets the current time and date and returns the value in the standard OPMRUN format
-
-    Parameters
-    ----------
-
-
-    Returns
-    -------
-    time : str
-        The current date and time in the standard OPMRUN format
-    """
-
-    time = datetime.datetime.now()
-    time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
-    return time
-
-
-def kill_job(jobpid):
-    """Kill OPMRUN Job
-
-    Kills a running OPMRUN job using the passed PID for the job
-
-    Parameters
-    ----------
-    jobpid : int
-        Job processing PID
-
-    Returns
-    -------
-    None
-    """
-
-    button, values = window0.Read(timeout=1)
-    if button != '_kill_job_':
-        return()
-
-    text = sg.PopupYesNo('Do You Wish to Kill the Current OPM Flow Job ' + str(jobpid) + ' ?'
-                         , no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-    if text == 'Yes':
-        run_process(['kill ' + str(jobpid)])
-        out_log   ('OPM Flow Process ' + str(jobpid) + ' Has Been Stopped by ' + str(getpass.getuser()), True, True)
-        sg.PopupOK('OPM Flow Process ' + str(jobpid) + ' Has Been Stopped by ' + str(getpass.getuser()),
-                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-    return()
-
-
-def load_manual(filename):
+def load_manual(opmsys1, filename):
     """Loads the OPM Flow User Manual
 
     Loads the OPM Flow User Manual in PDF format using the systems default PDF reader/viewer. The location of the manual
-    is stored in the opmoptns dictionary and the filename is a reference to this variable.
+    is stored in the opmoptn dictionary and the filename is a reference to this variable.
 
     Parameters
     ----------
+    opmsys1 : dict
+        Contains a dictionary list of all OPMRUN System parameters
     filename : str
         OPM Flow User Manual full file name.
 
@@ -1230,35 +1226,35 @@ def load_manual(filename):
     """
 
     if filename == 'None':
-        sg.PopupOK('OPM Flow Manual has not been defined in the Options.',
+        sg.popup_ok('OPM Flow Manual has not been defined in the Options.',
                    'Use the Edit Options menu to set the File Name.',
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return()
 
-    if Path(filename).is_file() == False:
-        sg.PopupOK('OPM Flow Manual File Cannot be Found. \n', str(filename) + ' \n',
+    if not Path(filename).is_file():
+        sg.popup_ok('OPM Flow Manual File Cannot be Found. \n', str(filename) + ' \n',
                    'Use the Edit Options menu to set the File Name.',
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return ()
     #
     # Linux System
     #
-    if sys.platform.startswith('linux'):
+    if opmsys1['system'] == 'Linux':
         try:
             subprocess.Popen(["xdg-open", filename])
         except Exception:
-            sg.PopupError('OPM Flow Manual Error \n \n' + 'Cannot run: \n \n' +
+            sg.popup_error('OPM Flow Manual Error \n \n' + 'Cannot run: \n \n' +
                           '"xdg-open ' + str(filename) + '" \n \n' +
                           'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
                           line_width=len(filename) + 12, no_titlebar=True, grab_anywhere=True, keep_on_top=True)
     #
     # Windows System
     #
-    if sys.platform.startswith('win'):
+    if opmsys1['system'] == 'Windows':
         try:
             os.startfile(filename)
         except Exception:
-            sg.PopupError('OPM Flow Manual Error \n \n' + 'Cannot run: \n \n' +
+            sg.popup_error('OPM Flow Manual Error \n \n' + 'Cannot run: \n \n' +
                           str(filename) + ' \n \n' +
                           'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
                           line_width=len(filename) + 12, no_titlebar=True, grab_anywhere=True, keep_on_top=True)
@@ -1266,7 +1262,7 @@ def load_manual(filename):
     return()
 
 
-def load_options(opmoptn):
+def load_options(opmoptn1, opmsys1, opmlog1):
     """Loads OPMRUN Options
 
     Loads OPMRUN options and projects that define various configuration options for the module. If the OPMINI file is
@@ -1277,7 +1273,7 @@ def load_options(opmoptn):
 
     Parameters
     ----------
-    opmoptn : dict
+    opmoptn1 : dict
         Contains a dictionary list of all OPMRUN options as follows:
             input-width      = set the size of the input list window in the x-direction (144)
             input-heigt      = set the size of the input list window in the y-direction (10)
@@ -1285,10 +1281,13 @@ def load_options(opmoptn):
             output-heigt     = set the size of the output log windows in the y-direction (30)
             output-font      = set the output font type (Courier)
             output-font-size = set the output font size (10)
+
             opm-flow-manual  = define the location of the OPM Flow Manual (None)
             opm-resinsight   = defines the ResInsight command
             edit-command     = defines the edit and editor options to edit the input deck (None)
 
+            prj-name-00      =  OPMRUN Default Working Directory
+            prj-dirc-00      =  Project Directory 0
             prj-name-01      =  Project Name 01
             prj-dirc-01      =  Project Directory 01
             prj-name-02      =  Project Name 02
@@ -1306,10 +1305,14 @@ def load_options(opmoptn):
             opm-author3      = template author and author address for OPMKEYW
             opm-author4      = template author and author address for OPMKEYW
             opm-author5      = template author and author address for OPMKEYW
+    opmsys1 : dict
+        Contains a dictionary list of all OPMRUN System parameters
+    opmlog1 : tuple
+        OPM log file pointer set to None in calling routine
 
     Returns
     -------
-    opmoptn : dict
+    opmoptn1 : dict
         Updated dictionary list of all OPMRUN options
     """
     #
@@ -1326,16 +1329,18 @@ def load_options(opmoptn):
     opmdef['opm-flow-manual' ] = 'None'
     opmdef['opm-resinsight'  ] = 'None'
     opmdef['edit-command'    ] = 'None'
+    opmdef['prj-name-00'     ] = 'OPMRUN Default Working Directory'
+    opmdef['prj-dirc-00'     ] = str(opmsys1['opmhome'])
     opmdef['prj-name-01'     ] = 'Home'
-    opmdef['prj-dirc-01'     ] = str(opm)
+    opmdef['prj-dirc-01'     ] = str(opmsys1['opmhome'])
     opmdef['prj-name-02'     ] = 'Home'
-    opmdef['prj-dirc-02'     ] = str(opm)
+    opmdef['prj-dirc-02'     ] = str(opmsys1['opmhome'])
     opmdef['prj-name-03'     ] = 'Home'
-    opmdef['prj-dirc-03'     ] = str(opm)
+    opmdef['prj-dirc-03'     ] = str(opmsys1['opmhome'])
     opmdef['prj-name-04'     ] = 'Home'
-    opmdef['prj-dirc-04'     ] = str(opm)
+    opmdef['prj-dirc-04'     ] = str(opmsys1['opmhome'])
     opmdef['prj-name-05'     ] = 'Home'
-    opmdef['prj-dirc-05'     ] = str(opm)
+    opmdef['prj-dirc-05'     ] = str(opmsys1['opmhome'])
     opmdef['opm-keywdir'     ] = 'None'
     opmdef['opm-author1'     ] = None
     opmdef['opm-author2'     ] = None
@@ -1343,62 +1348,50 @@ def load_options(opmoptn):
     opmdef['opm-author4'     ] = None
     opmdef['opm-author5'     ] = None
 
-    if opmini.is_file():
+    if opmsys1['opmini'].is_file():
         try:
-            file  = open(opmini, 'r')
+            file  = open(opmsys1['opmini'], 'r')
             for n, line in enumerate(file):
                 if '=' in line:
                     key   = line[:line.find('=')]
                     value = line[line.find('=') + 1:].rstrip()
-                    opmoptn[key] = value
+                    opmoptn1[key] = value
             file.close()
         except IOError:
             #
             # PROGRAM EXIT DUE TO ERROR
             #
-            sg.PopupError('OPMRUN Options Error \n \n' + 'Problem Reading: \n \n' + str(opmini) + '\n \n' +
+            sg.popup_error('OPMRUN Options Error \n \n' + 'Problem Reading: \n \n' + str(opmsys1['opmini']) + '\n \n' +
                           'Try Deleting the File and Restarting OPMRUN - Program Will Abort',
-                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            exit('Error Reading ' + str(opmini) + 'Try Deleting the File and Restarting')
+                          no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+            exit('Error Reading ' + str(opmsys1['opmini']) + 'Try Deleting the File and Restarting')
         #
         # Check for Missing Options
         #
-        error = False
+        errors = False
         for key in opmdef:
-            if key not in opmoptn:
-                opmoptn[key] = opmdef[key]
-                error = True
+            if key not in opmoptn1:
+                opmoptn1[key] = opmdef[key]
+                errors = True
 
-        if error:
-            save_options(opmoptn, False)
-            sg.PopupOK('OPMRUN Options Have Been Created/Updated for this Release',
+        if errors:
+            save_options(opmsys1, opmoptn1, False)
+            sg.popup_ok('OPMRUN Options Have Been Created/Updated for this Release',
                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
-        '''
-        for key,val in opmoptn.items():
-            sg.Print (key, "=>", val)
-        print(opmoptn)
-        '''
     else:
-        opmoptn = opmdef
-        save_options(opmoptn, False)
-        sg.PopupOK('OPMRUN Default Options Created and Saved',
+        opmoptn1 = opmdef
+        save_options(opmsys1, opmoptn1, False)
+        sg.popup_ok('OPMRUN Default Options Created and Saved',
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
     #
-    # Write Header to Log File
+    # Write Initial Options to Log File
     #
-    try:
-        opmlog.write('# \n')
-        opmlog.write('# OPMRUN Log File \n')
-        opmlog.write('# \n')
-        opmlog.write('# File Name   : ' + str(opmfile) + '\n')
-        opmlog.write('# Created By  : ' + opmuser + '\n')
-        opmlog.write('# Date Created: ' + get_time()  + '\n')
-        opmlog.write('# \n')
-    except:
-        pass
+    for item in opmoptn1:
+        opmlog1.write('{}: OPMOPTN Key: {:<16} , Value : {:} \n'.format(get_time(), item, opmoptn1[item]))
+        opmlog1.flush()
 
-    return opmoptn
+    return opmoptn1
 
 
 def load_parameters(filename, outpop=True):
@@ -1424,12 +1417,12 @@ def load_parameters(filename, outpop=True):
         OPM Flow PARAM list help information stored in a dictionary with the key being the PARAM variable
     """
 
-    run_process('flow --help > ' + str(filename), outprt=False)
+    run_command('flow --help > ' + str(filename))
     jobparam = []
     jobhelp  = dict()
     file     = open(filename, 'r')
     for n, line in enumerate(file):
-        if '--' in line  and 'help' not in line:
+        if '--' in line and 'help' not in line:
             line      = line[line.find('--') + 2:]
             default   = line[line.find('Default: ') + 9:]
             command   = line.split("  ", 1)
@@ -1439,11 +1432,10 @@ def load_parameters(filename, outpop=True):
             paramkey  = command[:command.find('=')]
             paramhelp = line.split("  ", 1)[1].lstrip()
             jobhelp[paramkey] = paramhelp
+
     file.close()
-    #for key,val in jobhelp.items():
-    #    sg.Print (key, "=>", val)   
     if outpop:
-        sg.PopupOK('OPM Flow Parameters Loaded from Flow: ' + str(filename),
+        sg.popup_ok('OPM Flow Parameters Loaded from Flow: ' + str(filename),
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
     return jobparam, jobhelp
@@ -1471,41 +1463,40 @@ def load_queue(joblist, jobparam):
     #
     # Check if OPM Flow Parameters Have Been Set
     #
-    if jobparam == []:
-        sg.PopupError('Job Parameters Missing; Cannot Load Job Queue - Check if OPM Flow is Installed',
+    if not jobparam:
+        sg.popup_error('Job Parameters Missing; Cannot Load Job Queue - Check if OPM Flow is Installed',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return()
     #
     # Check Job Queue for Entries
     #
-    if joblist != []:
-        text = sg.PopupYesNo('Loading a OPMRUN Queue from File Will Delete the Existing Queue, Continue?',
+    if joblist:
+        text = sg.popup_yes_no('Loading a OPMRUN Queue from File Will Delete the Existing Queue, Continue?',
                              no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         if text == 'No':
             return()
     #
     # Load Queue if Valid Entry
     #
-    filename = sg.PopupGetFile('OPMRUN Queue File Name', default_extension='que', save_as=False,
-                               default_path=str(os.getcwd()), initial_folder=str(os.getcwd()),
+    filename = sg.popup_get_file('OPMRUN Queue File Name', default_extension='que', save_as=False,
+                               default_path=str(Path().absolute()), initial_folder=str(Path().absolute()),
                                file_types=[('OPM Queues', '*.que'), ('All', '*.*')], keep_on_top=False)
-    if filename == None:
-        sg.PopupOK('OPMRUN Queue: Loading of Queue Cancelled',
-                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+    if filename is None:
+        sg.popup_ok('OPMRUN Queue: Loading of Queue Cancelled', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
-    elif os.path.isfile(filename):
+    elif Path(filename).is_file():
         joblist = []
 
-        file  = open(filename,'r')
+        file  = open(filename, 'r')
         for n, line in enumerate(file):
             if 'flow' in line:
                 joblist.append(line.rstrip())
         file.close()
-        window0.Element('_joblist_').Update(joblist)
-        sg.PopupOK('OPMRUN Queue: Loaded from: ' + filename,
+        window0['_joblist_'].update(joblist)
+        sg.popup_ok('OPMRUN Queue: Loaded from: ' + filename,
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
     else:
-        sg.PopupOK('OPMRUN Queue: Nothing to Load', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        sg.popup_ok('OPMRUN Queue: Nothing to Load', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
     return joblist
 
@@ -1521,6 +1512,8 @@ def out_log(text, outlog, outprt=False, window=None):
         String to be printed and/or displayed
     outlog : bool
         Boolean log file output (True to write to log file, False not to write).
+    outprt : bool
+        Boolean log file output (True to print, False not to print).
     window : PySimpleGUI window
         The PySimpleGUI window that the output is going to (needed to do refresh on)
 
@@ -1533,53 +1526,14 @@ def out_log(text, outlog, outprt=False, window=None):
         print(text + '\n')
 
     if window is not None:
-        window.Element('_outlog1_').Update(text + '\n', append=True)
+        window['_outlog1_'].update(text + '\n', append=True)
 
     text = get_time() + ': ' + text + '\n'
-    window0.Element('_outlog_').Update(text, append=True)
+    window0['_outlog_'].update(text, append=True)
 
     if outlog:
         opmlog.write(text)
-
-    return()
-
-
-def run_command(cmd, timeout=None, window=None):
-    """Run Shell Command
-
-    Runs a shell command as a sub-process and displays the output in a pre-declared window.
-
-    Parameters
-    ----------
-    cmd : str
-        The command to execute
-    timeout : real
-        Timeout for command execution
-    window : PySimpleGUI window
-        The PySimpleGUI window that the output is going to (needed to do refresh on)
-
-    Returns
-    -------
-    retval : int
-        Return code from the sub-process command
-    output : str
-        Output from process
-    """
-
-    try:
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = ''
-        for line in p.stdout:
-            # line = line.decode(errors='replace' if (sys.version_info) < (3, 5) else 'backslashreplace').rstrip()
-            line = line.decode()
-            output += line
-            window.Element('_outlog1_').Update(line, append=True)
-
-        retval = p.wait(timeout)
-        return retval, output
-
-    except:
-        pass
+        opmlog.flush()
 
     return()
 
@@ -1602,54 +1556,76 @@ def run_job(command):
     #
     # Submit Job and Get Process ID
     #
-    i       = 0
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    while True:
-        i = i + 1
-        out_log('Getting Process PID Pass ' + str(i), True)
-        window0.Refresh()
-        jobpid  = subprocess.run(['pidof', '-s', 'flow'], stdout=subprocess.PIPE).stdout
-        if jobpid.decode() != '':
-            break
-        if i == 10:
-            out_log('Getting Process PID Pass Failed Aborting Job', True)
-            return()
-
-    jobpid = int(jobpid)
-    out_log('Simulation PID ' + str(jobpid), True)
+    segmjob = False
+    errors  = ['Exception',  'exception']
+    failjob = False
+    killed  = []
+    killjob = False
+    jobproc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                               bufsize=1, universal_newlines=True)
+    out_log('Simulation PID ' + str(jobproc.pid), True)
+    window0['_status_bar_'].update(value='Running ' + str(command), text_color='green', visible=True)
     #
     # Process OPM Flow Output
     #
-    while True:
-        line = process.stdout.readline()
-        line = line.decode("utf-8").strip()
-        if line == '' and process.poll() is not None:
-            break
+    for line in jobproc.stdout:
+        line = remove_ansii_escape_codes(line.rstrip())
         print(line)
-        window0.Refresh()
-        kill_job(jobpid)
-    #
-    # Process Complete - Get Last Output
-    #
-    output   = process.communicate()[0]
-    output   = output.decode("utf-8")
-    print(output)
-    for line in output.split(os.linesep):
-        if 'Errors' in line  or 'terminate' in line or 'what()' in line or 'Aborted' in line:
-            out_log(line, True)
-    #
-    # Processs Complete - Get Exit Code
-    #
-    exitCode = process.returncode
-    if exitCode != 0:
-        #raise ProcessException(command, exitCode, output)
-        raise subprocess.CalledProcessError(exitCode, command)
+        window0.refresh()
+        #
+        # Check if Job Failed
+        #
+        if any(err in line for err in errors):
+            out_log(line, False)
+            #
+            # Fix for mpiruns hanging
+            #
+            if 'Exception' in line or 'exception' in line and 'mpirun' in command:
+                failjob, killed = kill_job('None', jobproc.pid)
 
-    print('Process Complete (' + str(exitCode) + ')')
-    return exitCode
+            continue
+        #
+        # Check for Segmentation Fault
+        #
+        if 'Segmentation fault' in line:
+            segmjob = True
+        #
+        # Check if User Requested for the Job to be Killed
+        #
+        event, values = window0.read(timeout=10)
+        if event == '_kill_job_':
+            killjob, killed = kill_job('Do You Wish to Kill the Current OPM Flow Job ? \n \n' +
+                                       'Job: ' + str(command) + '\n \n', jobproc.pid)
+            if killjob:
+                sg.popup_ok('OPM Flow Process ' + str(jobproc.pid) + ' Has Been Stopped by ' + str(getpass.getuser()),
+                             auto_close=True, no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+
+            continue
+    #
+    # Process Complete
+    #
+    returncode = jobproc.wait()
+    if failjob:
+        out_log('Killed: ' + str(killed), True, True)
+        out_log('OPM Flow Process ' + str(jobproc.pid) + ' Has Failed', True, True)
+
+    elif killjob:
+        out_log('Killed: ' + str(killed), True, True)
+        out_log('OPM Flow Process ' + str(jobproc.pid) + ' Has Been Stopped by ' + str(getpass.getuser()), True, True)
+
+    elif segmjob or returncode != 0:
+        killjob = True
+        out_log('OPM Flow Process ' + str(jobproc.pid) + ' Segmentation Fault - Job Aborted', True, True)
+        sg.popup_error('OPM Flow Process Error', 'Process:',  str(command), 'Exit Code: ' + str(returncode),
+                       non_blocking=True, auto_close=True, no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+
+    print('Process Complete (' + str(returncode) + ') \n \n')
+    window0['_status_bar_'].update(value='', visible=False)
+    window0.refresh()
+    return killjob
 
 
-def run_jobs(joblist, outlog):
+def run_jobs(joblist, jobsys, outlog):
     """Run Jobs
 
     This is the main function to submit the OPM Flow jobs for processing. The function allows the user to select
@@ -1659,6 +1635,8 @@ def run_jobs(joblist, outlog):
     ----------
     joblist : list
         Current job list in the job queue that are to be run
+    jobsys : dict
+        Contains a dictionary list of all OPMRUN System parameters
     outlog  : bool
         Boolean log file output (True to write to log file, False not to write).
 
@@ -1668,8 +1646,8 @@ def run_jobs(joblist, outlog):
     """
 
     jobcase = ''
-    if joblist == []:
-        sg.PopupOK('No Jobs In Queue', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+    if not joblist:
+        sg.popup_ok('No Jobs In Queue', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return()
 
     jobnum  = 0
@@ -1682,27 +1660,29 @@ def run_jobs(joblist, outlog):
                [sg.Text(''                                                                         )],
                [sg.Submit(), sg.Cancel()]]
     window1 = sg.Window('Select Run Option', layout=layout1)
-    (button, values) = window1.Read()
+    (event, values) = window1.read()
     window1.Close()
     #
     # Background Processing
     #
     if values['_back_']:
         if values['_nosim_']:
-            save_jobs(joblist, '_nosim_', outlog=True)
+            save_jobs(joblist, '_nosim_', opmsys, outlog=True)
         else:
-            save_jobs(joblist, '_rusim_', outlog=True)
+            save_jobs(joblist, '_rusim_', opmsys, outlog=True)
 
-        #subprocess.Popen(['mate-terminal', '-e', str(opmjob)], stdout=subprocess.PIPE)
-        subprocess.Popen(['xterm', '-hold', '-e', str(opmjob)], stdout=subprocess.PIPE)
+        # subprocess.Popen(['mate-terminal', '-e', str(jobsys['opmjob'])], stdout=subprocess.PIPE)
+        subprocess.Popen(['xterm', '-hold', '-e', str(jobsys['opmjob'])], stdout=subprocess.PIPE)
         return()
     #
     # Foreground Processing
     #    
     for cmd in joblist:
         jobnum  = jobnum + 1
-        window0.Element('_joblist_').update(set_to_index=jobnum - 1, scroll_to_index=jobnum - 1)
+        window0['_joblist_'].update(set_to_index=jobnum - 1, scroll_to_index=jobnum - 1)
         (job, jobcmd, jobpath, jobbase, jobroot, joblog) = get_job(cmd, option='opmflow')
+        jobdat1 = Path(jobroot).with_suffix('.DATA')
+        jobdat2 = Path(jobroot).with_suffix('.data')
 
         if values['_nosim_']:
             jobcase = jobcmd + str(jobbase) + ' --enable-dry-run="true"' + ' | tee ' + str(joblog)
@@ -1711,11 +1691,11 @@ def run_jobs(joblist, outlog):
         if values['_rusim_']:
             jobcase = jobcmd + str(jobbase)  + ' | tee ' + str(joblog)
 
-        if button == 'Cancel' or button == None:
+        if event == 'Cancel' or event is None:
             out_log('Job Processing Canceled', outlog, True)
             return()
 
-        if button == 'Submit':
+        if event == 'Submit':
             #
             # Disable Buttons 
             #
@@ -1725,18 +1705,50 @@ def run_jobs(joblist, outlog):
             #
             # Change Working Directory
             #
-            error = set_directory(jobpath, outlog=False)
-            if error == False:
+            errors = set_directory(jobpath, outlog=False)
+            if not errors:
                 out_log('End   Job: ' + jobcase, outlog)
                 out_log('Completed Job No. ' + str(jobnum), outlog)
                 out_log('', outlog)
                 continue
             #
+            # Check if DATA File Exists
+            #
+            if jobdat1.is_file():
+                jobdata = jobdat1
+            elif jobdat2.is_file():
+                jobdata = jobdat2
+            else:
+                sg.popup_error('Data file ' + str(jobdat1) + ' or ' + str(jobdat2) + ' do not exist; aborting job?',
+                               non_blocking=False, auto_close=True, auto_close_duration=5,
+                               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                out_log('Aborted  : Missing ' + str(jobdat1) + ' or ' + str(jobdat2), outlog)
+                out_log('End   Job: ' + jobcase, outlog)
+                out_log('Completed Job No. ' + str(jobnum), outlog)
+                out_log('', outlog)
+                continue
+            #
+            # Check if PARAM File Exists
+            #
+            if not Path(jobbase).is_file():
+                text = sg.popup_ok_cancel('Parameter file ' + str(jobbase) + ' does not exists; do you wish to use ' +
+                                          'the current default PARAM set, or cancel the job?',
+                                          no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                if text == 'Cancel':
+                    out_log('Cancelled: Missing ' + jobbase, outlog)
+                    out_log('End   Job: ' + jobcase, outlog)
+                    out_log('Completed Job No. ' + str(jobnum), outlog)
+                    out_log('', outlog)
+                    continue
+                else:
+                    save_parameters(jobdata, jobparam, jobbase, job, jobsys)
+                    out_log('Missing  : Using default PARAM set ' + jobbase, outlog)
+            #
             # Remove Existing Output Files
             #
             out_log('Removing Existing Output Files', outlog)
-            for text in ['.DBG', '.EGRID', '.INIT', '.LOG', '.PRT', '.SMSPEC', '.UNRST', '.UNSMRY',
-                         '.dbg', '.egrid', '.init', '.log', '.prt', '.smspec', '.unrst', '.unsmry' ]:
+            for text in ['.DBG', '.EGRID', '.INIT', '.LOG', '.PRT', '.RSM', '.SMSPEC', '.UNRST', '.UNSMRY',
+                         '.dbg', '.egrid', '.init', '.log', '.prt', '.rsm', '.smspec', '.unrst', '.unsmry' ]:
                 filename = Path(jobbase).with_suffix(text)
                 if filename.is_file():
                     try:
@@ -1750,78 +1762,42 @@ def run_jobs(joblist, outlog):
             #
             print(jobcase)
             out_log('Simulation Started', outlog)
-            run_job(jobcase)
+            killed = run_job(jobcase)
             #
             # Job Complete
             #
-            os.chdir(jobpath)
-            filename = joblog
-            if not filename.exists():
-                sg.Print('Debug Start')
-                sg.Print('   Log File Not Found Error')
-                sg.Print('   Current Working Directory ' , str(os.getcwd()))
-                sg.Print('   Log File                  ' , joblog)
-                sg.Print('Debug End')
-            else:
-                file          = open(filename, 'r')
-                lines, status = tail(file, 11, offset=None)
-                file.close()
-                if status:
-                    for line in enumerate(lines):
-                        if line[1] == '':
-                            continue
-                        out_log(line[1], outlog)
+            if not killed:
+                os.chdir(jobpath)
+                filename = joblog
+                if not filename.exists():
+                    sg.Print('Debug Start')
+                    sg.Print('   Log File Not Found Error')
+                    sg.Print('   Current Working Directory ' , str(Path().absolute()))
+                    sg.Print('   Log File                  ' , joblog)
+                    sg.Print('Debug End')
+                else:
+                    file          = open(filename, 'r')
+                    lines, status = tail(file, 14, offset=None)
+                    file.close()
+                    if status:
+                        for line in enumerate(lines):
+                            if line[1] == '':
+                                continue
+                            out_log(remove_ansii_escape_codes(line[1]), outlog)
+
             out_log('End   Job: ' + jobcase, outlog)
             out_log('Completed Job No. ' + str(jobnum), outlog)
             out_log('', outlog)
             opmlog.flush()
-            #
-            # Enable Buttons 
-            #
-            set_button_status(False)
+    #
+    # Enable Buttons
+    #
+    set_button_status(False)
+
     return()
 
 
-def run_process(command, outprt=True):
-    """Run a Command as a Sub-Process
-
-    Run a command as a subprocess.
-
-    Parameters
-    ----------
-    command : str
-        The command to be run
-    outprt: bool
-        A boolean print option (True to print to display, False not to print)
-
-    Returns
-    -------
-    out : str
-        Returns output from sub-process if requested by `outprt`
-    """
-
-    err = ''
-    out = ''
-    sp  = ''
-    try:
-        sp       = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        out, err = sp.communicate()
-        if out and outprt == True:
-            print(out[0].decode("utf-8"))
-
-    except:
-        sg.PopupError('Subprocess Call Error: ' + str(command) + '\n \n'
-                      'OUT:' + str(out.decode("utf-8")) + 'ERR:' + str(err) + '\n',
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-        pass
-
-    if out:
-        return out[1]
-    else:
-        return()
-
-
-def run_resinsight(command):
+def run_resinsight(command, jobfile='None'):
     """Run ResInsight
 
     Runs ResInsight for viewing results of OPM Flow runs. The command itself is stored in the opmoptn dictionary
@@ -1837,25 +1813,48 @@ def run_resinsight(command):
     """
 
     if command == 'None':
-        sg.PopupOK('OPM ResInsight Command has not been defined in the Options.',
+        sg.popup_ok('OPM ResInsight Command has not been defined in the Options.',
                    'Use the Edit Options menu to define the command.',
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         out_log('ResInsight Command: ' + str(command) + ' is Undefined', True)
         return()
 
+    if not jobfile:
+        sg.popup_ok('No Case Selected', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        return()
+
+    if not jobfile == 'None':
+        job = str(jobfile[0]).rstrip()
+        istart = job.find('=') + 1
+        file1 = Path(job[istart:]).with_suffix('.GRID')
+        file2 = Path(job[istart:]).with_suffix('.EGRID')
+        if file1.is_file():
+            file0 = file1
+        elif file2.is_file():
+            file0 = file2
+        else:
+            sg.popup_error('Cannot Find GRID/EGRID File: ', str(file1),
+                           'or ', str(file2),
+                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+            out_log('Cannot Find: ' + str(file1) + ' or ' + str(file2), True)
+
+            return ()
+        command = command + str(' --startdir ') + str(file0.parent) + str(' --case ') + str(file0.name)
+        sg.Print(command)
+
     try:
         out_log('Executing ResInsight Command: ' + str(command) , True)
-        subprocess.Popen(command)
+        subprocess.Popen(command, shell=True)
 
     except Exception:
-        sg.PopupError('OPM ResInsight Not Found: ' + command,
+        sg.popup_error('OPM ResInsight Error Executing: \n' + command,
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         out_log('Executing ResInsight Command Error: ' + str(command), True)
 
     return()
 
 
-def save_jobs(joblist, jobtype, outlog=True):
+def save_jobs(joblist, jobtype, jobsys, outlog=True):
     """ Save OPM Flow Jobs to File
 
     Save OPMRUN jobs in the job queue to a file in the users #Home directory called #HOME/OPM/OPMRUN.job. This is used
@@ -1867,7 +1866,9 @@ def save_jobs(joblist, jobtype, outlog=True):
         List of jobs in the job queue
     jobtype :str
         Type of job for this queue
-    outlog: bool
+    jobsys : dict
+        Contains a dictionary list of all OPMRUN System parameters
+   outlog: bool
         A boolean print option for the log file (True to print to display, False not to print)
 
     Returns
@@ -1876,12 +1877,12 @@ def save_jobs(joblist, jobtype, outlog=True):
     """
 
     jobnum = 0
-    file   = open(opmjob, 'w')
+    file   = open(jobsys['opmjob'], 'w')
     file.write('# \n')
     file.write('# OPMRUN Job File \n')
     file.write('# \n')
-    file.write('# File Name   : "' + str(opmhome) + '"\n')
-    file.write('# Created By  : '  + str(opmuser) + '\n')
+    file.write('# File Name   : '  + str(jobsys['opmjob']) + '\n')
+    file.write('# Created By  : '  + str(jobsys['opmuser']) + '\n')
     file.write('# Date Created: '  + get_time() + '\n')
     file.write('# \n')
     for cmd in joblist:
@@ -1902,18 +1903,20 @@ def save_jobs(joblist, jobtype, outlog=True):
     file.write('# \n')
     file.write('# End of OPMRUN Jobs File \n')
     file.close()
-    subprocess.call(['chmod', 'u=rwx', opmjob])
+    subprocess.call(['chmod', 'u=rwx', jobsys['opmjob']])
     if outlog:
-        out_log('OPMRUN Jobs File Saved: ' + str(opmini), outlog)
+        out_log('OPMRUN Jobs File Saved: ' + str(jobsys['opmjob']), outlog)
 
 
-def save_options(opmoptn, outlog=True):
+def save_options(opmsys, opmoptn, outlog=True):
     """Save OPMRUN options to File
 
     Save OPMRUN options to file in the users #HOME directory in a file named #HOME/OPM/OPMRUN.ini
 
     Parameters
     ----------
+    opmsys : dict
+        Contains a dictionary list of all OPMRUN System parameters
     opmoptn : dict
         Contains a dictionary list of all OPMRUN options
     outlog: bool
@@ -1924,12 +1927,12 @@ def save_options(opmoptn, outlog=True):
     None
     """
 
-    file  = open(opmini, 'w')
+    file  = open(opmsys['opmini'], 'w')
     file.write('# \n')
     file.write('# OPMRUN Options File \n')
     file.write('# \n')
-    file.write('# File Name   : "' + str(opmhome) + '"\n')
-    file.write('# Created By  : '  + str(opmuser) + '\n')
+    file.write('# File Name   : '  + str(opmsys['opmini']) + '\n')
+    file.write('# Created By  : '  + str(opmsys['opmuser']) + '\n')
     file.write('# Date Created: '  + get_time() + '\n')
     file.write('# \n')
     for key, value in opmoptn.items():
@@ -1941,10 +1944,10 @@ def save_options(opmoptn, outlog=True):
     file.write('# End of OPMRUN Options File \n')
     file.close()
     if outlog:
-        out_log('OPMRUN Options File Saved: ' + str(opmini), outlog)
+        out_log('OPMRUN Options File Saved: ' + str(opmsys['opmini']), outlog)
 
 
-def save_parameters(job, jobparam, jobbase, jobfile, opmuser):
+def save_parameters(job, jobparam, jobbase, jobfile, jobsys):
     """Save a Job's Parameter File
 
     Functions saves the current default parameter set to a job's parameter file that used to run an OPM Flow job. The
@@ -1954,14 +1957,14 @@ def save_parameters(job, jobparam, jobbase, jobfile, opmuser):
     ----------
     job : str
         The job for which the PARAM file is being generated
-     jobparam : list
+    jobparam : list
         OPM Flow PARAM parameter list
     jobbase :str
         The base part of the job file name
     jobfile
         The full job file name
-    opmuser: str
-        User name
+    jobsys : dict
+        Contains a dictionary list of all OPMRUN System parameters
 
     Returns
     -------
@@ -1973,7 +1976,7 @@ def save_parameters(job, jobparam, jobbase, jobfile, opmuser):
     file.write('# OPMRUN Parameter File \n')
     file.write('# \n')
     file.write('# File Name   : "' + str(jobfile) + '"\n')
-    file.write('# Created By  : '  + opmuser + '\n')
+    file.write('# Created By  : '  + str(jobsys['opmuser']) + '\n')
     file.write('# Date Created: '  + get_time() + '\n')
     file.write('# \n')
     for x in jobparam:
@@ -1986,11 +1989,11 @@ def save_parameters(job, jobparam, jobbase, jobfile, opmuser):
     file.write('# \n')
     file.write('# End of Parameter File \n')
     file.close()
-    sg.PopupOK(str(jobbase) + ' parameter file written to:', str(jobfile),
+    sg.popup_ok(str(jobbase) + ' parameter file written to:', str(jobfile),
                'Complete', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
 
-def save_queue(joblist):
+def save_queue(joblist, opmuser):
     """Save Job Queue to File
 
     Save the current job queue to a user selected file that can be loaded back into OPMRUN to re-run jobs when
@@ -2000,6 +2003,8 @@ def save_queue(joblist):
     ----------
     joblist : list
         Job list for queue
+    opmuser: str
+        User name
 
     Returns
     -------
@@ -2007,11 +2012,11 @@ def save_queue(joblist):
     """
 
     if not joblist:
-        sg.PopupOK('No Cases In Job Queue; Queue will Not Be Saved',
+        sg.popup_ok('No Cases In Job Queue; Queue will Not Be Saved',
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
     else:
-        filename = sg.PopupGetFile('OPMRUN Queue File Name', default_extension='que', save_as=True,
-                                   default_path=str(os.getcwd()), keep_on_top=False,
+        filename = sg.popup_get_file('OPMRUN Queue File Name', default_extension='que', save_as=True,
+                                   default_path=str(Path().absolute()), keep_on_top=False,
                                    file_types=[('OPM Queues', '*.que'), ('All', '*.*')])
         if filename:
             file       = open(filename, 'w')
@@ -2027,11 +2032,11 @@ def save_queue(joblist):
             file.write('# \n')
             file.write('# End of Queue \n')
             file.close()
-            sg.PopupOK('OPMRUN Queue File Saved to: ' + filename,
+            sg.popup_ok('OPMRUN Queue File Saved to: ' + filename,
                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
 
-def set_button_status(status, all=False):
+def set_button_status(status, statuskill=False):
     """Set Main Window Button Status
 
     Sets the display buttons for the main window to enabled (False) or disable (True) depending on the value of status.
@@ -2040,26 +2045,28 @@ def set_button_status(status, all=False):
     ----------
     status : bool
          Boolean that sets the display buttons to enabled (False) or disable (True)
+    statuskill : bool
+         Boolean that sets the "kill Job" button to enabled (False) or disable (True)
 
     Returns
     -------
     None
     """
 
-    window0.Element('_add_job_'    ).Update(disabled=status)
-    window0.Element('_delete_job_' ).Update(disabled=status)
-    window0.Element('_edit_job_'   ).Update(disabled=status)
+    window0['_add_job_'    ].update(disabled=status)
+    window0['_delete_job_' ].update(disabled=status)
+    window0['_edit_job_'   ].update(disabled=status)
 
-    window0.Element('_clear_queue_').Update(disabled=status)
-    window0.Element('_load_queue_' ).Update(disabled=status)
-    window0.Element('_save_queue_' ).Update(disabled=status)
+    window0['_clear_queue_'].update(disabled=status)
+    window0['_load_queue_' ].update(disabled=status)
+    window0['_save_queue_' ].update(disabled=status)
 
-    window0.Element('_run_jobs_'   ).Update(disabled=status)
-    window0.Element('_clear_'      ).Update(disabled=status)
-    window0.Element('_exit_'       ).Update(disabled=status)
+    window0['_run_jobs_'   ].update(disabled=status)
+    window0['_clear_'      ].update(disabled=status)
+    window0['_exit_'       ].update(disabled=status)
 
-    if all:
-        window0.Element('_kill_job_').Update(disabled=status)
+    if statuskill:
+        window0['_kill_job_'].update(disabled=status)
 
 
 def set_directory(jobpath, outlog=True, outpop=False, outprt=True, window=None):
@@ -2088,14 +2095,14 @@ def set_directory(jobpath, outlog=True, outpop=False, outprt=True, window=None):
     try:
         os.chdir(jobpath)
         if outprt:
-            print('Current Working Directory ' , str(os.getcwd()))
+            print('Current Working Directory ' , str(Path().absolute()))
 
         if window is not None:
-            window.Element('_outlog1_').Update('Working Directory ' + str(os.getcwd()) + '\n', append=True)
+            window['_outlog1_'].update('Working Directory ' + str(Path().absolute()) + '\n', append=True)
 
     except OSError:
         if outpop or window is not None:
-            sg.PopupError('Change Working Directory Error \n'
+            sg.popup_error('Change Working Directory Error \n'
                           'Please See Log Output',
                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
@@ -2114,7 +2121,7 @@ def set_directory_project(key, opmoptn):
 
     Parameters
     ----------
-    key ; str
+    key : str
         The project name to look up in opmoptn to get the directory name to set to the current directory
     opmoptn : dict
         Contains the project names and their associated directories.
@@ -2126,51 +2133,49 @@ def set_directory_project(key, opmoptn):
 
     key = key[(key.find('_') + 1):-1]
     name = opmoptn.get(key)
-    if name == None or name == '':
-        sg.PopupError('Project Name ' + key + ' not Found',
+    if name is None or name == '':
+        sg.popup_error('Project Name ' + key + ' not Found',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return()
     dirc = key.replace('name', 'dirc')
     dirc = opmoptn.get(dirc)
-    if dirc == None or dirc == '':
-        sg.PopupError('Project Directory ' + dirc + ' not Found',
+    if dirc is None or dirc == '':
+        sg.popup_error('Project Directory ' + str(dirc) + ' not Found',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return()
 
     status = set_directory(Path(dirc), True, True, False)
     if status:
-        sg.PopupOK('Change Directory',
+        sg.popup_ok('Change Directory',
                    'Project Name: '     + name + '\n' +
                    'Project Directory:' + dirc + '\n',
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
 
-def set_menu():
+def set_menu(opmoptn):
     """Set the Main Window Menus
 
     Set the main window menus for the first time to display, and for when the menu needs to be updated. Used for when
     the menu changes due to the projects being edited to use:
 
-        menulayout = set_menu()
+        menulayout = set_menu(opmoptn)
 
     to initialize the menu structure, and
 
-        mainmenu.Update(menulayout)
+        mainmenu.update(menulayout)
 
     to update then menus after the projects names have been edited
 
     Parameters
     ----------
+    opmoptn : dict
+        Contains a dictionary list of all OPMRUN run parameters
 
 
     Returns
     -------
     None
     """
-    #
-    # Set Global Variables
-    #
-    global opmoptn
 
     menu  = [['File',  ['Open',
                         'Project',
@@ -2194,7 +2199,7 @@ def set_menu():
                                          'Uncompress Jobs'],
                         'Deck Generator',
                                         ['Keyword Generator'],
-                        'ResInsight'],],
+                        'ResInsight'], ],
              ['Help',  ['Manual',
                         'Help',
                         'About'],
@@ -2221,12 +2226,12 @@ def set_window_status(status):
         # window0.enable()   Not Working Causes Display to Freeze on Linux Systems
         set_button_status(False, True)
         window0.SetAlpha(1.00)
-        window0.Refresh()
+        window0.refresh()
 
     else:
         window0.SetAlpha(0.85)
         set_button_status(True, True)
-        #window0.disable()()  Not Working Causes Display to Freeze Linux Systems
+        # window0.disable()()  Not Working Causes Display to Freeze Linux Systems
 
 
 def tail(f, n, offset=None):
@@ -2269,7 +2274,7 @@ def tail(f, n, offset=None):
         avg_line_length *= 1.3
 
 
-def uncompress_job():
+def uncompress_job(opmoptn):
     """Uncompress All Jobs that Have Been Compressed in a Zip File Using the Base Name
 
      The function allows the use to select a group of ZIP files for unzipping of all files associated with the case
@@ -2277,7 +2282,8 @@ def uncompress_job():
 
      Parameters
      ----------
-
+    opmoptn; dict
+        A dictionary containing the OPMRUN default parameters
 
      Returns
      ------
@@ -2287,83 +2293,104 @@ def uncompress_job():
     set_window_status(False)
 
     joblist1 = []
-    layout1  = [[sg.Text('Select Multiple Archive Files to Uncompress'                              )],
-                [sg.Listbox(values='', size=(100, 10), key='_joblist1_'                             )],
-                [sg.Text('Output'                                                                   )],
-                [sg.Multiline(key='_outlog1_', size=(100, 15), font=('Courier', 9), text_color='blue',
-                              autoscroll=True                                                       )],
-                [sg.Text('Uncompression Options'                                                    )],
+    layout1  = [[sg.Text('Select Multiple Archive Files to Uncompress'                           )],
+                [sg.Listbox(values='', size=(100, 10), key='_joblist1_',
+                            font=(opmoptn['output-font'], opmoptn['output-font-size']))],
+                [sg.Text('Output')],
+                [sg.Multiline(key='_outlog1_', size=(100, 15), text_color='blue', autoscroll=True,
+                              font=(opmoptn['output-font'], opmoptn['output-font-size']))],
+                [sg.Text('Uncompress Options'                                                 )],
                 [sg.Radio('Uncompress and Keep Existing Files'        , "bRadio1", default=True,
-                          key='_bRadio1_'                                                           )],
-                [sg.Radio('Uncompress and Overwrite Existing Files'   , "bRadio1"                   )],
-                [sg.Text('Compressed File Options'                                                  )],
+                          key='_bRadio1_'                                                        )],
+                [sg.Radio('Uncompress and Overwrite Existing Files'   , "bRadio1"                )],
+                [sg.Text('Compressed File Options'                                               )],
                 [sg.Radio('Keep Compressed File After Uncompressing'  , "bRadio2", default=True,
-                          key='_bRadio2_'                                                           )],
-                [sg.Radio('Delete Compressed File After Uncompressing', "bRadio2"                   )],
-                [sg.Button('Add'), sg.Button('List'), sg.Submit(), sg.Cancel()                      ]]
+                          key='_bRadio2_'                                                        )],
+                [sg.Radio('Delete Compressed File After Uncompressing', "bRadio2"                )],
+                [sg.Button('Add'), sg.Button('Clear',  tooltip='Clear Output'), sg.Button('List'),
+                                   sg.Button('Remove', tooltip='Remove Zip Files'), sg.Submit(), sg.Cancel()]]
     window1 = sg.Window('Uncompress Job Files', layout=layout1)
 
     while True:
-        (button, values) = window1.Read()
+        (event, values) = window1.read()
 
-        if button == 'Add':
-            jobs = sg.PopupGetFile('Select ZIP Files to Uncompress', no_window=False,
-                                   default_path=str(os.getcwd()), initial_folder=str(os.getcwd()),
+        if event == 'Add':
+            jobs = sg.popup_get_file('Select ZIP Files to Uncompress', no_window=False,
+                                   default_path=str(Path().absolute()), initial_folder=str(Path().absolute()),
                                    multiple_files=True, file_types=[('zip', ['*.zip', '*.ZIP'])])
-            if jobs != None:
+            if jobs is not None:
                 jobs = jobs.split(';')
                 for job in jobs:
                     joblist1.append(job)
 
-                window1.Element('_joblist1_').Update(joblist1)
+                window1['_joblist1_'].update(joblist1)
+            continue
+        #
+        # Clear Output
+        #
+        if event == 'Clear':
+            window1['_outlog1_'].update('')
+            continue
         #
         # Get Directory and List Files
         #
-        if button == 'List':
-            jobpath = sg.PopupGetFolder('Select Directory', no_window=False,
-                                        default_path=str(os.getcwd()), initial_folder=str(os.getcwd()))
-            if jobpath != None:
+        if event == 'List':
+            jobpath = sg.popup_get_folder('Select Directory', no_window=False,
+                                        default_path=str(Path().absolute()), initial_folder=str(Path().absolute()))
+            if jobpath is not None:
                 set_directory(jobpath, outlog=False, outpop=False, outprt=False, window=window1)
 
-            jobpath = os.getcwd()
+            jobpath = Path().absolute()
             for file in Path(jobpath).glob("*.zip"):
-                window1.Element('_outlog1_').Update(str(Path(file).name) + '\n', append=True)
+                window1['_outlog1_'].update(str(Path(file).name) + '\n', append=True)
 
             for file in Path(jobpath).glob('*.ZIP'):
-                window1.Element('_outlog1_').Update(str(Path(file).name) + '\n', append=True)
+                window1['_outlog1_'].update(str(Path(file).name) + '\n', append=True)
+
+            window1['_outlog1_'].update('Listing Complete ' + str(jobpath) + '\n', append=True)
+            continue
+        #
+        # Remove Files
+        #
+        if event == 'Remove':
+            joblist1 = []
+            window1['_joblist1_'].update(joblist1)
+            continue
         #
         # Uncompress Files
         #
-        if button == 'Submit':
+        if event == 'Submit':
             if values['_bRadio1_']:
                 zipcmd = 'unzip -u -n '
             else:
                 zipcmd = 'unzip -u -o '
 
+            jobnum = -1
             for cmd in joblist1:
-                window1.Element('_outlog1_').Update('\n', append=True)
+                jobnum = jobnum + 1
+                window1['_joblist1_'].update(set_to_index=jobnum , scroll_to_index=jobnum)
+                window1['_outlog1_'].update('\n', append=True)
                 out_log('Start Uncompress', True, False, window=window1)
                 (job, jobcmd, jobpath, jobbase, jobroot, jobfile, jobzip) = get_job(cmd, option='zip')
                 set_directory(jobpath, outlog=False, outpop=False, outprt=False, window=window1)
                 jobcmd = zipcmd + str(jobzip)
                 out_log('   ' + jobcmd, True, False, window1)
-                window1.Element('_outlog1_').Update(str(jobpath), append=True)
+                window1['_outlog1_'].update(str(jobpath), append=True)
                 run_command(jobcmd, timeout=None, window=window1)
-                if values['_bRadio2_'] == False:
+                if not values['_bRadio2_']:
                     jobcmd = 'rm -v ' + str(jobzip)
                     out_log('   ' + jobcmd, True, False, window1)
                     run_command(jobcmd, timeout=None, window=window1)
 
                 out_log('End Uncompressing', True, False, window1)
-                window1.Refresh()
+                window1.refresh()
 
-            joblist1 = []
-            window1.Element('_joblist1_').Update(joblist1)
+            window1['_joblist1_'].update(joblist1)
+            continue
 
-        if button == 'Cancel' or button == None:
+        if event == 'Cancel' or event is None:
             break
 
-    joblist1 = []
     window1.Close()
     set_window_status(True)
     return()
@@ -2388,6 +2415,44 @@ def opmrun():
     -------
     None
     """
+    # ------------------------------------------------------------------------------------------------------------------
+    # Pre-Processing Section
+    # ------------------------------------------------------------------------------------------------------------------
+    #
+    # Initialize
+    #
+    global joblist
+    global jobparam
+    global joblist
+
+    joblist  = []
+    jobparam = []
+
+    global opmoptn
+    global opmlog
+    global opmsys
+    global window0
+    #
+    # OPMRUN Startup Setup System Variables and File Creation
+    #
+    opmlog          = ''
+    opmsys          = dict()
+    opmsys, opmlog = opm_startup(__version__, opmsys, opmlog,)
+    #
+    # Load OPMRUN Configuration Parameters and Set Last Working Directory as Default
+    #
+    opmoptn           = dict()
+    opmoptn           = load_options(opmoptn, opmsys, opmlog)
+    try:
+        os.chdir(opmoptn['prj-dirc-00'])
+
+    except IsADirectoryError:
+        opmoptn['prj-dirc-00'] = opmsys['opmhome']
+        os.chdir(opmoptn['prj-dirc-00'])
+    #
+    # Run OPM Flow Help and Store Command Line Parameters
+    #
+    jobparam, jobhelp = load_parameters(opmsys['opmparam'], outpop=False)
     #
     # Define General Text Variables
     #
@@ -2404,9 +2469,9 @@ def opmrun():
                 'implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the aforementioned ' +
                 'GNU General Public Licenses for more details. \n' +
                 '\n' +
-                'OPMRUN Version: ' + str(opmvers) + '\n'
-                                                    'PySimpleGUI   : ' + str(sg.version) + '\n'
-                                                                                           '\n' +
+                'OPMRUN Version: ' + str(opmsys['opmvers']) + '\n'
+                'OPMRUN GUI Module: ' + str(opmsys['opmgui']) + '\n'
+                '\n' +
                 'Copyright (C) 2018-2020 Equinox International Petroleum Consultants Pte Ltd. \n'
                 '\n' +
                 'Author  : David Baxendale (david.baxendale@eipc.co)')
@@ -2447,30 +2512,15 @@ def opmrun():
                 '\n'
                 'See the OPM Flow manual for further information. \n')
 
-    #-------------------------------------------------------------------------------------------------------------------
-    # Pre-Processing Section
-    #-------------------------------------------------------------------------------------------------------------------
-    #
-    # Initialize
-    #
-    global window0
-    global joblist
-    global opmoptn
-
-    opm_initialize()
-    #
-    # Load OPMRUN Configuration Parameters
-    #
-    opmoptn           = load_options(opmoptn)
-    #
-    # Run Flow Help and Store Command Line Parameters
-    #
-    jobparam, jobhelp = load_parameters(opmparam, outpop=False)
-
-    #-------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     # Define GUI Section
-    #-------------------------------------------------------------------------------------------------------------------
-    menulayout = set_menu()
+    # ------------------------------------------------------------------------------------------------------------------
+    #
+    # Initialize GUI Setup and Define Main Window
+    #
+    opm_initialize()
+
+    menulayout = set_menu(opmoptn)
     mainmenu   = sg.Menu(menulayout)
 
     flowlayout = [[sg.Output(background_color='white', text_color='black',
@@ -2483,7 +2533,11 @@ def opmrun():
 
     mainwind   = [[mainmenu],
                   [sg.Text('OPM Flow Command Schedule')],
+
                   [sg.Listbox(values=joblist, size=(opmoptn['input-width'], opmoptn['input-heigt']), key='_joblist_',
+                              right_click_menu=['&options', ['Edit DATA File', 'Edit PARAM File', 'View DBG File',
+                                                             'View LOG File' , 'View PRT File', 'View in ResInsight']],
+                              enable_events=True, default_values=0,
                               font=(opmoptn['output-font'], opmoptn['output-font-size']))],
 
                   [sg.Button('Add Job'       , key='_add_job_'    ),
@@ -2493,31 +2547,34 @@ def opmrun():
                       sg.Button('Load Queue' , key='_load_queue_' ),
                       sg.Button('Save Queue' , key='_save_queue_' )],
 
-                  [sg.TabGroup([[sg.Tab('Output', flowlayout, key='_tab_output_',
+                  [sg.TabGroup([[sg.Tab('Output', flowlayout, key='_tab_outflow_',
                                         title_color='black', background_color='white'),
                                  sg.Tab('Log'    , loglayout , key='_tab_outlog_'     ,
                                         title_color='darkgreen', background_color='white', border_width=None)]],
-                               title_color='black', background_color='white')],
+                               key='_tab_out_', title_color='black', background_color='white')],
 
                   [sg.Button('Run Jobs'   , key='_run_jobs_'),
                       sg.Button('Kill Job', key='_kill_job_'),
                       sg.Button('Clear'   , key='_clear_'   ),
                       sg.Button('Exit'    , key='_exit_'    )],
-                  [sg.Text('')]]
+                  [sg.StatusBar('', size=(opmoptn['output-width'],1), auto_size_text=False,
+                                key='_status_bar_', relief='flat', justification='left', visible=True)]]
 
-    window0 = sg.Window('OPMRUN - Flow Job Scheduler ' + opmvers + ' (PySimpleGUI ' + str(sg.version) + ')',
+    window0 = sg.Window('OPMRUN - Flow Job Scheduler ',
                         layout=mainwind, disable_close=True, finalize=True, location=(300, 100))
-    out_log('OPMRUN Started', True, True)
 
-    #-------------------------------------------------------------------------------------------------------------------
+    out_log('OPMRUN Started', True, True)
+    out_log('Working Directory set to ' + str(opmoptn['prj-dirc-00']), False, False)
+
+    # ------------------------------------------------------------------------------------------------------------------
     # Define GUI Event Loop, Read Buttons, and Make Callbacks etc. Section
-    #-------------------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     while True:
         #
-        # Read the Form and Process and Take appropriate action based on button
+        # Read the Form and Process and Take appropriate action based on event
         #
-        button, values = window0.Read()
-        joblist = window0.Element('_joblist_').GetListValues()
+        event, values = window0.read()
+        joblist = window0['_joblist_'].GetListValues()
         #
         # Get Main Window Location and Set Default Location for other Windows
         #
@@ -2527,161 +2584,197 @@ def opmrun():
         #
         # About
         #
-        if button == 'About':
-            opm_popup(opmvers, abouttext, 20)
+        if event == 'About':
+            opm_popup('About', abouttext, 20)
             continue
         #
         # Add Job
         #
-        elif button == '_add_job_':
-            add_job(joblist, jobparam, opmuser)
+        elif event == '_add_job_':
+            add_job(joblist, jobparam, opmsys)
             continue
         #
         # Clear Log
         #
-        elif button == '_clear_':
-            clear_output()
+        elif event == '_clear_':
+            if window0['_tab_out_'].get() == '_tab_outlog_':
+                window0['_outlog_'].update('')
+            if window0['_tab_out_'].get() == '_tab_outflow_':
+                window0['_outflow_'].update('')
             continue
         #
         # Clear Queue
         #
-        elif button == '_clear_queue_':
-            clear_queue(values['_joblist_'])
+        elif event == '_clear_queue_':
+            joblist = clear_queue(window0['_joblist_'].get_list_values())
             continue
         #
         # Compress Jobs
         #
-        elif button == 'Compress Jobs':
-            compress_job()
+        elif event == 'Compress Jobs':
+            compress_job(opmoptn)
             continue
         #
         # Delete Job
         #
-        elif button == '_delete_job_':
+        elif event == '_delete_job_':
             delete_job(joblist, values['_joblist_'])
+            continue
+        #
+        # Edit Data File
+        #
+        elif event == 'Edit DATA File':
+            edit_data(values['_joblist_'], opmsys, filetype='.data')
             continue
         #
         # Edit Job
         #
-        elif button == '_edit_job_':
-            edit_job(values['_joblist_'], opmuser, **jobhelp)
+        elif event == '_edit_job_':
+            edit_job(values['_joblist_'], opmsys, **jobhelp)
+            continue
+        #
+        # Edit Param File
+        #
+        elif event == 'Edit PARAM File':
+            edit_param(values['_joblist_'], opmsys, **jobhelp)
             continue
         #
         # Edit Options
         #
-        elif button == 'Options':
-            opmoptn = edit_options(opmoptn)
+        elif event == 'Options':
+            opmoptn = edit_options(opmsys, opmoptn)
             continue
         #
         # Edit Parameters
         #
-        elif button == 'Edit Parameters':
+        elif event == 'Edit Parameters':
             (jobparam, exitcode) = edit_parameters(jobparam, **jobhelp)
             continue
         #
         # Edit Projects
         #
-        elif button == 'Projects':
-            opmoptn    = edit_projects(opmoptn)
-            menulayout = set_menu()
-            mainmenu.Update(menulayout)
+        elif event == 'Projects':
+            opmoptn    = edit_projects(opmoptn, opmsys)
+            menulayout = set_menu(opmoptn)
+            mainmenu.update(menulayout)
             continue
         #
         # Exit
         #
-        elif button == '_exit_' or button == 'Exit':
-            text = sg.PopupYesNo('Exit OPMRUN?', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        elif event == '_exit_' or event == 'Exit':
+            text = sg.popup_yes_no('Exit OPMRUN?', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             if text == 'Yes':
-                text = sg.PopupYesNo('Are You Sure You wish to Exit OPMRUN?', no_titlebar=True,
+                text = sg.popup_yes_no('Are You Sure You wish to Exit OPMRUN?', no_titlebar=True,
                                      grab_anywhere=True, keep_on_top=True)
                 if text == 'Yes':
                     break
         #
         # Help
         #
-        elif button == 'Help':
-            opm_popup(opmvers, helptext, 35)
+        elif event == 'Help':
+            opm_popup('Help', helptext, 35)
             continue
         #
         # List Parameters
         #
-        elif button == 'List Parameters':
+        elif event == 'List Parameters':
             if jobparam:
                 print('Start of OPM Flow Parameters')
                 for k in enumerate(jobparam):
                     print('{}: {}'.format(*k))
                 print('End of OPM Flow Parameters')
             else:
-                sg.PopupError('OPM Flow Parameters Have Not Been Set',
+                sg.popup_error('OPM Flow Parameters Have Not Been Set',
                               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             continue
         #
         # Keyword Generator
         #
-        elif button == 'Keyword Generator':
+        elif event == 'Keyword Generator':
             set_window_status(False)
-            keyw_main(**opmoptn)
+            keyw_main(opmsys['opmvers'], **opmoptn)
             set_window_status(True)
-
             continue
         #
         # Load Queue
         #
-        elif button == '_load_queue_' or button == 'Open':
+        elif event == '_load_queue_' or event == 'Open':
             joblist = load_queue(joblist, jobparam)
             continue
         #
         # Manual
         #
-        elif button == 'Manual':
-            load_manual(opmoptn['opm-flow-manual'])
+        elif event == 'Manual':
+            load_manual(opmsys, opmoptn['opm-flow-manual'])
             continue
         #
         # ResInsight
         #
-        elif button == 'ResInsight':
-            run_resinsight(opmoptn['opm-resinsight'])
+        elif event == 'ResInsight':
+            run_resinsight(opmoptn['opm-resinsight'], jobfile='None')
             continue
         #
         # Run Jobs
         #
-        elif button == '_run_jobs_':
-            run_jobs(joblist, True)
+        elif event == '_run_jobs_':
+            run_jobs(joblist, opmsys, True)
             continue
         #
         # Save Queue
         #
-        elif button == '_save_queue_' or button == 'Save':
-            save_queue(joblist)
+        elif event == '_save_queue_' or event == 'Save':
+            save_queue(joblist, opmsys['opmuser'])
             continue
         #
         # Set Parameters
         #
-        elif button == 'Set Parameters':
-            jobparam = default_parameters(jobparam, opmparam)
+        elif event == 'Set Parameters':
+            jobparam = default_parameters(jobparam, opmsys['opmparam'])
             continue
         #
         # Set Project
         #
-        elif button.find('::_prj-name') != -1:
-            set_directory_project(button, opmoptn)
+        elif event.find('::_prj-name') != -1:
+            set_directory_project(event, opmoptn)
             continue
         #
         # Uncompress Jobs
         #
-        elif button == 'Uncompress Jobs':
-            uncompress_job()
+        elif event == 'Uncompress Jobs':
+            uncompress_job(opmoptn)
+            continue
+        #
+        # View Output Files
+        #
+        elif event == 'View DBG File':
+            edit_data(values['_joblist_'], opmsys, filetype='.dbg')
+        elif event == 'View LOG File':
+            edit_data(values['_joblist_'], opmsys, filetype='.log')
+        elif event == 'View PRT File':
+            edit_data(values['_joblist_'], opmsys, filetype='.prt')
+        #
+        # View in ResInsight
+        #
+        elif event == 'View in ResInsight':
+            run_resinsight(opmoptn['opm-resinsight'], jobfile=values['_joblist_'])
             continue
 
-    #--------------------------------------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------------------------------------
     # Post Processing Section
-    #-------------------------------------------------------------------------------------------------------------------
-    window0.Close()
+    # ------------------------------------------------------------------------------------------------------------------
+    #
+    # Close Main Window
+    #
+    window0.close()
+    #
+    # Save Working Directory and Exit
+    #
+    opmoptn['prj-dirc-00'] = str(Path().absolute())
+    save_options(opmsys, opmoptn, True)
 
     out_log('OPMRUN Processing Complete ', True)
     opmlog.close()
     exit('OPMRUN Complete')
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Execute Module
@@ -2689,6 +2782,6 @@ def opmrun():
 if __name__ == '__main__':
     opmrun()
 
-#=======================================================================================================================
+# ======================================================================================================================
 # End of OPMRUN.py
-#=======================================================================================================================
+# ======================================================================================================================

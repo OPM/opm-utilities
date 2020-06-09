@@ -32,9 +32,9 @@
 --       WATER VAPORIZATION TABLE FOR BRINE  (OPM FLOW KEYWORD)  
 --
 RWGSALT
---       PRES     SALTCON     RW                 
+--       PRES     SALTCONC    RW                 
 --       PSIA     LB/STB      STB/MSCF           
---       ------  ---------    ---------                                                           
+--       ------  ----------   ---------                                                           
           300     0           0.000132           
                   0.5         0.000132           
                   1           0.000132                     /
@@ -60,9 +60,9 @@ RWGSALT
                   0.5         0.000132                     
                   1           0.000132                     /
                                                            / Table NO. 1
---       PRES     SALTCON     RW                 
+--       PRES     SALTCONC    RW                 
 --       PSIA     LB/STB      STB/MSCF           
---       ------  ---------    ---------                                                                  
+--       ------  ----------   ---------                                                                  
          300      0           0.000132                     
                   0.5         0.000132                     
                   1           0.000132                     /

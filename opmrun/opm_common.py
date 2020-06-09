@@ -41,12 +41,19 @@ Date    : 27-Feb-2020
 # ----------------------------------------------------------------------------------------------------------------------
 import datetime
 import getpass
-import pandas as pd
 import platform
-import PySimpleGUI as sg
 import re
+import subprocess
+import sys
 import tkinter as tk
 from pathlib import Path
+
+import airspeed
+import pandas as pd
+import psutil
+import pyDOE2
+import PySimpleGUI as sg
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section
@@ -107,14 +114,14 @@ def convert_string(string, option):
         return re.sub(r'[A-Z]', lambda x: '-' + x.group(0).lower(), string)
 
 
-def copy_to_clipboard(input):
+def copy_to_clipboard(inputs):
     """Copies Text to the Clipboard
 
     Copies the input text to the clipboard for pasting into another application
 
     Parameters
     ----------
-    input: str
+    inputs: str
         Input text to be copied to the clipboard
 
     Returns
@@ -130,7 +137,7 @@ def copy_to_clipboard(input):
     # Clear Clipboard and Append Text
     #
     root.clipboard_clear()
-    root.clipboard_append(input)
+    root.clipboard_append(inputs)
 
 
 def get_time():
@@ -153,6 +160,54 @@ def get_time():
     return time
 
 
+def kill_job(mesg, pid):
+    """ Kill a Job Process and All It's Children Processes
+
+    The function initializes OPMRUN environment and should be call for all sub-modules to ensure a consistent user
+    interface.
+
+    Parameters
+    ----------
+    mesg :str
+        Process message to be be displayed if set to 'None then no confirmation message is displayed.
+    pid : int
+        Main process to be killed.
+
+    Returns
+    -------
+    kill : bool
+        Set to True to kill job processes, other wise False.
+    killed : list
+        List of processes killed.
+
+    """
+    #
+    # Get Child Processes and Kill if Requested
+    #
+    kill    = False
+    killed  = []
+    if mesg != 'None':
+        killjob = sg.popup_yes_no(mesg + 'pid: ' + str(pid), no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+    else:
+        killjob = 'Yes'
+
+    if killjob == 'Yes':
+        kill = True
+        try:
+            process = psutil.Process(pid)
+            for proc in process.children(recursive=True):
+                killed.append(proc.pid)
+                proc.kill()
+
+            killed.append(process.pid)
+            process.kill()
+
+        except psutil.Error:
+            pass
+
+    return kill, killed
+
+
 def opm_initialize():
     """ Initialized OPMRUN
 
@@ -172,8 +227,8 @@ def opm_initialize():
     # OPMRUN ICON Base64 Encoded PNG File
     #
     opmicon = Path(Path(__file__).parent.absolute() / 'opmrun.png')
-    if Path(opmicon).is_file() == False:
-        sg.PopupError('Cannot Find ICON File: \n \n' + str(opmicon) + '\n \n' + 'Program will Continue',
+    if not Path(opmicon).is_file():
+        sg.popup_error('Cannot Find ICON File: \n \n' + str(opmicon) + '\n \n' + 'Program will Continue',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         opmicon = None
     #
@@ -221,6 +276,8 @@ def opm_popup(title, text, nrow):
 
     Parameters
     ----------
+    title : str
+        Title text message to be displayed
     text : str
         Text message to be displayed
     nrow : int
@@ -239,15 +296,17 @@ def opm_popup(title, text, nrow):
     return ()
 
 
-def opm_startup(opmsys1, opmlog1):
+def opm_startup(opmvers, opmsys1, opmlog1):
     """OPMRUN Startup Setup System Variables and File Creation
 
-    Sets up the various suystem variables in the opmsys dictionary which is then routine to the global version of
+    Sets up the various system variables in the opmsys dictionary which is then routine to the global version of
     opmsys. The function then checks for the users OPM home directory and if not available creates it. Finally, the
     function opens the log file and writes a header to the file.
 
     Parameters
     ----------
+    opmvers :str
+        OPMRUN version string
     opmsys1 : dict
         Contains a dictionary list of all OPMRUN System parameters
     opmlog1 : tuple
@@ -264,18 +323,32 @@ def opm_startup(opmsys1, opmlog1):
 
     opmsys1             = platform.uname()._asdict()
     opmsys1['python'  ] = platform.python_version()
-    opmsys1['opmvers' ] = '2020-10.01'
-    opmsys1['opmpath' ] = Path().absolute()
+    opmsys1['opmvers' ] = opmvers
+    #
+    # Get OPM Flow Version
+    #
+    opmflow = run_command('flow --version')
+    opmsys1['opmflow' ] = opmflow.rstrip()
     opmsys1['opmgui'  ] = 'PySimpleGUI - ' + str(sg.version)
+    opmsys1['airspeed'] = 'airspeed - ' + 'No version attribute'  # str(airspeed.__version__)
+    opmsys1['pandas'  ] = 'pandas - ' + str(pd.__version__)
+    opmsys1['psutil'  ] = 'psutil - ' + str(psutil.__version__)
+    opmsys1['pyDOE2'  ] = 'pyDOE2 - ' + 'No version attribute'    # str(pyDOE2.__version__)
+    #
+    # Determine If Running in Exe or Script Mode
+    #
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        opmsys1['opmmode' ] = 'Exe'
+    else:
+        opmsys1['opmmode' ] = 'Script'
+    #
+    opmsys1['opmpath' ] = Path().absolute()
     opmsys1['opmhome' ] = Path.home() / 'OPM'
     opmsys1['opmini'  ] = Path(opmsys1['opmhome'] / 'OPMRUN.ini')
     opmsys1['opmlog'  ] = Path(opmsys1['opmhome'] / 'OPMRUN.log')
     opmsys1['opmjob'  ] = Path(opmsys1['opmhome'] / 'OPMRUN.job')
     opmsys1['opmparam'] = Path(opmsys1['opmhome'] / 'OPMRUN.param')
     opmsys1['opmuser' ] = getpass.getuser()
-
-    opm_prtdict('opmsys', opmsys1, option='debug')
-    opm_prtdict('opmsys', opmsys1, option=None)
     #
     # Create OPM Directory if Missing
     #
@@ -283,7 +356,7 @@ def opm_startup(opmsys1, opmlog1):
         try:
             opmsys1['opmhome'].mkdir()
         except OSError:
-            sg.PopupError('Cannot Create: ' + str(opmsys1['opmhome']) + ' Directory \n  Will try and continue',
+            sg.popup_error('Cannot Create: ' + str(opmsys1['opmhome']) + ' Directory \n  Will try and continue',
                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
     #
     # Open Log File and Write Header
@@ -298,12 +371,12 @@ def opm_startup(opmsys1, opmlog1):
         opmlog1.write('# Date Created: ' + get_time()  + '\n')
         opmlog1.write('# \n')
         for item in opmsys1:
-            opmlog1.write('{}: OPMSYS Key: {:<10} , Value : {:} \n'.format(get_time(), item, opmsys1[item]))
+            opmlog1.write('{}: OPMSYS  Key: {:<16} , Value : {:} \n'.format(get_time(), item, opmsys1[item]))
+            opmlog1.flush()
 
-    except:
-        sg.PopupError('Error Opening Log File \n' +
-                      '\n' +
-                      'Will try to continue', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+    except OSError:
+        sg.popup_error('Error Opening Log File \n \n' + 'Will try to continue',
+                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         pass
 
     return opmsys1, opmlog1
@@ -316,7 +389,7 @@ def opm_prtdict(dictname, dictvar, option='debug'):
 
     Parameters
     ----------
-    dictname   : str
+    dictname : str
         Variable name of the dictionary to be printed
     dictvar : dict
         Dictionary to be printed
@@ -339,6 +412,95 @@ def opm_prtdict(dictname, dictvar, option='debug'):
         print('Print Dictionary Variable End: ' + dictname)
 
     return
+
+
+def remove_ansii_escape_codes(linein):
+    """Remove ASCII Escape Codes
+
+    Removes ascii escape code sequence from a string, based on  Martijn Pieters's answer with Jeff's regexp and
+    Édouard Lopez answer on stack overflow
+    https://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
+
+    Parameters
+    ----------
+    linein : str
+        String to have the ascii escape sequences removed.
+
+    Returns
+    -------
+    lineout: str
+        Returns line without the ascii escape codes
+    """
+
+    ansi_escape = re.compile(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]')
+    lineout     = ansi_escape.sub('', linein)
+    return lineout
+
+
+def run_command(command, timeout=None, window=None):
+    """Run Shell Command
+
+    Runs a shell command as a sub-process and displays the output in a pre-declared window.
+
+    Parameters
+    ----------
+    command : str
+        The command to execute
+    timeout : real
+        Timeout for command execution
+    window : PySimpleGUI window
+        The PySimpleGUI window that the output is going to (needed to do refresh on)
+
+    Returns
+    -------
+    exitcode : int
+        Return code from the sub-process command
+    """
+    #
+    # Run Process with No Output
+    #
+    if window == None:
+        try:
+            jobproc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                       universal_newlines=True)
+            out, err = jobproc.communicate()
+
+        except Exception:
+            sg.popup_error('Subprocess Call Error: \n \n' + str(command) + '\n \n' +
+                           'OUT:' + str(out) + 'ERR:' + str(err) + '\n',
+                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+            pass
+        #
+        # Process Complete - Get Exit Code
+        #
+        returncode = jobproc.wait(timeout)
+        if jobproc.returncode > 1:
+            sg.popup_error('Subprocess Call Error: \n \n' + str(command) + '\n \n' +
+                           'Return Code:' + str(returncode) + '\n',
+                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        return out
+    #
+    # Run Process with Realtime Output to Window
+    #
+    else:
+        try:
+            jobproc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                       bufsize=1, universal_newlines=True)
+            for line in jobproc.stdout:
+                line = line.rstrip()
+                window['_outlog1_'].print(line)
+                window.refresh()
+
+        except Exception as err:
+            window['_outlog1_'].print(err, type(err))
+            pass
+        #
+        # Process Complete - Get Exit Code
+        #
+        returncode = jobproc.wait(timeout)
+        if jobproc.returncode > 1:
+            window['_outlog1_'].print('Exit Code ' + str(returncode))
+        return returncode
 
 # ======================================================================================================================
 # End of OPM_COMMON.PY

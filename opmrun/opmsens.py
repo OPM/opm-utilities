@@ -173,7 +173,7 @@ def opmsens_check(basefile, header, factors, scenario):
         checkerr = checkerr + 1
         print('Checkerr: Found ' + str(checkerr) + ' Errors That Need to be Resolved')
         print('Checkerr: End')
-        sg.PopupError('OPMSENS Error Checking Factors - Cannot Continue',
+        sg.popup_error('OPMSENS Error Checking Factors - Cannot Continue',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return checkerr
     #
@@ -195,7 +195,7 @@ def opmsens_check(basefile, header, factors, scenario):
     #
     if checkerr:
         print('Checkerr: Found ' + str(checkerr) + ' Error(s) That Need(s) to be Resolved')
-        sg.PopupError('OPMSENS Sensitivity Generation Errors \n Unable to Generate Runs \n See Messages',
+        sg.popup_error('OPMSENS Sensitivity Generation Errors \n Unable to Generate Runs \n See Messages',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
     print('Checkerr: End')
@@ -521,7 +521,7 @@ def opmsens_write_data(scenario, nlevel, nfactor, jobdf, jobstart, jobnum, jobba
         file.close()
 
     except Exception as error:
-        sg.PopupError('Error Writing: ' + '\n  \n' + str(jobfile),
+        sg.popup_error('Error Writing: ' + '\n  \n' + str(jobfile),
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         print('WriteParam: Error Writing - ' + str(jobname))
         return True
@@ -544,7 +544,7 @@ def opmsens_write_data(scenario, nlevel, nfactor, jobdf, jobstart, jobnum, jobba
         print('WriteData: Generated ' + str(jobname))
 
     except Exception as error:
-        sg.PopupError('Error Processing Base Data File: ' + '\n  \n' + str(jobfile),
+        sg.popup_error('Error Processing Base Data File: ' + '\n  \n' + str(jobfile),
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         print('WriteData: Error Processing Base Data File ' + str(jobname))
         return True
@@ -590,7 +590,7 @@ def opmsens_write_param(jobstart, jobnum, jobparm, jobdata, jobs):
     try:
         Path(jobfile).write_text(Path(jobparm).read_text())
     except Exception as error:
-        sg.PopupError('Error Writing: ' + '\n  \n' + str(jobfile),
+        sg.popup_error('Error Writing: ' + '\n  \n' + str(jobfile),
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         print('WriteParam: Error Writing - ' + str(jobname))
         return True
@@ -613,7 +613,7 @@ def opmsens_write_param(jobstart, jobnum, jobparm, jobdata, jobs):
         print('WriteParm: Generated ' + str(jobname))
 
     except Exception as error:
-        sg.PopupError('Error Processing Template: ' + '\n  \n' + str(jobfile),
+        sg.popup_error('Error Processing Template: ' + '\n  \n' + str(jobfile),
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         print('WriteParam: Processing Template - ' + str(jobname))
         return True
@@ -638,7 +638,7 @@ def opmsens_write_queue(jobs):
     """
 
     if jobs == []:
-        sg.PopupOK('No Job Jobs to Process',
+        sg.popup_ok('No Job Jobs to Process',
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return ()
 
@@ -686,7 +686,7 @@ def opmsens_write_queue(jobs):
             file.write('# End of Queue \n')
             file.close()
 
-            sg.PopupOK('OPMRUN Queue File Saved to: ' + jobfile,
+            sg.popup_ok('OPMRUN Queue File Saved to: ' + jobfile,
                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
     return()
@@ -853,7 +853,7 @@ def opmsens_main(**opmoptn):
         # Base (Input Deck Template)
         #
         if event == '_base_':
-            basefile = sg.PopupGetFile('OPMSENS Set OPM Flow Input Deck Template', default_path=str(os.getcwd()),
+            basefile = sg.popup_get_file('OPMSENS Set OPM Flow Input Deck Template', default_path=str(os.getcwd()),
                                        initial_folder=str(os.getcwd()),
                                        file_types=[('OPM', ['*.data', '*.DATA'])],
                                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
@@ -868,7 +868,7 @@ def opmsens_main(**opmoptn):
                     window1['_tab_base_'].select()
 
                 else:
-                    sg.PopupError('File Does Not Exist: \n\n' + str(basefile) + '\n',
+                    sg.popup_error('File Does Not Exist: \n\n' + str(basefile) + '\n',
                                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
                     basefile = ''
                     window1['_basefile_'].update(value=basefile)
@@ -879,7 +879,7 @@ def opmsens_main(**opmoptn):
         #
         elif event == '_clear_':
             window1['_tab_factors_'].select()
-            text = sg.PopupYesNo('Do You Wish to Clear All the Factor Properties?',
+            text = sg.popup_yes_no('Do You Wish to Clear All the Factor Properties?',
                                  no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             if text == 'Yes':
                 factors =  opmsens_set_factors(header, nrow)
@@ -897,20 +897,20 @@ def opmsens_main(**opmoptn):
             try:
                 df.to_clipboard(sep=',', index=False)
             except Exception:
-                sg.PopupError('OPMSENS Factors Copied to Clipboard Error.\n \n' +
+                sg.popup_error('OPMSENS Factors Copied to Clipboard Error.\n \n' +
                               'Currently, this error only appears on Linux systems. \n'
                               'It can be fixed by installing one of the copy/paste mechanisms via:\n \n' +
                               'sudo apt-get install xclip python3-pyqt4 \n',
                               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
                 continue
 
-            sg.PopupTimed('OPMSENS Factors Copied to Clipboard', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+            sg.popup_timed('OPMSENS Factors Copied to Clipboard', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             continue
         #
         # Exit
         #
         elif event == '_exit_' or event is None:
-            ans = sg.PopupYesNo('Exit OPMSENS Sensitivity Generation?',
+            ans = sg.popup_yes_no('Exit OPMSENS Sensitivity Generation?',
                                 no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             if ans == 'Yes':
                 break
@@ -925,7 +925,7 @@ def opmsens_main(**opmoptn):
         # Generate
         #
         elif event == '_generate_':
-            window1['_outlog_'].Update('')
+            window1['_outlog_'].update('')
             basefile = window1['_basefile_'].get()
             factors  = window1['_factors_'].get()
             scenario = values['_scenarios_'][0]
@@ -941,7 +941,7 @@ def opmsens_main(**opmoptn):
         # Load
         #
         elif event == '_load_':
-            file = sg.PopupGetFile('Load OPMSENS Sensitivity Factor File', default_path=str(os.getcwd()),
+            file = sg.popup_get_file('Load OPMSENS Sensitivity Factor File', default_path=str(os.getcwd()),
                                    initial_folder=str(os.getcwd()), save_as=False,
                                    file_types=[('OPMSENS Factors', '*.fac'), ('All', '*.*')],
                                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
@@ -952,7 +952,7 @@ def opmsens_main(**opmoptn):
                     window1['_tab_factors_'].select()
                     window1['_factors_'].update(values=factors)
                 else:
-                    sg.PopupError('File Does Not Exist: \n\n' + str(file) + '\n',
+                    sg.popup_error('File Does Not Exist: \n\n' + str(file) + '\n',
                                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
             continue
@@ -961,34 +961,34 @@ def opmsens_main(**opmoptn):
         #
         elif event == '_save_':
             window1['_tab_factors_'].select()
-            file = sg.PopupGetFile('Save OMPSENS Sensitivity Factor File', default_path=str(os.getcwd()),
+            file = sg.popup_get_file('Save OMPSENS Sensitivity Factor File', default_path=str(os.getcwd()),
                                    initial_folder=str(os.getcwd()), save_as=True,
                                    file_types=[('OPMSENS Factors', '*.fac'), ('All', '*.*')],
                                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             dt = window1['_factors_'].get()
             df = pd.DataFrame(dt, columns=header)
             df.to_csv(file, sep=',', index=False)
-            sg.PopupTimed('OPMSENS Factors Saved to File',
+            sg.popup_timed('OPMSENS Factors Saved to File',
                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             continue
     #
     # Define Post Processing Section
     #
-    ans = sg.PopupYesNo('Do You Wish to Save the OPMSENS Sensitivity Factors to File?',
+    ans = sg.popup_yes_no('Do You Wish to Save the OPMSENS Sensitivity Factors to File?',
                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
     if ans == 'Yes':
-        file = sg.PopupGetFile('Save OMPSENS Sensitivity Factor File', default_path=str(os.getcwd()),
+        file = sg.popup_get_file('Save OMPSENS Sensitivity Factor File', default_path=str(os.getcwd()),
                                initial_folder=str(os.getcwd()), save_as=True,
                                file_types=[('OPMSENS Factors', '*.fac'), ('All', '*.*')],
                                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         dt = window1['_factors_'].get()
         df = pd.DataFrame(dt, columns=header)
         df.to_csv(file, sep=',', index=False)
-        sg.PopupTimed('OPMSENS Factors Saved to File',
+        sg.popup_timed('OPMSENS Factors Saved to File',
                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
     window1.Close()
-    sg.PopupOK('OPMSENS Sensitivity Generation Processing Complete',
+    sg.popup_ok('OPMSENS Sensitivity Generation Processing Complete',
                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
 

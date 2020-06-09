@@ -79,6 +79,7 @@ import PySimpleGUI as sg
 #
 from opm_common import copy_to_clipboard, opm_initialize, opm_popup, opm_prtdict
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # Define OPMKEYW Specific Modules
 # ----------------------------------------------------------------------------------------------------------------------
@@ -102,7 +103,7 @@ def keyw_check_directory(keywdir):
     try:
         pathchk = Path(keywdir).joinpath('02_RUNSPEC')
 
-    except Exception as error:
+    except Exception:
         patherr = True
         return patherr
 
@@ -135,7 +136,7 @@ def keyw_get_file(key):
     """
 
     if key == 'INCLUDE':
-        file = sg.PopupGetFile('Select ' + key + ' File to be Included',
+        file = sg.popup_get_file('Select ' + key + ' File to be Included',
                                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         if file is not None:
             filebase1 = Path(file).name
@@ -164,7 +165,7 @@ def keyw_get_file(key):
     # Get LOAD File
     #
     elif key == 'LOAD':
-        file = sg.PopupGetFile('Select ' + key + ' File to be Loaded',
+        file = sg.popup_get_file('Select ' + key + ' File to be Loaded',
                                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         if file is not None:
             event = 'Submit'
@@ -225,7 +226,7 @@ def keyw_get_items(key):
     # COMMENT Keyword Processing
     #
     if key == 'COMMENT':
-        keyitems['comment'] = sg.PopupGetText('Enter ' + key + ' Text',
+        keyitems['comment'] = sg.popup_get_text('Enter ' + key + ' Text',
                                               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         if keyitems['comment'] is None:
             keyitems['comment'] = ''
@@ -235,7 +236,7 @@ def keyw_get_items(key):
     # TSTEP Keyword Processing
     #
     if key == 'TSTEP':
-        keyitems['ans'] = sg.Popup('Select ' + key + ' Step Option \n', custom_text=('Monthly', 'Quarterly'),
+        keyitems['ans'] = sg.popup('Select ' + key + ' Step Option \n', custom_text=('Monthly', 'Quarterly'),
                                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return keyitems
     #
@@ -243,7 +244,7 @@ def keyw_get_items(key):
     # HEADER File Processing
     #
     if key in keyheadr:
-        filename = sg.PopupGetFile('Save ' + key + ' to File', save_as=True, initial_folder=str(Path().absolute()),
+        filename = sg.popup_get_file('Save ' + key + ' to File', save_as=True, initial_folder=str(Path().absolute()),
                                    default_path=str(Path().absolute()),
                                    file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')],
                                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
@@ -255,14 +256,14 @@ def keyw_get_items(key):
             keyitems['filename'] = ''
             keyitems['filepath'] = ''
 
-        keyitems['ans'] = sg.PopupYesNo('Do You Wish to Include the OPM License for the ' + key + ' Header?',
+        keyitems['ans'] = sg.popup_yes_no('Do You Wish to Include the OPM License for the ' + key + ' Header?',
                                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return keyitems
     #
     # Ask if SECTION Keywords Should be Generated
     #
     if key in keysectn:
-        keyitems['ans'] = sg.PopupYesNo('Do You Wish to Generate the Standard Keywords for the ' + key + ' Section?',
+        keyitems['ans'] = sg.popup_yes_no('Do You Wish to Generate the Standard Keywords for the ' + key + ' Section?',
                                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         if keyitems['ans'] == 'No':
             return keyitems
@@ -279,12 +280,12 @@ def keyw_get_items(key):
         #
         # Standard Keywords
         #
-        keyitems['ans'] = sg.PopupYesNo('Do You Wish to Generate ' + key + ' Section Standard Keywords?',
+        keyitems['ans'] = sg.popup_yes_no('Do You Wish to Generate ' + key + ' Section Standard Keywords?',
                                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         #
         # Date Keywords
         #
-        keyitems['sch'] = sg.PopupYesNo('Do You Wish to Generate ' + key + ' Section Date Keywords?',
+        keyitems['sch'] = sg.popup_yes_no('Do You Wish to Generate ' + key + ' Section Date Keywords?',
                                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         if keyitems['sch'] == 'Yes':
             layout1 = [
@@ -423,18 +424,18 @@ def keyw_save_keywords(text):
     Nothing
     """
 
-    filename = sg.PopupGetFile('Save Keywords to File', save_as=True, default_path=str(Path().absolute()),
+    filename = sg.popup_get_file('Save Keywords to File', save_as=True, default_path=str(Path().absolute()),
                                no_titlebar=True, grab_anywhere=True, keep_on_top=True,
                                file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')])
     if filename is None:
-        sg.PopupOK('Save Keywords to File Cancelled',
+        sg.popup_ok('Save Keywords to File Cancelled',
                    no_titlebar=True, grab_anywhere=True, keep_on_top=True)
         return ()
 
     file = open(filename, 'w')
     file.write(text)
     file.close()
-    sg.PopupOK('Keywords Saved to: ' + filename,
+    sg.popup_ok('Keywords Saved to: ' + filename,
                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
 
@@ -477,12 +478,12 @@ def keyw_main(opmvers, **opmoptn):
         patherr = keyw_check_directory(keywdir)
 
         if patherr:
-            sg.PopupError('Error in "keyw_main" Module \n',
+            sg.popup_error('Error in "keyw_main" Module \n',
                           'Cannot Find Keyword Template Directory: \n \n' + str(keywdir) + '\n',
                           'Please Set Keyword Template Directory',
                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
-            keywdir = sg.PopupGetFolder('Set Keyword Template Directory', default_path=str(Path().absolute()),
+            keywdir = sg.popup_get_folder('Set Keyword Template Directory', default_path=str(Path().absolute()),
                                         initial_folder=str(Path().absolute()),
                                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             #
@@ -495,7 +496,7 @@ def keyw_main(opmvers, **opmoptn):
             #
             patherr = keyw_check_directory(keywdir)
             if patherr:
-                sg.PopupError('Error in "keyw_main" Module RUNSPEC Directory Missing: \n ',
+                sg.popup_error('Error in "keyw_main" Module RUNSPEC Directory Missing: \n ',
                               str(keywdir) + '\n',
                               'Does Not Contain Template Directories - Process Stopped',
                               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
@@ -505,7 +506,7 @@ def keyw_main(opmvers, **opmoptn):
         else:
             opmoptn['opm-keywdir'] = keywdir
 
-    sg.PopupOK('Using Keyword Template Directory \n \n' + str(keywdir) + '\n ',
+    sg.popup_ok('Using Keyword Template Directory \n \n' + str(keywdir) + '\n ',
                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
 
     filetype = 'OPM FLOW SIMULATION FILE'
@@ -747,7 +748,7 @@ def keyw_main(opmvers, **opmoptn):
         #
         elif event == '_copy_':
             copy_to_clipboard(window1['_deckinput_'].get())
-            sg.PopupTimed('Deck Copied to Clipboard', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+            sg.popup_timed('Deck Copied to Clipboard', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             continue
         #
         # File Name
@@ -758,7 +759,7 @@ def keyw_main(opmvers, **opmoptn):
         # Exit
         #
         elif event == '_exit_' or event is None:
-            ans = sg.PopupYesNo('Exit Keyword Generation?',
+            ans = sg.popup_yes_no('Exit Keyword Generation?',
                                 no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             if ans == 'Yes':
                 break
@@ -772,7 +773,7 @@ def keyw_main(opmvers, **opmoptn):
         # Keywords
         #
         elif event == '_keylist_':
-            if values['_keylist_'] == []:
+            if not values['_keylist_']:
                 continue
 
             key = str(values['_keylist_'][0])
@@ -835,7 +836,7 @@ def keyw_main(opmvers, **opmoptn):
                                                                      loader=templates),
                                                       append=True, autoscroll=True)
             except Exception as error:
-                sg.PopupError('Error Processing Keyword Template: ' + str(key) + '\n  \n' + str(error),
+                sg.popup_error('Error Processing Keyword Template: ' + str(key) + '\n  \n' + str(error),
                               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
             continue
         #
@@ -901,7 +902,7 @@ def keyw_main(opmvers, **opmoptn):
                 window1['_deckinput_'].update(tempfile.read())
                 tempfile.close()
             except Exception as error:
-                sg.PopupError('Error Displaying Velocity Template Source: ' + str(key) + '\n  \n' + str(error),
+                sg.popup_error('Error Displaying Velocity Template Source: ' + str(key) + '\n  \n' + str(error),
                               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
                 continue
             continue
@@ -915,15 +916,14 @@ def keyw_main(opmvers, **opmoptn):
     #
     # Define Post Processing Section
     #
-    ans = sg.PopupYesNo('Do You Wish to Save the Keyword to File?',
+    ans = sg.popup_yes_no('Do You Wish to Save the Keyword to File?',
                         no_titlebar=True, grab_anywhere=True, keep_on_top=True)
     if ans == 'Yes':
         keyw_save_keywords(window1['_deckinput_'].get())
 
     window1.Close()
-    sg.PopupOK('Keyword Generation Processing Complete',
+    sg.popup_ok('Keyword Generation Processing Complete',
                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-
 
 # ======================================================================================================================
 # End of OPMKEYW

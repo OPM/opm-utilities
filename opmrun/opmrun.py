@@ -10,6 +10,7 @@ details.
 
 Program Documentation
 ---------------------
+2020-04.05 - Remove debug popup when loading ResInsight with job results.
 2020-04.04 - Add right-click menu options to the status table to edit files, view results, load results into ResInsight,
              etc.
            - Refactor code to improve maintainability, including moving some functions to the opm-common module.
@@ -181,7 +182,7 @@ Date    : 09-June-2020
 #
 # Set OPMRUN Version Number
 #
-__version__ = '2020-04.04'
+__version__ = '2020-04.05'
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Import Modules and Start Up Section
@@ -1840,7 +1841,6 @@ def run_resinsight(command, jobfile='None'):
 
             return ()
         command = command + str(' --startdir ') + str(file0.parent) + str(' --case ') + str(file0.name)
-        sg.Print(command)
 
     try:
         out_log('Executing ResInsight Command: ' + str(command) , True)

@@ -1,0 +1,4 @@
+--relaxed-max-pv-fraction=0.0
+--max-strict-iter=8
+--tolerance-cnv=1e-3
+--tolerance-cnv-relaxed=1e-2

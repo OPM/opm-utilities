@@ -1,0 +1,3 @@
+--max-residual-allowed=1e3 
+--matrix-add-well-contributions=true
+--linear-solver-ignore-convergence-failure=true

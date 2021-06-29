@@ -1,0 +1,3 @@
+--linear-solver-ignore-convergence-failure=true
+--matrix-add-well-contributions=true
+--linsolver=fieldcase1.json

@@ -2,33 +2,39 @@
 #
 """OPM_COMMON.py - Common Utility Functions
 
-This module contains common utility functions used by other modules in OPMRUN in order to avoid code duplication.
+This module contains common utility functions used by other modules in OPMRUN in order to avoid code duplication,
+togther with other useful routines.
 
 Notes:
 ------
 Only Python 3 is currently supported and tested Python2 support has been depreciated. The following standard module
 libraries are used in this version.
 
-import datetime
-import getpass
-import pandas as pd
-import platform
-import PySimpleGUI as sg
-import re
-import tkinter as tk
-from pathlib import Path
-
 Program Documentation
---------------------
-2020-04.04 - Refactored code to be more compact as import checks are done in the main routine.
-2020-04.01 - Initial release
+---------------------
+Only Python 3 is supported and tested Python2 support has been depreciated.
 
-Copyright (C) 2018-2020 Equinox International Petroleum Consultants Pte Ltd.
+2021.07.01 - Minor re-factoring and additional routines moved from other modules to here.
+2020.04.04 - Refactored code to be more compact as import checks are done in the main routine.
+2020.04.01 - Initial release
+
+Copyright Notice
+----------------
+This file is part of the Open Porous Media project (OPM).
+
+OPM is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+OPM is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the aforementioned GNU General Public Licenses for more
+details.
+
+Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte Ltd.
 
 Author  : David Baxendale
           david.baxendale@eipc.co
-Version : 2020-04.01
-Date    : 27-Feb-2020
+Version : 2021.07.01
+Date    : 20-Jul-2021
 """
 # ----------------------------------------------------------------------------------------------------------------------
 # 3456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
@@ -41,6 +47,8 @@ Date    : 27-Feb-2020
 # ----------------------------------------------------------------------------------------------------------------------
 import datetime
 import getpass
+import os
+import pkg_resources
 import platform
 import re
 import subprocess
@@ -54,17 +62,49 @@ import psutil
 import pyDOE2
 import PySimpleGUI as sg
 
-
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section
 # ----------------------------------------------------------------------------------------------------------------------
+def change_directory(jobpath, popup=False, outprt=False):
+    """Change the Working Directory
+
+    Change the current working directory to the job's path (`jobpath`)
+
+    Parameters
+    ----------
+    jobpath : str
+        The path of the job for which the change directory request is being executed
+    popup : bool
+        Boolean Popup display option (True to display Popup, False no display)
+    outprt : bool
+         Boolean print option (True to print to display, False not to print) to the PySimpleGUI window using cprint
+
+    Returns
+    -------
+    error : boolean
+        True if errors, otherwise False
+    """
+
+    try:
+        os.chdir(jobpath)
+        if outprt:
+            sg.cprint('Working Directory ' + str(Path().absolute()) + '\n')
+    except OSError:
+        text = 'Change Working Directory Error \n\n' + str(jobpath) + 'Cannot Change the Current Working Directory'
+        if popup:
+            sg.popup_error(text,no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        if outprt:
+            sg.cprint(text)
+        return True
+    return False
+
+
 def convert_string(string, option):
     """Convert a String from One Format to Another
 
-    The regular expression looks for letters that are either at the beginning of the string,
-    or preceded by an underscore. The given letter is captured.
-    Each of those occurrences (underscore + letter) is replaced by the uppercase version of
-    the found letter.
+    The regular expression looks for letters that are either at the beginning of the string, or preceded by an
+    underscore. The given letter is captured. Each of those occurrences (underscore + letter) is replaced by the
+    uppercase version of the found letter.
 
     Parameters
     ----------
@@ -114,14 +154,14 @@ def convert_string(string, option):
         return re.sub(r'[A-Z]', lambda x: '-' + x.group(0).lower(), string)
 
 
-def copy_to_clipboard(inputs):
+def copy_to_clipboard(input):
     """Copies Text to the Clipboard
 
     Copies the input text to the clipboard for pasting into another application
 
     Parameters
     ----------
-    inputs: str
+    input : str
         Input text to be copied to the clipboard
 
     Returns
@@ -137,7 +177,34 @@ def copy_to_clipboard(inputs):
     # Clear Clipboard and Append Text
     #
     root.clipboard_clear()
-    root.clipboard_append(inputs)
+    root.clipboard_append(input)
+
+
+def file_lstrip(file_name):
+    """Strip File of Space in First Column Only
+
+    Reads in a file and strips out the first space in a record if present and writes back out the file.
+
+    Parameters
+    ----------
+    file_name : str
+        Name of file to be processed.
+
+    Returns
+    -------
+    None
+    """
+
+    with open(file_name, 'r') as file:
+        data = file.readlines()
+
+    with open(file_name, 'w') as file:
+        for line in data:
+            line = line.rstrip() + '\n'
+            if line[0:1].lstrip():
+                file.write(line)
+            else:
+                file.write(line[1:])
 
 
 def get_time():
@@ -160,15 +227,32 @@ def get_time():
     return time
 
 
-def kill_job(mesg, pid):
-    """ Kill a Job Process and All It's Children Processes
+def is_not_blank(string):
+    """Check if a String is Empty
 
-    The function initializes OPMRUN environment and should be call for all sub-modules to ensure a consistent user
-    interface.
+    Checks if a string is empty with for "", "   ", and None strings
 
     Parameters
     ----------
-    mesg :str
+    string :str
+        String to test if empty.
+
+    Returns
+    -------
+    True or False
+    """
+
+    return bool(string and not string.isspace())
+
+
+def kill_job(mesg, pid):
+    """Kill a Job Process and All It's Children Processes
+
+    The function kills a running Linux process and all of the assoicated child processes.
+
+    Parameters
+    ----------
+    mesg : str
         Process message to be be displayed if set to 'None then no confirmation message is displayed.
     pid : int
         Main process to be killed.
@@ -187,7 +271,7 @@ def kill_job(mesg, pid):
     kill    = False
     killed  = []
     if mesg != 'None':
-        killjob = sg.popup_yes_no(mesg + 'pid: ' + str(pid), no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        killjob = sg.popup_yes_no(mesg + 'pid: ' + str(pid), no_titlebar=False, grab_anywhere=False, keep_on_top=True)
     else:
         killjob = 'Yes'
 
@@ -208,8 +292,89 @@ def kill_job(mesg, pid):
     return kill, killed
 
 
+def opm_header_file(file, file_in, file_out, optn, text, opmsys):
+    """Write File Header to File
+
+    Writes out OPM Flow include file header records to a file.
+
+    Parameters
+    ----------
+    file : file
+        File object that was used used as input to generate the output data set
+    file_in : str
+        Name of input file
+    file_out : Name of output file
+        File object that was used used as input to generate the output data set
+    optn : list
+        File header option set to "start" for Start Header or "end" for End Header
+    text : list
+        List of text messages to be printed
+    opmsys : dict
+        A dictionary containing the OPMRUN system parameters
+
+    Returns
+    -------
+    None
+    """
+
+    header = '-- ' + '*' * 129 + '\n'
+    time = datetime.datetime.now()
+    time = str(time.strftime('%Y-%m-%d %H:%M:%S'))
+    if optn[0] == "start":
+        file.write(header)
+        file.write('--\n')
+        file.write('--                                                SIMULATION INCLUDE FILE\n')
+        file.write('--\n')
+        file.write('-- DESCRIPTION\n')
+        file.write('-- -----------\n')
+        for item in text:
+            file.write('-- ' + item + '\n')
+        file.write('--\n')
+        if file_in is not None:
+            file.write('-- FILE IN    : ' + str(Path(file_in).name) + '\n')
+        file.write('-- FILE OUT   : ' + str(Path(file_out).name) + '\n')
+        file.write('-- FILE PATH  : ' + str(Path(file_out).parents[0]) + '\n')
+        file.write('--\n')
+        file.write('-- GENERATED  : ' + str(opmsys['opmuser']) + '\n')
+        file.write('-- MACHINE    : ' + str(opmsys['node']) + '\n')
+        file.write('-- SYSTEM     : ' + str(opmsys['system']) + ': ' + str(opmsys['release']) + '\n')
+        file.write('-- PYTHON     : ' + str(opmsys['python']) + '\n')
+        file.write('-- PYTHON GUI : ' + str(opmsys['opmgui']) + '\n')
+        file.write('-- DATE       : ' + str(time) + '\n')
+        file.write('--\n')
+        file.write('-- 45678901234567890123456789012345678901234567890123456789012345678901234567890' +
+                   '1234567890123456789012345678901234567890123456789012\n')
+        file.write('--       1         2         3         4         5         6         7         8' +
+                   '         9         0         1         2         3\n')
+        file.write('--       0         0         0         0         0         0         0         0' +
+                   '         0         1         1         1         1\n')
+        file.write(header)
+        file.write('--\n')
+        if optn[1] != "none":
+            file.write(str(optn[1]) + '\n')
+            file.write('--\n')
+
+    elif optn[0] == 'end':
+        file.write('\n--\n')
+        if optn[1] == 'ECHO':
+            file.write('ECHO\n')
+            file.write('--\n')
+        file.write(header)
+        file.write('-- END OF FILE\n')
+        file.write(header)
+
+    else:
+        file.write('\n')
+        file.write(header)
+        if text is not None:
+            for item in text:
+                file.write('--' + item + '\n')
+            file.write(header)
+    return ()
+
+
 def opm_initialize():
-    """ Initialized OPMRUN
+    """Initialized OPMRUN
 
     The function initializes OPMRUN environment and should be call for all sub-modules to ensure a consistent user
     interface.
@@ -229,7 +394,7 @@ def opm_initialize():
     opmicon = Path(Path(__file__).parent.absolute() / 'opmrun.png')
     if not Path(opmicon).is_file():
         sg.popup_error('Cannot Find ICON File: \n \n' + str(opmicon) + '\n \n' + 'Program will Continue',
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         opmicon = None
     #
     # Set PySimpleGUI Defaults
@@ -268,7 +433,7 @@ def opm_initialize():
                   )
 
 
-def opm_popup(title, text, nrow):
+def opm_popup(title, text, nrow=10, font = None):
     """Display Text Message in a Display Window
 
     Displays a text message in a multiline popup. Normally used for displaying help information, but any text string
@@ -289,9 +454,9 @@ def opm_popup(title, text, nrow):
     None
     """
 
-    layout1 = [[sg.Multiline(text, size=(80, nrow), background_color='white', text_color='darkgreen')],
+    layout1 = [[sg.Multiline(text, size=(80, nrow), background_color='white', text_color='darkgreen', font=font)],
                [sg.CloseButton('OK')]]
-    window1 = sg.Window('OPMRUN - Flow Job Scheduler: ' + title, layout=layout1)
+    window1 = sg.Window('OPMRUN - OPM Flow Job Scheduler: ' + title, layout=layout1)
     window1.Read()
     return ()
 
@@ -328,12 +493,19 @@ def opm_startup(opmvers, opmsys1, opmlog1):
     # Get OPM Flow Version
     #
     opmflow = run_command('flow --version')
-    opmsys1['opmflow' ] = opmflow.rstrip()
-    opmsys1['opmgui'  ] = 'PySimpleGUI - ' + str(sg.version)
-    opmsys1['airspeed'] = 'airspeed - ' + 'No version attribute'  # str(airspeed.__version__)
-    opmsys1['pandas'  ] = 'pandas - ' + str(pd.__version__)
-    opmsys1['psutil'  ] = 'psutil - ' + str(psutil.__version__)
-    opmsys1['pyDOE2'  ] = 'pyDOE2 - ' + 'No version attribute'    # str(pyDOE2.__version__)
+    opmsys1['opmflow'   ] = opmflow.rstrip()
+    opmsys1['opmgui'    ] = 'PySimpleGUI - ' + str(sg.version)
+    opmsys1['airspeed'  ] = 'airspeed - ' + str(pkg_resources.get_distribution('airspeed').version)
+    opmsys1['datetime'  ] = 'datetime - ' + opmsys1['python']
+    opmsys1['getpass'   ] = 'getpass - ' + str(pd.__version__)
+    opmsys1['os'        ] = 'os - ' + opmsys1['python']
+    opmsys1['pandas'    ] = 'pandas - ' + str(pd.__version__)
+    opmsys1['pathlib'   ] = 'pathlib - ' + opmsys1['python']
+    opmsys1['platform'  ] = 'platform - ' + opmsys1['python']
+    opmsys1['psutil'    ] = 'psutil - ' + str(psutil.__version__)
+    opmsys1['pyDOE2'    ] = 'pyDOE2 - ' + str(pkg_resources.get_distribution('pyDOE2').version)
+    opmsys1['re'        ] = 're - ' + opmsys1['python']
+    opmsys1['subprocess'] = 'subprocess - ' + opmsys1['python']
     #
     # Determine If Running in Exe or Script Mode
     #
@@ -357,7 +529,7 @@ def opm_startup(opmvers, opmsys1, opmlog1):
             opmsys1['opmhome'].mkdir()
         except OSError:
             sg.popup_error('Cannot Create: ' + str(opmsys1['opmhome']) + ' Directory \n  Will try and continue',
-                          no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                          no_titlebar=False, grab_anywhere=False, keep_on_top=True)
     #
     # Open Log File and Write Header
     #
@@ -376,22 +548,64 @@ def opm_startup(opmvers, opmsys1, opmlog1):
 
     except OSError:
         sg.popup_error('Error Opening Log File \n \n' + 'Will try to continue',
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         pass
 
     return opmsys1, opmlog1
 
 
-def opm_prtdict(dictname, dictvar, option='debug'):
-    """OPMRUN Print Python Dictionary
+def opm_view(file, opmoptn):
+    """View/Edit Results Output File
 
-    Prints a  Python dictionary in tabular form
+    The function sets up the parameters to call the default editor to edit the selected DATA file .
 
     Parameters
     ----------
-    dictname : str
+    file : str
+        The output file results.
+    opmoptn : dict
+        A dictionary containing the OPMRUN default parameters
+
+    Returns
+    -------
+    None
+    """
+    #
+    # Edit/View Production Schedule File
+    #
+    if Path(file).is_file():
+        if opmoptn['edit-command'] == 'None':
+            sg.popup_error('Editor command has not been set in the properties file',
+                        'Use Edit OPMRUN Options to set the Editor Command',
+                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+            sg.cprint('Editor Command Has Not Been Set: ' + str(opmoptn['edit-command']))
+            return ()
+        else:
+            command = str(opmoptn['edit-command']).rstrip()
+            try:
+                sg.execute_command_subprocess(command, file, wait=False, pipe_output=False)
+            except Exception:
+                sg.popup_error('Error Executing Editor Command: ' + command + ' ' + str(file),
+                               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                sg.cprint('Error Executing Editor Command: ' + command + ' ' + str(file))
+                return ()
+    else:
+        sg.popup_error('Cannot Find  File:/n ', str(file),
+                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        sg.cprint('Cannot Find: ' + str(file))
+    return()
+
+
+def print_dict(dict_name, dict_var, option='debug'):
+    """PRINT_DICT.py Print Python Dictionary
+
+    Prints a  Python dictionary in tabular form in various formats depending on the output option.
+
+    Parameters
+    ----------
+    dict_name : str
         Variable name of the dictionary to be printed
-    dictvar : dict
+    dict_var : dict
         Dictionary to be printed
     option : str
         Print option set to 'debug' for sg.Print, otherwise standard print
@@ -402,15 +616,18 @@ def opm_prtdict(dictname, dictvar, option='debug'):
     """
 
     if option == 'debug':
-        sg.Print('Print Dictionary Variable Start: ' + dictname)
-        sg.Print(pd.DataFrame.from_dict(dictvar, orient='index', columns=['Value']))
-        sg.Print('Print Dictionary Variable End: ' + dictname)
+        sg.Print('Print Dictionary Variable Start: ' + dict_name)
+        sg.Print(pd.DataFrame.from_dict(dict_var, orient='index', columns=['Value']))
+        sg.Print('Print Dictionary Variable End: ' + dict_name)
+    elif option == 'popup':
+        text = pd.DataFrame.from_dict(dict_var, orient='index', columns=['Value'])
+        text = text.to_string(header=False, justify='left')
+        opm_popup(dict_name + ' Dictionary Listing ', text, 30)
     else:
-        print('Print Dictionary Variable Start: ' + dictname)
-        for item in dictvar:
-            print('{}: Key: {:<10} , Value : {:}'.format(dictname, item, dictvar[item]))
-        print('Print Dictionary Variable End: ' + dictname)
-
+        sg.cprint(dict_name + ':Dictionary Listing')
+        for item in dict_var:
+            sg.cprint(dict_name + '({:<18}) = {:}'.format(item, dict_var[item]))
+        sg.cprint(dict_name + ':End')
     return
 
 
@@ -428,7 +645,7 @@ def remove_ansii_escape_codes(linein):
 
     Returns
     -------
-    lineout: str
+    lineout : str
         Returns line without the ascii escape codes
     """
 
@@ -468,7 +685,7 @@ def run_command(command, timeout=None, window=None):
         except Exception:
             sg.popup_error('Subprocess Call Error: \n \n' + str(command) + '\n \n' +
                            'OUT:' + str(out) + 'ERR:' + str(err) + '\n',
-                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                           no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             pass
         #
         # Process Complete - Get Exit Code
@@ -477,7 +694,7 @@ def run_command(command, timeout=None, window=None):
         if jobproc.returncode > 1:
             sg.popup_error('Subprocess Call Error: \n \n' + str(command) + '\n \n' +
                            'Return Code:' + str(returncode) + '\n',
-                           no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                           no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         return out
     #
     # Run Process with Realtime Output to Window
@@ -488,19 +705,82 @@ def run_command(command, timeout=None, window=None):
                                        bufsize=1, universal_newlines=True)
             for line in jobproc.stdout:
                 line = line.rstrip()
-                window['_outlog1_'].print(line)
+                sg.cprint(line)
                 window.refresh()
 
         except Exception as err:
-            window['_outlog1_'].print(err, type(err))
+            sg.cprint(err, type(err))
             pass
         #
         # Process Complete - Get Exit Code
         #
         returncode = jobproc.wait(timeout)
         if jobproc.returncode > 1:
-            window['_outlog1_'].print('Exit Code ' + str(returncode))
+            sg.cprint('Exit Code ' + str(returncode))
         return returncode
+
+
+def tail(f, n, offset=None):
+    """Read The Last Lines of Output from a Sub-Process Command
+
+    Reads a n lines from f with an offset of offset lines.  The return value is a tuple in the form
+    ``(lines, has_more)`` where `has_more` is  an indicator that is `True` if there are more lines in the file.
+
+    Parameters
+    ----------
+    f : str
+        File for which the last number of lines are to be read
+    n : int
+        The last number of lines requires
+    offset :int
+        The line offset
+
+    Returns
+    -------
+    lines :str
+        Requested last n lines of text
+    """
+
+    avg_line_length = 74
+    to_read = n + (offset or 0)
+
+    while 1:
+        try:
+            f.seek(-(avg_line_length * to_read), 2)
+        except IOError:
+            # woops.  apparently file is smaller than what we want
+            # to step back, go to the beginning instead
+            f.seek(0)
+
+        pos = f.tell()
+        lines = f.read().splitlines()
+        if len(lines) >= to_read or pos == 0:
+            return lines[-to_read:offset and -offset or None], \
+                   len(lines) > to_read or pos > 0
+        avg_line_length *= 1.3
+
+
+def version_check(version):
+    """Check Installed Package Version Against Minimum Require Version
+
+    Checks an installed package version against a minimum require version, after Jason Yang (jason990420)
+    (https://github.com/PySimpleGUI/PySimpleGUI/issues/4551)
+
+    Parameters
+    ----------
+    version : minimum required version, '4.25.0'
+        The required minimum version of the package.
+
+    Returns
+    -------
+    boolean : boolean
+        True if required met otherwise False.
+    """
+
+    def get_tuple(version):
+        return tuple(map(int, version.split(".")))
+
+    return get_tuple(sg.__version__) >= get_tuple(version)
 
 # ======================================================================================================================
 # End of OPM_COMMON.PY

@@ -1,6 +1,6 @@
 # ======================================================================================================================
 #
-"""OPMKEYW.py - OPMRUN Keyword Generation Utility
+"""OPM_KEYW.py - OPMRUN Keyword Generation Utility
 
 OPM Flow Keyword Generation Utility is a Graphical User Interface ("GUI") program for the Open Porous Media ("OPM")
 Flow simulator
@@ -8,7 +8,7 @@ Flow simulator
 This module generates input decks based of the keywords available for the simulator and users the Apache Velocity
 Template Language ("VTL") for the templates. VTL is a common templating language used by many programming editors, and
 therefore the templates can also be used directly with an editor provided the editor supports VTL. The Python airspeed
-module is used to parse the templates and the key templates are comparable to the examples depicted in the
+package is used to parse the templates and the key templates are comparable to the examples depicted in the
 OPM Flow Manual.
 
 The "Keyword Filter" button allows for the filtering of the various keywords in the selected section, including being
@@ -16,46 +16,46 @@ able to list all the keywords available for all sections. Clicking on a keyword 
 "pasted" into the Deck element. This element is editable by simply clicking anywhere in the element and making changes.
 
 The "Clear" button will will clear the Deck element of all text, and the "Copy" button will copy the text in the Deck
-element to the clipboard from which you can paste the text in your chosen editor. The text can also be save saved to
-a file by selecting the "Save" button
+element to the clipboard from which you can paste the text in your chosen editor. The text can also be saved to a file
+by selecting the "Save" button
 
 See the OPM Flow manual for further information.
 
-Notes:
-------
-Only Python 3 is currently supported and tested Python2 support has been depreciated. The following standard module
-libraries are used in this version.
-
-(1) datetime
-(2) platform
-(3) pathlib
-
-For OPMKEYW the integrated OPM Flow Keyword Generator the following additional modules are required:
-
-(1) PySimpleGUI
-(2) airspeed
-
 Program Documentation
---------------------
-2020-04-03 - Removed the option for stand alone running to simplify code base.
-           -
-2020-04-02 - Added a DATA (Set) option for data sets and added various data set templates.
+---------------------
+Only Python 3 is supported and tested Python2 support has been depreciated.
+
+2021.07.01 - Minor re-factoring of code.
+2020.04.03 - Removed the option for stand alone running to simplify code base.
+2020.04.02 - Added a DATA (Set) option for data sets and added various data set templates.
            - Added MODEL option and added various selected OPM Flow models as complete examples.
            - Fixed inconsistent Python major release check.
            - Updated SUMMARY template to cover additional variables and added dialog box to display the options in
              order to be consistent with the manual.
            - Move several functions to opm_common to reduce code duplication.
            - Users NumPy/SciPy Docstrings documentation format and documented all functions.
-2020-04.01 - Initial release of OPMKEYW
+2020.04.01 - Initial release of OPMKEYW
            - Support for Python 3 only.
            - Based PySimpleGUI version 4.14.1
 
-Copyright (C) 2018-2020 Equinox International Petroleum Consultants Pte Ltd.
+Copyright Notice
+----------------
+This file is part of the Open Porous Media project (OPM).
+
+OPM is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+OPM is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the aforementioned GNU General Public Licenses for more
+details.
+
+Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte Ltd.
 
 Author  : David Baxendale
           david.baxendale@eipc.co
-Version : 2020-04.01
-Date    : 09-Mar-2020
+Version : 2021.07.01
+Date    : 26-Jul-2021
+
 """
 # ----------------------------------------------------------------------------------------------------------------------
 # 3456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
@@ -77,8 +77,7 @@ import PySimpleGUI as sg
 #
 # Import OPM Common Modules
 #
-from opm_common import copy_to_clipboard, opm_initialize, opm_popup, opm_prtdict
-
+from opm_common import copy_to_clipboard, opm_initialize, opm_popup, print_dict
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define OPMKEYW Specific Modules
@@ -137,7 +136,7 @@ def keyw_get_file(key):
 
     if key == 'INCLUDE':
         file = sg.popup_get_file('Select ' + key + ' File to be Included',
-                               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         if file is not None:
             filebase1 = Path(file).name
             filebase2 = '../' + str(Path(file).name)
@@ -149,7 +148,7 @@ def keyw_get_file(key):
                 [sg.Submit(), sg.Cancel()]]
 
             window2 = sg.Window('Generate Schedule Date Keywords', layout=layout1,
-                                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                                no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             (event, values) = window2.read()
             window2.Close()
             if event == 'Submit':
@@ -166,7 +165,7 @@ def keyw_get_file(key):
     #
     elif key == 'LOAD':
         file = sg.popup_get_file('Select ' + key + ' File to be Loaded',
-                               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         if file is not None:
             event = 'Submit'
             file = "'" + str(Path(file).stem) + "'"
@@ -216,6 +215,7 @@ def keyw_get_items(key):
     keyitems['sumopt08'] = 'No'
     keyitems['sumopt09'] = 'No'
     keyitems['sumopt10'] = 'No'
+    keyitems['sumopt11'] = 'No'
     keyitems['sch']      = None
     keyitems['step']     = None
     keyitems['yearstr']  = None
@@ -227,7 +227,7 @@ def keyw_get_items(key):
     #
     if key == 'COMMENT':
         keyitems['comment'] = sg.popup_get_text('Enter ' + key + ' Text',
-                                              no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                                              no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         if keyitems['comment'] is None:
             keyitems['comment'] = ''
 
@@ -237,7 +237,7 @@ def keyw_get_items(key):
     #
     if key == 'TSTEP':
         keyitems['ans'] = sg.popup('Select ' + key + ' Step Option \n', custom_text=('Monthly', 'Quarterly'),
-                                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                                   no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         return keyitems
     #
     #
@@ -247,7 +247,7 @@ def keyw_get_items(key):
         filename = sg.popup_get_file('Save ' + key + ' to File', save_as=True, initial_folder=str(Path().absolute()),
                                    default_path=str(Path().absolute()),
                                    file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')],
-                                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                                   no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         try:
             keyitems['filename'] = Path(filename).name
             keyitems['filepath'] = Path(filename).parent
@@ -257,14 +257,14 @@ def keyw_get_items(key):
             keyitems['filepath'] = ''
 
         keyitems['ans'] = sg.popup_yes_no('Do You Wish to Include the OPM License for the ' + key + ' Header?',
-                                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         return keyitems
     #
     # Ask if SECTION Keywords Should be Generated
     #
     if key in keysectn:
         keyitems['ans'] = sg.popup_yes_no('Do You Wish to Generate the Standard Keywords for the ' + key + ' Section?',
-                                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         if keyitems['ans'] == 'No':
             return keyitems
 
@@ -281,12 +281,12 @@ def keyw_get_items(key):
         # Standard Keywords
         #
         keyitems['ans'] = sg.popup_yes_no('Do You Wish to Generate ' + key + ' Section Standard Keywords?',
-                                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         #
         # Date Keywords
         #
         keyitems['sch'] = sg.popup_yes_no('Do You Wish to Generate ' + key + ' Section Date Keywords?',
-                                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         if keyitems['sch'] == 'Yes':
             layout1 = [
                 [sg.Text('Generate ' + key + ' Section Date Keywords Parameters')],
@@ -299,7 +299,7 @@ def keyw_get_items(key):
                 [sg.Submit(), sg.Cancel()]]
 
             window2 = sg.Window('Generate Schedule Date Keywords', layout=layout1,
-                                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                                no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             (event, values) = window2.read()
             window2.Close()
 
@@ -321,20 +321,21 @@ def keyw_get_items(key):
     if key == 'SUMMARY':
         layout1 = [
             [sg.Text('Generate ' + key + ' Section Date Keywords Parameters')],
-            [sg.Checkbox('API and Tracer Tracking'       , key='_sumopt01_')],
-            [sg.Checkbox('Aquifer (Analytical) Variables', key='_sumopt02_')],
-            [sg.Checkbox('Aquifer (Numerical) Variables' , key='_sumopt03_')],
-            [sg.Checkbox('Brine Variables'               , key='_sumopt04_')],
-            [sg.Checkbox('Foam Variables'                , key='_sumopt05_')],
-            [sg.Checkbox('Multi-Segment Wells Variables' , key='_sumopt06_')],
-            [sg.Checkbox('Polymer Variables'             , key='_sumopt07_')],
-            [sg.Checkbox('Solvent Variables'             , key='_sumopt08_')],
-            [sg.Checkbox('Standard Production and Injection Summary Variables', True, key='_sumopt09_')],
-            [sg.Checkbox('Thermal Variables'             , key='_sumopt10_')],
+            [sg.Checkbox('API and Tracer Tracking'         , key='_sumopt01_')],
+            [sg.Checkbox('Aquifer (Analytical) Variables'  , key='_sumopt02_')],
+            [sg.Checkbox('Aquifer (Numerical) Variables'   , key='_sumopt03_')],
+            [sg.Checkbox('Brine Variables'                 , key='_sumopt04_')],
+            [sg.Checkbox('Foam Variables'                  , key='_sumopt05_')],
+            [sg.Checkbox('Multi-Segment Wells Variables'   , key='_sumopt06_')],
+            [sg.Checkbox('Polymer Variables'               , key='_sumopt07_')],
+            [sg.Checkbox('Simulation Performance Variables', key='_sumopt08_')],
+            [sg.Checkbox('Solvent Variables'               , key='_sumopt09_')],
+            [sg.Checkbox('Standard Production and Injection Summary Variables', True, key='_sumopt10_')],
+            [sg.Checkbox('Thermal Variables'               , key='_sumopt11_')],
             [sg.Submit(), sg.Cancel()]]
 
         window2 = sg.Window('Generate Summary Date Keywords', layout=layout1,
-                            no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                            no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         (event, values) = window2.read()
         window2.Close()
 
@@ -421,22 +422,22 @@ def keyw_save_keywords(text):
 
     Returns
     -------
-    Nothing
+    None
     """
 
     filename = sg.popup_get_file('Save Keywords to File', save_as=True, default_path=str(Path().absolute()),
-                               no_titlebar=True, grab_anywhere=True, keep_on_top=True,
+                               no_titlebar=False, grab_anywhere=False, keep_on_top=True,
                                file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')])
     if filename is None:
         sg.popup_ok('Save Keywords to File Cancelled',
-                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                   no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         return ()
 
     file = open(filename, 'w')
     file.write(text)
     file.close()
     sg.popup_ok('Keywords Saved to: ' + filename,
-               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
 
 def keyw_main(opmvers, **opmoptn):
@@ -481,11 +482,11 @@ def keyw_main(opmvers, **opmoptn):
             sg.popup_error('Error in "keyw_main" Module \n',
                           'Cannot Find Keyword Template Directory: \n \n' + str(keywdir) + '\n',
                           'Please Set Keyword Template Directory',
-                          no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                          no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
             keywdir = sg.popup_get_folder('Set Keyword Template Directory', default_path=str(Path().absolute()),
                                         initial_folder=str(Path().absolute()),
-                                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             #
             # Process Cancel with Return to OPMRUN Main
             #
@@ -499,15 +500,13 @@ def keyw_main(opmvers, **opmoptn):
                 sg.popup_error('Error in "keyw_main" Module RUNSPEC Directory Missing: \n ',
                               str(keywdir) + '\n',
                               'Does Not Contain Template Directories - Process Stopped',
-                              no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                              no_titlebar=False, grab_anywhere=False, keep_on_top=True)
                 return ()
-            else:
-                opmoptn['opm-keywdir'] = keywdir
-        else:
-            opmoptn['opm-keywdir'] = keywdir
 
+
+    opmoptn['opm-keywdir'] = keywdir
     sg.popup_ok('Using Keyword Template Directory \n \n' + str(keywdir) + '\n ',
-               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
     filetype = 'OPM FLOW SIMULATION FILE'
     helptext = (
@@ -643,7 +642,7 @@ def keyw_main(opmvers, **opmoptn):
     #
     debug = False
     if debug:
-        opm_prtdict('opmoptn', opmoptn, option='debug')
+        print_dict('opmoptn', opmoptn, option='debug')
     #
     # Get Keyword Templates
     #
@@ -663,7 +662,7 @@ def keyw_main(opmvers, **opmoptn):
     keyw_get_keywords(keywdir, 'SCHEDULE', keywords, keylist, keyfiles)
 
     if debug:
-        opm_prtdict('keyfiles', keyfiles, option='debug')
+        print_dict('keyfiles', keyfiles, option='debug')
     #
     # Make ALL Keyword List
     #
@@ -676,7 +675,7 @@ def keyw_main(opmvers, **opmoptn):
     keyw_get_keywords(keywdir, 'MODELS', keywords, keylist, keyfiles)
     keyw_get_keywords(keywdir, 'USER'  , keywords, keylist, keyfiles)
     if debug:
-        opm_prtdict('keyfiles', keyfiles, option='debug')
+        print_dict('keyfiles', keyfiles, option='debug')
     #
     # Set Initial Keyword List to Display
     #
@@ -713,11 +712,11 @@ def keyw_main(opmvers, **opmoptn):
          sg.Button('Copy' , key='_copy_' ),
          sg.Button('Help' , key='_help_' ),
          sg.Button('Save' , key='_save_' ),
-         sg.Button('Exit' , key='_exit_' )]
+         sg.Exit()]
     ]
 
-    window1 = sg.Window('OPMRUN Keyword Generation Utility', no_titlebar=False, grab_anywhere=True,
-                        layout=mainwind, disable_close=True, finalize=True)
+    window1 = sg.Window('OPMRUN Keyword Generation Utility', no_titlebar=False, grab_anywhere=False,
+                        layout=mainwind, finalize=True)
     #
     #   Define GUI Event Loop, Read Buttons, and Make Callbacks etc. Section
     #
@@ -748,21 +747,25 @@ def keyw_main(opmvers, **opmoptn):
         #
         elif event == '_copy_':
             copy_to_clipboard(window1['_deckinput_'].get())
-            sg.popup_timed('Deck Copied to Clipboard', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+            sg.popup_timed('Deck Copied to Clipboard', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             continue
+        #
+        # Exit
+        #
+        elif event == 'Exit':
+            text = sg.popup_yes_no('Exit Keyword Generation?',
+                                   no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+            if text == 'Yes':
+                break
+            else:
+                continue
+        elif event == sg.WIN_CLOSED:
+            break
         #
         # File Name
         #
         elif event == '_deckfile_':
             continue
-        #
-        # Exit
-        #
-        elif event == '_exit_' or event is None:
-            ans = sg.popup_yes_no('Exit Keyword Generation?',
-                                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            if ans == 'Yes':
-                break
         #
         # Help
         #
@@ -798,7 +801,7 @@ def keyw_main(opmvers, **opmoptn):
                 continue
 
             if debug:
-                opm_prtdict('opmoptn', opmoptn, option='debug')
+                print_dict('opmoptn', opmoptn, option='debug')
 
             date = datetime.now().strftime('%d-%b-%Y')
             time = datetime.now().strftime('%H:%M:%S')
@@ -829,6 +832,7 @@ def keyw_main(opmvers, **opmoptn):
                                                                       'SumOpt08' : keyitems['sumopt08'   ],
                                                                       'SumOpt09' : keyitems['sumopt09'   ],
                                                                       'SumOpt10' : keyitems['sumopt10'   ],
+                                                                      'SumOpt11' : keyitems['sumopt11'   ],
                                                                       'Option'   : keyitems['step'       ],
                                                                       'Schedule' : keyitems['sch'        ],
                                                                       'YearStart': keyitems['yearstr'    ],
@@ -837,7 +841,7 @@ def keyw_main(opmvers, **opmoptn):
                                                       append=True, autoscroll=True)
             except Exception as error:
                 sg.popup_error('Error Processing Keyword Template: ' + str(key) + '\n  \n' + str(error),
-                              no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                              no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             continue
         #
         # Keyword Filter
@@ -903,7 +907,7 @@ def keyw_main(opmvers, **opmoptn):
                 tempfile.close()
             except Exception as error:
                 sg.popup_error('Error Displaying Velocity Template Source: ' + str(key) + '\n  \n' + str(error),
-                              no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                              no_titlebar=False, grab_anywhere=False, keep_on_top=True)
                 continue
             continue
         #
@@ -917,13 +921,13 @@ def keyw_main(opmvers, **opmoptn):
     # Define Post Processing Section
     #
     ans = sg.popup_yes_no('Do You Wish to Save the Keyword to File?',
-                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
     if ans == 'Yes':
         keyw_save_keywords(window1['_deckinput_'].get())
 
     window1.Close()
     sg.popup_ok('Keyword Generation Processing Complete',
-               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
 # ======================================================================================================================
 # End of OPMKEYW

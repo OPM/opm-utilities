@@ -15,7 +15,7 @@
 ## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ## 
-## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Operating System  : Kubuntu 20.04
 ## Machine Type              : amd64                               
 ## File Name                 : SUMMARY.vm                                                         
 ## Author                    : David Baxendale
@@ -23,9 +23,9 @@
 ##                             51 Goldhill Plaza,  #07-10/11,
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co
-## Date                      : 11-May-2020
+## Date                      : 27-July-2021
 ##   
-##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+##                             Copyright (C) 2021 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
 #beanshell (false)
@@ -33,19 +33,20 @@
 //  Get Simulation Data File Options
 //
     Label 	    = new Object[ 1];                                             
-    Options 	 = new Object[10];                                             
-    Panel       = new JPanel(new GridLayout(11, 1));
+    Options 	 = new Object[11];                                             
+    Panel       = new JPanel(new GridLayout(12, 1));
     Label[0]    = new JLabel("SELECT SUMMARY VARIABLE OPTIONS", SwingConstants.LEFT);
-    Options[ 0] = new JCheckBox("API and Tracer Tracking"                            ,false);
-    Options[ 1] = new JCheckBox("Aquifer (Analytical) Variables"                     ,false);
-    Options[ 2] = new JCheckBox("Aquifer (Numerical) Variables"                      ,false);
-    Options[ 3] = new JCheckBox("Brine Variables"                                    ,false);
-    Options[ 4] = new JCheckBox("Foam Variables"                                     ,false);
-    Options[ 5] = new JCheckBox("Multi-Segment Wells Variables"                      ,false);
-    Options[ 6] = new JCheckBox("Polymer Variables"                                  ,false);
-    Options[ 7] = new JCheckBox("Solvent Variables"                                  ,false);
-    Options[ 8] = new JCheckBox("Standard Production and Injection Summary Variables",false);
-    Options[ 9] = new JCheckBox("Thermal Variables"                                  ,false);
+    Options[ 0] = new JCheckBox("01) API and Tracer Tracking"                            ,false);
+    Options[ 1] = new JCheckBox("02) Aquifer (Analytical) Variables"                     ,false);
+    Options[ 2] = new JCheckBox("03) Aquifer (Numerical) Variables"                      ,false);
+    Options[ 3] = new JCheckBox("04) Brine Variables"                                    ,false);
+    Options[ 4] = new JCheckBox("05) Foam Variables"                                     ,false);
+    Options[ 5] = new JCheckBox("06) Multi-Segment Wells Variables"                      ,false);
+    Options[ 6] = new JCheckBox("07) Polymer Variables"                                  ,false);
+    Options[ 7] = new JCheckBox("08) Simulation Performance Variables"                   ,false);    
+    Options[ 8] = new JCheckBox("09) Solvent Variables"                                  ,false);
+    Options[ 9] = new JCheckBox("10) Standard Production and Injection Summary Variables",false);
+    Options[10] = new JCheckBox("11) Thermal Variables"                                  ,false);
 // 
 //  Simulator Option
 //
@@ -57,9 +58,10 @@
     Panel.add(Options[ 4]);
     Panel.add(Options[ 5]);
     Panel.add(Options[ 6]);
-    Panel.add(Options[ 7]);
-    Panel.add(Options[ 8]);                                     
-    Panel.add(Options[ 9]);                         
+    Panel.add(Options[ 7]);    
+    Panel.add(Options[ 8]);
+    Panel.add(Options[ 9]);                                     
+    Panel.add(Options[10]);                         
 //    
     message = new Object[1];
     message[0] = Panel;                                
@@ -93,12 +95,15 @@
     } 
     if (Options[7].isSelected())    {
       context.put("SumOpt08" , "Yes");
-    } 
+    }     
     if (Options[8].isSelected())    {
       context.put("SumOpt09" , "Yes");
     } 
     if (Options[9].isSelected())    {
       context.put("SumOpt10" , "Yes");
+    } 
+    if (Options[10].isSelected())    {
+      context.put("SumOpt11" , "Yes");
     } 
 //                           
 //  Set File Location to Top of File

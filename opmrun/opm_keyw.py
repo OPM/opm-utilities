@@ -701,11 +701,10 @@ def keyw_main(opmvers, **opmoptn):
          sg.Radio('MODELS', 'optn01', key='_models_'),
          sg.Radio('USER'  , 'optn01', key='_user_')],
 
-        [sg.Listbox(values=keywords[keylist], size=(18, 40), font=(opmoptn['output-font'], opmoptn['output-font-size']),
+        [sg.Listbox(values=keywords[keylist], size=(18, 40), font=('Courier', 9),
                     right_click_menu=['Template', ['Template', 'Template Help']],
                     enable_events=True, key='_keylist_'),
-         sg.Multiline(size=(132, 40), font=(opmoptn['output-font'], opmoptn['output-font-size']), do_not_clear=True,
-                      key='_deckinput_')],
+         sg.Multiline(size=(132, 40), font=('Courier', 9), do_not_clear=True, key='_deckinput_')],
 
         [sg.Text('')],
 
@@ -921,14 +920,15 @@ def keyw_main(opmvers, **opmoptn):
     #
     # Define Post Processing Section
     #
-    ans = sg.popup_yes_no('Do You Wish to Save the Keyword to File?', no_titlebar=False, grab_anywhere=False,
-                          keep_on_top=True)
+    ans = sg.popup_yes_no('Do You Wish to Save the Keyword to File?',
+                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
     if ans == 'Yes':
         keyw_save_keywords(window1['_deckinput_'].get())
 
     window1.Close()
-    sg.popup_ok('Keyword Generation Processing Complete', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+    sg.popup_ok('Keyword Generation Processing Complete',
+               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
 # ======================================================================================================================
-# End of OPM_KEYW.PY
+# End of OPMKEYW
 # ======================================================================================================================

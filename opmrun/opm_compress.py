@@ -84,6 +84,34 @@ def compress_cmd(cmd):
     jobzip  = Path(jobbase).with_suffix('.zip')
     return job, jobcmd, jobpath, jobbase, jobroot, jobfile, jobzip
 
+def compress_chk(cmd, window):
+    """Check that the Linux ZIP and UNZIP Packages Have Been Installed
+
+    The function if the Linux ZIP and UNZIP packages have been installed for both Linux and Windows 10 WSL environments.
+    Command line compression tools have limted functionality and OPMRUN therefore users the Linux tools for both
+    environments
+
+    Parameters
+    ----------
+    cmd : str
+        Command to check; either zip or unzip
+    Returns
+    -------
+    Status : boolean
+        Set to True if the
+    """
+    if sg.running_windows():
+        status = run_command(['wsl', 'which', cmd], timeout=None, window=window)
+    else:
+        status = run_command(['which ' + cmd], timeout=None, window=window)
+    if status != 0:
+        status = False
+        text = ('Cannot find '  +cmd + ' package in the Windows 10 WSL environment. One can use:\n\nsudo apt install ' +
+                cmd + '\n\nto install the package in the Windows 10 WSL environment currently being used for running ' +
+                'OPMRUN')
+        sg.cprint(text, text_color='red')
+        status = True
+    return status
 
 def compress_files(opmoptn):
     """Compress All Jobs Input and Output into a Zip File Using the Base Name
@@ -101,7 +129,12 @@ def compress_files(opmoptn):
     None
     """
 
+    if sg.running_windows():
+        wsl = 'wsl '
+    else:
+        wsl = ''
     joblist1 = []
+
     outlog   = '_outlog1_'+sg.WRITE_ONLY_KEY
     layout1  = [[sg.Text('Select Multiple Job Data Files to Compress'                             )],
                 [sg.Listbox(values='', size=(100, 10), key='_joblist1_',
@@ -114,11 +147,12 @@ def compress_files(opmoptn):
                 [sg.Radio('Compress Job and then Remove Job Files', "bRadio"                      )],
                 [sg.Button('Add'), sg.Button('Clear',  tooltip='Clear Output'), sg.Button('List'),
                                    sg.Button('Remove', tooltip='Remove Data Files'), sg.Submit(), sg.Exit()]]
-    window1 = sg.Window('Compress Job Files', layout=layout1)
+    window1 = sg.Window('Compress Job Files', layout=layout1, finalize=True)
     #
-    #   Set Output Multiline Window for CPRINT
+    #   Set Output Multiline Window for CPRINT and Check If ZIP Package is Available
     #
     sg.cprint_set_output_destination(window1, outlog)
+    compress_chk('zip', window1)
     #
     #   Define GUI Event Loop, Read Buttons, and Make Callbacks etc. Section
     #
@@ -198,7 +232,7 @@ def compress_files(opmoptn):
 
                 error = change_directory(jobpath, popup=True, outprt=True)
                 if not error:
-                    jobcmd = zipcmd + str(jobzip) + ' ' + str(jobfile)
+                    jobcmd = wsl + zipcmd + str(jobzip) + ' ' + str(jobfile)
                     sg.cprint('   ' + jobcmd)
                     run_command(jobcmd, timeout=None, window=window1)
                     sg.cprint('End Compression')
@@ -227,7 +261,12 @@ def uncompress_files(opmoptn):
      None
      """
 
+    if sg.running_windows():
+        wsl = 'wsl '
+    else:
+        wsl = ''
     joblist1 = []
+
     outlog   = '_outlog1_'+sg.WRITE_ONLY_KEY
     layout1  = [[sg.Text('Select Multiple Archive Files to Uncompress'                           )],
                 [sg.Listbox(values='', size=(100, 10), key='_joblist1_',
@@ -245,11 +284,12 @@ def uncompress_files(opmoptn):
                 [sg.Radio('Delete Compressed File After Uncompressing', "bRadio2"                )],
                 [sg.Button('Add'), sg.Button('Clear',  tooltip='Clear Output'), sg.Button('List'),
                                    sg.Button('Remove', tooltip='Remove Zip Files'), sg.Submit(), sg.Exit()]]
-    window1 = sg.Window('Uncompress Job Files', layout=layout1)
+    window1 = sg.Window('Uncompress Job Files', layout=layout1, finalize=True)
     #
-    #   Set Output Multiline Window for CPRINT
+    #   Set Output Multiline Window for CPRINT and Check If ZIP Package is Available
     #
     sg.cprint_set_output_destination(window1, outlog)
+    compress_chk('unzip', window1)
     #
     #   Define GUI Event Loop, Read Buttons, and Make Callbacks etc. Section
     #
@@ -326,12 +366,12 @@ def uncompress_files(opmoptn):
 
                 error = change_directory(jobpath, popup=True, outprt=True)
                 if not error:
-                    jobcmd = zipcmd + str(jobzip)
+                    jobcmd = wsl + zipcmd + str(jobzip)
                     sg.cprint('   ' + jobcmd)
                     sg.cprint(str(jobpath))
                     run_command(jobcmd, timeout=None, window=window1)
                     if not values['_bRadio2_']:
-                        jobcmd = 'rm -v ' + str(jobzip)
+                        jobcmd = wsl + 'rm -v ' + str(jobzip)
                         sg.cprint('   ' + jobcmd)
                     run_command(jobcmd, timeout=None, window=window1)
                     sg.cprint('End Uncompressing')

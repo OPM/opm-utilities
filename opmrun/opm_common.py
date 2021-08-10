@@ -46,20 +46,14 @@ Date    : 20-Jul-2021
 # Import Modules Section
 # ----------------------------------------------------------------------------------------------------------------------
 import datetime
-import getpass
 import os
-import pkg_resources
-import platform
 import re
 import subprocess
-import sys
 import tkinter as tk
-from pathlib import Path
-
-import airspeed
+from pathlib import Path, PureWindowsPath
 import pandas as pd
 import psutil
-import pyDOE2
+
 import PySimpleGUI as sg
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -373,67 +367,7 @@ def opm_header_file(file, file_in, file_out, optn, text, opmsys):
     return ()
 
 
-def opm_initialize():
-    """Initialized OPMRUN
-
-    The function initializes OPMRUN environment and should be call for all sub-modules to ensure a consistent user
-    interface.
-
-    Parameters
-    ----------
-
-
-    Returns
-    -------
-    None
-
-    """
-    #
-    # OPMRUN ICON Base64 Encoded PNG File
-    #
-    opmicon = Path(Path(__file__).parent.absolute() / 'opmrun.png')
-    if not Path(opmicon).is_file():
-        sg.popup_error('Cannot Find ICON File: \n \n' + str(opmicon) + '\n \n' + 'Program will Continue',
-                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
-        opmicon = None
-    #
-    # Set PySimpleGUI Defaults
-    #
-    sg.SetOptions(icon=opmicon,
-                  button_color=('green', 'white'),
-                  element_size=(None, None),
-                  margins=(None, None),
-                  element_padding=(None, None),
-                  auto_size_text=None,
-                  auto_size_buttons=None,
-                  font=None,
-                  border_width=1,
-                  slider_border_width=None,
-                  slider_relief=None,
-                  slider_orientation=None,
-                  autoclose_time=5,
-                  message_box_line_width=None,
-                  progress_meter_border_depth=None,
-                  progress_meter_style=None,
-                  progress_meter_relief=None,
-                  progress_meter_color=None,
-                  progress_meter_size=None,
-                  text_justification=None,
-                  text_color='black',
-                  background_color='white',
-                  element_background_color='white',
-                  text_element_background_color='white',
-                  input_elements_background_color=None,
-                  element_text_color='green',
-                  input_text_color=None,
-                  scrollbar_color=None,
-                  debug_win_size=(None, None),
-                  window_location=(None, None),
-                  tooltip_time=None
-                  )
-
-
-def opm_popup(title, text, nrow=10, font = None):
+def opm_popup(title, text, nrow=10, ncol=80, font = None):
     """Display Text Message in a Display Window
 
     Displays a text message in a multiline popup. Normally used for displaying help information, but any text string
@@ -448,110 +382,19 @@ def opm_popup(title, text, nrow=10, font = None):
     nrow : int
         The number of initial rows to be displayed, after which scrolling is used to the display the rest of the
         message.
+    ncol: int
+        The number of columns, that is width, to display the message.
 
     Returns
     -------
     None
     """
 
-    layout1 = [[sg.Multiline(text, size=(80, nrow), background_color='white', text_color='darkgreen', font=font)],
+    layout1 = [[sg.Multiline(text, size=(ncol, nrow), background_color='white', text_color='darkgreen', font=font)],
                [sg.CloseButton('OK')]]
     window1 = sg.Window('OPMRUN - OPM Flow Job Scheduler: ' + title, layout=layout1)
     window1.Read()
     return ()
-
-
-def opm_startup(opmvers, opmsys1, opmlog1):
-    """OPMRUN Startup Setup System Variables and File Creation
-
-    Sets up the various system variables in the opmsys dictionary which is then routine to the global version of
-    opmsys. The function then checks for the users OPM home directory and if not available creates it. Finally, the
-    function opens the log file and writes a header to the file.
-
-    Parameters
-    ----------
-    opmvers :str
-        OPMRUN version string
-    opmsys1 : dict
-        Contains a dictionary list of all OPMRUN System parameters
-    opmlog1 : tuple
-        OPM log file pointer set to None in calling routine
-
-    Returns
-    -------
-    opmsys1 : dict
-        Updated dictionary list of all OPMRUN System parameters
-
-    opmlog1 : tuple
-        OPM log file pointer
-    """
-
-    opmsys1             = platform.uname()._asdict()
-    opmsys1['python'  ] = platform.python_version()
-    opmsys1['opmvers' ] = opmvers
-    #
-    # Get OPM Flow Version
-    #
-    opmflow = run_command('flow --version')
-    opmsys1['opmflow'   ] = opmflow.rstrip()
-    opmsys1['opmgui'    ] = 'PySimpleGUI - ' + str(sg.version)
-    opmsys1['airspeed'  ] = 'airspeed - ' + str(pkg_resources.get_distribution('airspeed').version)
-    opmsys1['datetime'  ] = 'datetime - ' + opmsys1['python']
-    opmsys1['getpass'   ] = 'getpass - ' + str(pd.__version__)
-    opmsys1['os'        ] = 'os - ' + opmsys1['python']
-    opmsys1['pandas'    ] = 'pandas - ' + str(pd.__version__)
-    opmsys1['pathlib'   ] = 'pathlib - ' + opmsys1['python']
-    opmsys1['platform'  ] = 'platform - ' + opmsys1['python']
-    opmsys1['psutil'    ] = 'psutil - ' + str(psutil.__version__)
-    opmsys1['pyDOE2'    ] = 'pyDOE2 - ' + str(pkg_resources.get_distribution('pyDOE2').version)
-    opmsys1['re'        ] = 're - ' + opmsys1['python']
-    opmsys1['subprocess'] = 'subprocess - ' + opmsys1['python']
-    #
-    # Determine If Running in Exe or Script Mode
-    #
-    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-        opmsys1['opmmode' ] = 'Exe'
-    else:
-        opmsys1['opmmode' ] = 'Script'
-    #
-    opmsys1['opmpath' ] = Path().absolute()
-    opmsys1['opmhome' ] = Path.home() / 'OPM'
-    opmsys1['opmini'  ] = Path(opmsys1['opmhome'] / 'OPMRUN.ini')
-    opmsys1['opmlog'  ] = Path(opmsys1['opmhome'] / 'OPMRUN.log')
-    opmsys1['opmjob'  ] = Path(opmsys1['opmhome'] / 'OPMRUN.job')
-    opmsys1['opmparam'] = Path(opmsys1['opmhome'] / 'OPMRUN.param')
-    opmsys1['opmuser' ] = getpass.getuser()
-    #
-    # Create OPM Directory if Missing
-    #
-    if not opmsys1['opmhome'].is_dir():
-        try:
-            opmsys1['opmhome'].mkdir()
-        except OSError:
-            sg.popup_error('Cannot Create: ' + str(opmsys1['opmhome']) + ' Directory \n  Will try and continue',
-                          no_titlebar=False, grab_anywhere=False, keep_on_top=True)
-    #
-    # Open Log File and Write Header
-    #
-    try:
-        opmlog1 = open(opmsys1['opmlog'], 'w')
-        opmlog1.write('# \n')
-        opmlog1.write('# OPMRUN Log File \n')
-        opmlog1.write('# \n')
-        opmlog1.write('# File Name   : ' + str(opmsys1['opmlog']) + '\n')
-        opmlog1.write('# Created By  : ' + str(opmsys1['opmuser']) + '\n')
-        opmlog1.write('# Date Created: ' + get_time()  + '\n')
-        opmlog1.write('# \n')
-        for item in opmsys1:
-            opmlog1.write('{}: OPMSYS  Key: {:<16} , Value : {:} \n'.format(get_time(), item, opmsys1[item]))
-            opmlog1.flush()
-
-    except OSError:
-        sg.popup_error('Error Opening Log File \n \n' + 'Will try to continue',
-                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
-        pass
-
-    return opmsys1, opmlog1
 
 
 def opm_view(file, opmoptn):
@@ -597,7 +440,7 @@ def opm_view(file, opmoptn):
 
 
 def print_dict(dict_name, dict_var, option='debug'):
-    """PRINT_DICT.py Print Python Dictionary
+    """Print or Display Python Dictionary
 
     Prints a  Python dictionary in tabular form in various formats depending on the output option.
 
@@ -760,6 +603,69 @@ def tail(f, n, offset=None):
         avg_line_length *= 1.3
 
 
+def set_gui_options():
+    """Initialized OPMRUN GUI Environment
+
+    The function initializes OPMRUN GUI environment and should be call for all sub-modules to ensure a consistent user
+    interface.
+
+    Parameters
+    ----------
+
+
+    Returns
+    -------
+    None
+
+    """
+    #
+    # OPMRUN ICON Base64 Encoded PNG File for Linux or ICO file for Windows
+    #
+    if sg.running_linux():
+        opmicon = Path(Path(__file__).parent.absolute() / 'opmrun.png')
+    else:
+        opmicon = Path(Path(__file__).parent.absolute() / 'opmrun.ico')
+    if not Path(opmicon).is_file():
+        sg.popup_error('Cannot Find ICON File: \n \n' + str(opmicon) + '\n \n' + 'Program will Continue',
+                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        opmicon = None
+    #
+    # Set PySimpleGUI Defaults
+    #
+    sg.SetOptions(icon=opmicon,
+                  button_color=('green', 'white'),
+                  element_size=(None, None),
+                  margins=(None, None),
+                  element_padding=(None, None),
+                  auto_size_text=None,
+                  auto_size_buttons=None,
+                  font=None,
+                  border_width=1,
+                  slider_border_width=None,
+                  slider_relief=None,
+                  slider_orientation=None,
+                  autoclose_time=5,
+                  message_box_line_width=None,
+                  progress_meter_border_depth=None,
+                  progress_meter_style=None,
+                  progress_meter_relief=None,
+                  progress_meter_color=None,
+                  progress_meter_size=None,
+                  text_justification=None,
+                  text_color='black',
+                  background_color='white',
+                  element_background_color='white',
+                  text_element_background_color='white',
+                  input_elements_background_color=None,
+                  element_text_color='green',
+                  input_text_color=None,
+                  scrollbar_color=None,
+                  debug_win_size=(None, None),
+                  window_location=(None, None),
+                  tooltip_time=None
+                  )
+
+
 def version_check(version):
     """Check Installed Package Version Against Minimum Require Version
 
@@ -781,6 +687,35 @@ def version_check(version):
         return tuple(map(int, version.split(".")))
 
     return get_tuple(sg.__version__) >= get_tuple(version)
+
+
+def wsl_path(filein):
+    """Convert Windows Path to a Windows Subsystem Linux Path
+
+    Converts Windows file name path to a Windows Subsystem Linux path to run OPM Flow on WSL
+
+    Parameters
+    ----------
+    filein : str
+        Windows file name.
+
+    Returns
+    -------
+    fileout : str
+        WSL file name.
+    """
+
+    sg.Print('WSL_PATH: Start')
+    if sg.running_windows():
+        filein  = str(filein)[0].lower() + str(filein)[2:]
+        fileout = Path('//mnt//')/Path(filein)
+        fileout = PureWindowsPath(fileout).as_posix()
+    else:
+        fileout = filein
+    sg.Print(filein)
+    sg.Print(fileout)
+    sg.Print('WSL_PATH: End')
+    return fileout
 
 # ======================================================================================================================
 # End of OPM_COMMON.PY

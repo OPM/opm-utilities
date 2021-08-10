@@ -25,7 +25,7 @@ Program Documentation
 ---------------------
 Only Python 3 is supported and tested Python2 support has been depreciated.
 
-2021.07.01 - Minor re-factoring of code.
+2021.07.01 - Major re-factoring of code to implement loading of an input file and basic editing.
 2020.04.03 - Removed the option for stand alone running to simplify code base.
 2020.04.02 - Added a DATA (Set) option for data sets and added various data set templates.
            - Added MODEL option and added various selected OPM Flow models as complete examples.
@@ -66,7 +66,6 @@ Date    : 26-Jul-2021
 # ----------------------------------------------------------------------------------------------------------------------
 # Import Modules Section
 # ----------------------------------------------------------------------------------------------------------------------
-import platform
 from datetime import datetime
 from pathlib import Path
 #
@@ -77,7 +76,7 @@ import PySimpleGUI as sg
 #
 # Import OPM Common Modules
 #
-from opm_common import copy_to_clipboard, opm_initialize, opm_popup, print_dict
+from opm_common import copy_to_clipboard, opm_popup, print_dict, set_gui_options
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define OPMKEYW Specific Modules
@@ -112,6 +111,62 @@ def keyw_check_directory(keywdir):
         patherr = True
 
     return patherr
+
+def keyw_clipboard_operation(event, window, element):
+    """Clipboard Operations for Right Click Menu
+
+    Performs the requested right click operation selected by the user. Note have use the underlying TK widget routines
+    to accomplish these actions
+
+    Parameters
+    ----------
+    event : str
+        The selected right click clipboard event
+    window : window object
+        Window for display output.
+
+    Returns
+    -------
+         None.
+    """
+
+    if event == 'Copy':
+        try:
+            text = element.Widget.selection_get()
+            window.TKroot.clipboard_clear()
+            window.TKroot.clipboard_append(text)
+        except:
+            sg.popup_ok('Nothing selected', title='OPMRUN Keyword Generation Utility', no_titlebar=False,
+                      grab_anywhere=False, keep_on_top=True)
+
+    elif event == 'Cut':
+        try:
+            text = element.Widget.selection_get()
+            window.TKroot.clipboard_clear()
+            window.TKroot.clipboard_append(text)
+#            element.update('')
+        except:
+            sg.popup_ok('Nothing selected', title='OPMRUN Keyword Generation Utility', no_titlebar=False,
+                      grab_anywhere=False, keep_on_top=True)
+
+    elif event == 'Delete':
+        sg.popup_ok('Delete Implemented Here', title='OPMRUN Keyword Generation Utility', no_titlebar=False,
+                    grab_anywhere=False, keep_on_top=True)
+
+    elif event == 'Paste':
+        element.Widget.insert(sg.tk.INSERT, window.TKroot.clipboard_get())
+
+    elif event == 'Redo':
+        sg.popup_ok('Redo Not Implemented Here', title='OPMRUN Keyword Generation Utility', no_titlebar=False,
+                    grab_anywhere=False, keep_on_top=True)
+
+    elif event == 'Select All':
+        element.Widget.selection_clear()
+        element.Widget.tag_add('sel', '1.0', 'end')
+
+    elif event == 'Undo':
+        sg.popup_ok('Undo Not Implemented Here Use Ctrl+Z', title='OPMRUN Keyword Generation Utility', no_titlebar=False,
+                    grab_anywhere=False, keep_on_top=True)
 
 
 def keyw_get_file(key):
@@ -410,6 +465,42 @@ def keyw_get_keywords(keywdir, keysection, keywords, keyall, keyfiles):
                 keywords[keysection] = keylist
 
 
+def keyw_load_file(window1):
+    """Load a OPM Flow Simulation File into the Multiline Widget for Editing
+
+    The function loads a OPM Flow Simulation File (*.DATA or *.INC) into the Multiline display widget for editing.
+
+    Parameters
+    ----------
+    window1 : PySimpleGUI window
+        The PySimpleGUI window multiline element that the file is going to be displayed on for editing.
+
+    Returns
+    -------
+    None
+    """
+
+    filename = sg.popup_get_file('OPM Flow DATA or INC File Name', title='OPMRUN Keyword Generation Utility',
+                                 default_extension='DATA', save_as=False,
+                                 file_types=[['Data File', ['*.data', '*.DATA']], ['Include File', ['*.inc', '*.INC']],
+                                             ['All', '*.*']],
+                                 no_titlebar=False, grab_anywhere=False, keep_on_top=False)
+    if filename == sg.WIN_CLOSED:
+        return()
+
+    if not Path(filename).is_file():
+        sg.popup_error('OPM Flow Input File Does Not Exist:\n\n' + str(filename) + '\n',
+                       title='OPMRUN Keyword Generation Utility', no_titlebar=False, grab_anywhere=False,
+                       keep_on_top=True)
+    else:
+        # Read in Data File and Display
+        with open(filename, 'r') as file:
+            data = file.read()
+#       window1['_basefile_'].update(value=filename)
+        window1['_deckinput_'].update('')
+        window1['_deckinput_'].update(value=data)
+
+
 def keyw_save_keywords(text):
     """Save Displayed Keywords to File
 
@@ -440,7 +531,7 @@ def keyw_save_keywords(text):
                no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
 
-def keyw_main(opmvers, **opmoptn):
+def keyw_main(opmoptn, opmsys):
     """OPMRUN Keyword Generation Utility
 
     OPM Flow Keyword Generation Utility is a Graphical User Interface ("GUI") program for the Open Porous Media ("OPM")
@@ -457,20 +548,20 @@ def keyw_main(opmvers, **opmoptn):
 
     Parameters
     ----------
-    opmvers; str
-        The version of OPMRUN currently running
     opmoptn; dict
         A dictionary containing the OPMRUN default parameters
+    opmsys : dict
+        A dictionary containing the OPMRUN system parameters
 
     Returns
     -------
     Nothing
     """
 
-    #
+    # ------------------------------------------------------------------------------------------------------------------
     # Initialize
-    #
-    opm_initialize()
+    # ------------------------------------------------------------------------------------------------------------------
+    set_gui_options()
     keywdir = opmoptn['opm-keywdir']
     patherr = keyw_check_directory(keywdir)
 
@@ -680,63 +771,78 @@ def keyw_main(opmvers, **opmoptn):
     # Set Initial Keyword List to Display
     #
     keylist = 'GLOBAL'
-    #
+    
+    # ------------------------------------------------------------------------------------------------------------------
     # Define Display Window
-    #
-    mainwind = [
-        [sg.Button('Filter' , size=(16, None), key='_filter_'),
-         sg.Radio('HEADER'  , 'optn01', key='_header_'),
-         sg.Radio('GLOBAL'  , 'optn01', key='_global_', default=True),
-         sg.Radio('RUNSPEC' , 'optn01', key='_runspec'),
-         sg.Radio('GRID'    , 'optn01', key='_grid_'),
-         sg.Radio('EDIT'    , 'optn01', key='_edit_'),
-         sg.Radio('PROPS'   , 'optn01', key='_props_'),
-         sg.Radio('SOLUTION', 'optn01', key='_solution_'),
-         sg.Radio('SUMMARY' , 'optn01', key='_summary_'),
-         sg.Radio('SCHEDULE', 'optn01', key='_schedule_'),
-         sg.Radio('ALL'     , 'optn01', key='_all_')],
+    # ------------------------------------------------------------------------------------------------------------------
+    menu  = [['File', ['&Open', '&Save', '&Properties', 'E&xit']],
+             ['Edit', ['Cut', 'Copy', 'Paste', 'Select All','Undo'], ],
+             ['Generate', ['RUNSPEC', 'GRID', 'EDIT', 'PROPS', 'SOLUTION', 'SCHEDULE'],],
+             ['Help', ['Keyword Help', 'Template Help']],]
 
-        [sg.Text('', size=(19, None)),
-         sg.Radio('DATA'  , 'optn01', size=(8, None), key='_data_'),
-         sg.Radio('MODELS', 'optn01', key='_models_'),
-         sg.Radio('USER'  , 'optn01', key='_user_')],
+    width = 10
+    layout = [
+        [sg.Menu(menu, tearoff=False, pad=(200,1))],
+        [sg.Button('HEADER'  , size=(width, None), key='_header_'),
+         sg.Button('GLOBAL'  , size=(width, None), key='_global_'),
+         sg.Button('RUNSPEC' , size=(width, None), key='_runspec'),
+         sg.Button('GRID'    , size=(width, None), key='_grid_'),
+         sg.Button('EDIT'    , size=(width, None), key='_edit_'),
+         sg.Button('PROPS'   , size=(width, None), key='_props_'),
+         sg.Button('SOLUTION', size=(width, None), key='_solution_'),
+         sg.Button('SUMMARY' , size=(width, None), key='_summary_'),
+         sg.Button('SCHEDULE', size=(width, None), key='_schedule_'),
+         sg.Button('ALL'     , size=(width, None), key='_all_')],
+
+        [sg.Button('DATA'    , size=(width, None), key='_data_'),
+         sg.Button('MODELS'  , size=(width, None), key='_models_'),
+         sg.Button('USER'    , size=(width, None), key='_user_')],
+
+        [sg.Text('')],
 
         [sg.Listbox(values=keywords[keylist], size=(18, 40), font=(opmoptn['output-font'], opmoptn['output-font-size']),
                     right_click_menu=['Template', ['Template', 'Template Help']],
                     enable_events=True, key='_keylist_'),
-         sg.Multiline(size=(132, 40), font=(opmoptn['output-font'], opmoptn['output-font-size']), do_not_clear=True,
+         sg.Multiline(size=(132, 42), font=(opmoptn['output-font'], opmoptn['output-font-size']), do_not_clear=True,
+                      right_click_menu= ['', ['Cut', 'Copy',  'Delete', 'Paste', 'Redo', 'Select All', 'Undo']],
                       key='_deckinput_')],
 
         [sg.Text('')],
 
         [sg.Button('Clear', key='_clear_'),
-         sg.Button('Copy' , key='_copy_' ),
+         sg.Button('Copy' , tooltip='Copy to Clipboard', key='_copy_' ),
+         sg.Button('Load' , tooltip='Load a DATA file', key='_load_' ),
          sg.Button('Help' , key='_help_' ),
          sg.Button('Save' , key='_save_' ),
          sg.Exit()]
     ]
 
     window1 = sg.Window('OPMRUN Keyword Generation Utility', no_titlebar=False, grab_anywhere=False,
-                        layout=mainwind, finalize=True)
-    #
+                        layout=layout, finalize=True)
+    # Clipboard Operations Setup
+    mline:sg.Multiline = window1['_deckinput_']
+    # Activate Undo Option Ctrl+Z
+    deckinput = window1['_deckinput_'].Widget
+    deckinput.configure(undo=True)
+
+    # ------------------------------------------------------------------------------------------------------------------
     #   Define GUI Event Loop, Read Buttons, and Make Callbacks etc. Section
-    #
+    # ------------------------------------------------------------------------------------------------------------------
     while True:
         #
         # Read the Window and Process
         #
         event, values = window1.read()
         if debug:
-            sg.Print('Buttons')
-            sg.Print(event)
-            sg.Print('Values')
+            sg.Print('Button: ' + event)
+            sg.Print('Values:')
             sg.Print(values)
         #
-        # Get Main Window Location and Set Default Location for other Windows
+        # Pre-Process Menu Generate Section to Use Keywords Section
         #
-        #        x = int((window0.Size[0] / 2) + window0.CurrentLocation()[0])
-        #        y = int((window0.Size[1] / 4) + window0.CurrentLocation()[1])
-        #        sg.SetOptions(window_location=(x, y))
+        if event in ['RUNSPEC', 'GRID', 'EDIT', 'PROPS', 'SOLUTION', 'SCHEDULE']:
+            values['_keylist_'] = [event]
+            event               = '_keylist_'
         #
         # Clear
         #
@@ -754,7 +860,7 @@ def keyw_main(opmvers, **opmoptn):
         # Exit
         #
         elif event == 'Exit':
-            text = sg.popup_yes_no('Exit Keyword Generation?',
+            text = sg.popup_yes_no('Exit Keyword Generation?', title='OPMRUN Keyword Generation Utility',
                                    no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             if text == 'Yes':
                 break
@@ -770,7 +876,7 @@ def keyw_main(opmvers, **opmoptn):
         #
         # Help
         #
-        elif event == '_help_':
+        elif event in ['_help_', 'Keyword Help']:
             opm_popup('Keyword Generator Help', helptext, 22)
             continue
         #
@@ -807,91 +913,74 @@ def keyw_main(opmvers, **opmoptn):
             date = datetime.now().strftime('%d-%b-%Y')
             time = datetime.now().strftime('%H:%M:%S')
             try:
-                window1['_deckinput_'].update(template.merge({'FileType' : filetype,
-                                                                      'Date'     : str(date),
-                                                                      'Time'     : str(time),
-                                                                      'OSName'   : platform.system(),
-                                                                      'OSLevel'  : platform.release(),
-                                                                      'OSArch'   : platform.machine(),
-                                                                      'Ans'      : keyitems['ans'],
-                                                                      'Author1'  : opmoptn ['opm-author1'],
-                                                                      'Author2'  : opmoptn ['opm-author2'],
-                                                                      'Author3'  : opmoptn ['opm-author3'],
-                                                                      'Author4'  : opmoptn ['opm-author4'],
-                                                                      'Author5'  : opmoptn ['opm-author5'],
-                                                                      'Comment'  : keyitems['comment'    ],
-                                                                      'File'     : file,
-                                                                      'FileName' : keyitems['filename'   ],
-                                                                      'FilePath' : keyitems['filepath'   ],
-                                                                      'SumOpt01' : keyitems['sumopt01'   ],
-                                                                      'SumOpt02' : keyitems['sumopt02'   ],
-                                                                      'SumOpt03' : keyitems['sumopt03'   ],
-                                                                      'SumOpt04' : keyitems['sumopt04'   ],
-                                                                      'SumOpt05' : keyitems['sumopt05'   ],
-                                                                      'SumOpt06' : keyitems['sumopt06'   ],
-                                                                      'SumOpt07' : keyitems['sumopt07'   ],
-                                                                      'SumOpt08' : keyitems['sumopt08'   ],
-                                                                      'SumOpt09' : keyitems['sumopt09'   ],
-                                                                      'SumOpt10' : keyitems['sumopt10'   ],
-                                                                      'SumOpt11' : keyitems['sumopt11'   ],
-                                                                      'Option'   : keyitems['step'       ],
-                                                                      'Schedule' : keyitems['sch'        ],
-                                                                      'YearStart': keyitems['yearstr'    ],
-                                                                      'YearEnd'  : keyitems['yearend'    ]},
-                                                                     loader=templates),
-                                                      append=True, autoscroll=True)
+                text= template.merge({'FileType' : filetype, 'Date'     : str(date),
+                                                             'Time'     : str(time),
+                                                             'Node'     : opmsys['node'],
+                                                             'OSName'   : opmsys['system'],
+                                                             'OSLevel'  : opmsys['version'],
+                                                             'OSArch'   : opmsys['machine'],
+                                                             'Ans'      : keyitems['ans'],
+                                                             'Author1'  : opmoptn ['opm-author1'],
+                                                             'Author2'  : opmoptn ['opm-author2'],
+                                                             'Author3'  : opmoptn ['opm-author3'],
+                                                             'Author4'  : opmoptn ['opm-author4'],
+                                                             'Author5'  : opmoptn ['opm-author5'],
+                                                             'Comment'  : keyitems['comment'    ],
+                                                             'File'     : file,
+                                                             'FileName' : keyitems['filename'   ],
+                                                             'FilePath' : keyitems['filepath'   ],
+                                                             'SumOpt01' : keyitems['sumopt01'   ],
+                                                             'SumOpt02' : keyitems['sumopt02'   ],
+                                                             'SumOpt03' : keyitems['sumopt03'   ],
+                                                             'SumOpt04' : keyitems['sumopt04'   ],
+                                                             'SumOpt05' : keyitems['sumopt05'   ],
+                                                             'SumOpt06' : keyitems['sumopt06'   ],
+                                                             'SumOpt07' : keyitems['sumopt07'   ],
+                                                             'SumOpt08' : keyitems['sumopt08'   ],
+                                                             'SumOpt09' : keyitems['sumopt09'   ],
+                                                             'SumOpt10' : keyitems['sumopt10'   ],
+                                                             'SumOpt11' : keyitems['sumopt11'   ],
+                                                             'Option'   : keyitems['step'       ],
+                                                             'Schedule' : keyitems['sch'        ],
+                                                             'YearStart': keyitems['yearstr'    ],
+                                                             'YearEnd'  : keyitems['yearend'    ]},
+                                                             loader=templates)
+                copy_to_clipboard(text)
+                keyw_clipboard_operation('Paste', window1, mline)
             except Exception as error:
                 sg.popup_error('Error Processing Keyword Template: ' + str(key) + '\n  \n' + str(error),
                               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             continue
         #
-        # Keyword Filter
+        # Keyword Template Filter Buttons
         #
-        elif event == '_filter_':
-            if values['_header_']:
-                window1['_keylist_'].update(keywords['HEADER'])
-
-            if values['_global_']:
-                window1['_keylist_'].update(keywords['GLOBAL'])
-
-            if values['_runspec']:
-                window1['_keylist_'].update(keywords['RUNSPEC'])
-
-            if values['_grid_']:
-                window1['_keylist_'].update(keywords['GRID'])
-
-            if values['_edit_']:
-                window1['_keylist_'].update(keywords['EDIT'])
-
-            if values['_props_']:
-                window1['_keylist_'].update(keywords['PROPS'])
-
-            if values['_solution_']:
-                window1['_keylist_'].update(keywords['SOLUTION'])
-
-            if values['_summary_']:
-                window1['_keylist_'].update(keywords['SUMMARY'])
-
-            if values['_schedule_']:
-                window1['_keylist_'].update(keywords['SCHEDULE'])
-
-            if values['_all_']:
-                window1['_keylist_'].update(keywords['ALL'])
-
-            if values['_data_']:
-                window1['_keylist_'].update(keywords['DATA'])
-
-            if values['_models_']:
-                window1['_keylist_'].update(keywords['MODELS'])
-
-            if values['_user_']:
-                window1['_keylist_'].update(keywords['USER'])
-
+        elif event in ['_header_'  , '_global_', '_runspec', '_grid_'  , '_edit_', '_props_', '_solution_', '_summary_',
+                       '_schedule_', '_all_'   , '_data_'  , '_models_', '_user_']:
+            templates = event.replace('_', '').upper()
+            window1['_keylist_'].update(keywords[templates])
+            continue
+        #
+        # Load OPM Flow Input File
+        #
+        if event in ['_load_', 'Open']:
+            keyw_load_file(window1)
+            continue
+        #
+        # Properties
+        #
+        elif event == 'Properties':
+            print_dict('OPMOPTN', opmoptn, option='popup')
+            continue
+        #
+        # Right Click Menu Event
+        #
+        if event in ['Cut', 'Copy', 'Delete', 'Paste', 'Redo', 'Select All', 'Undo']:
+            keyw_clipboard_operation(event, window1, mline)
             continue
         #
         # Save
         #
-        elif event == '_save_':
+        elif event in ['_save_', 'Save']:
             keyw_save_keywords(window1['_deckinput_'].get())
             continue
         #

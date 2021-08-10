@@ -82,6 +82,7 @@ Date    : 17-Jul-2021
 # ----------------------------------------------------------------------------------------------------------------------
 import os
 from pathlib import Path
+from psutil import cpu_count
 #
 # Import Required Non-Standard Modules
 #
@@ -91,11 +92,128 @@ import pyDOE2
 #
 # Import OPM Common Modules
 #
-from opm_common import opm_initialize, opm_popup
+from opm_common import get_time, opm_popup, set_gui_options
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section
 # ----------------------------------------------------------------------------------------------------------------------
+def sensitivity_base_file(jobparam, jobsys, window1):
+    """Add a OPM Flow Simulation job to the Job List Queue
+
+    The function adds a DATA file to the job list queue by selecting the file via a window, and also defining the job
+    parameters for this series of jobs. Multiple jobs can be selected at a time.
+
+    Parameters
+    ----------
+    jobparam : str
+        OPM Flow PARAM file data set
+    jobsys : dict
+        Contains a dictionary list of all OPMRUN System parameters
+    window : PySimpleGUI window
+        The PySimpleGUI window that the output is going to (needed to do refresh on).
+
+    Returns
+    -------
+    jobfile : str
+        Base file name.
+    """
+
+    jobfile = ''
+    if not jobparam:
+        sg.popup_error('Job Parameters Missing; Cannot Add Cases - Check if OPM Flow is Installed',
+                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        return()
+
+    layout1 = [[sg.Text('Base and Sensitivity Cases File Options')],
+               [sg.InputText(key='_jobfile_', size=(80, None)),
+                sg.FilesBrowse(target='_jobfile_', initial_folder=Path().absolute(),
+                               file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')])],
+               [sg.Text('Parameter File Options')],
+               [sg.Radio('Keep Existing Parameter File'    , "bRadio", key='_keep_', default =True)],
+               [sg.Radio('Overwrite Existing Paramter File', "bRadio", key='_write_')],
+               [sg.Submit(), sg.Exit()]]
+    window2 = sg.Window('Select OPM Flow Input File', layout=layout1)
+
+    while True:
+        (event, values) = window2.read()
+        if event == 'Exit' or event == sg.WIN_CLOSED:
+            break
+
+        jobfile = values['_jobfile_']
+        if event == 'Submit':
+            if not Path(jobfile).is_file():
+                sg.popup_error('Base Simulation Parameter File Does Not Exist:\n\n' + str(jobfile) + '\n',
+                               title='OPMRUN Sensitivity', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                jobfile = ''
+                window1['_basefile_'].update(value=jobfile)
+                continue
+            # Read in Data File
+            file = open(jobfile, 'r')
+            data = file.read()
+            file.close()
+            # Update Display
+            window1['_basefile_'].update(value=jobfile)
+            window1['_basedeck_'].update('')
+            window1['_basedeck_'].update(value=data)
+            window1['_tab_base_'].select()
+            # PARAM File Processing
+            jobbase  = Path(jobfile).name
+            fileout  = Path(jobfile).with_suffix('.param')
+            if fileout.is_file() and values['_write_']:
+                sensitivity_base_param(jobparam, jobbase, fileout, 'Overwritten', jobsys)
+            if not fileout.is_file():
+                sensitivity_base_param(jobparam, jobbase, fileout, 'Created', jobsys)
+            break
+    window2.Close()
+    return(jobfile)
+
+
+def sensitivity_base_param(jobparam, jobbase, jobfile, jobmsg, jobsys):
+    """Save a Job's Parameter File
+
+    Functions saves the current default parameter set to a job's parameter file that used to run an OPM Flow job. The
+    file also contains some additional comments including the user who created the job for documentation.
+
+    Parameters
+    ----------
+    jobparam : list
+        OPM Flow PARAM parameter list
+    jobbase :str
+        The base part of the job file name
+    jobfile : str
+        The full job file name
+    jobmsg : str
+        Short message to be displayed after the file has been written, normally set to 'Created or 'Overwritten'
+    jobsys : dict
+        Contains a dictionary list of all OPMRUN System parameters
+
+    Returns
+    -------
+    None
+    """
+
+    file  = open(jobfile, 'w')
+    file.write('# \n')
+    file.write('# OPMRUN Parameter File \n')
+    file.write('# \n')
+    file.write('# File Name   : "' + str(jobfile) + '"\n')
+    file.write('# Created By  : '  + str(jobsys['opmuser']) + '\n')
+    file.write('# Date Created: '  + get_time() + '\n')
+    file.write('# \n')
+    for x in jobparam:
+        if 'EclDeckFileName' in x:
+            file.write('EclDeckFileName="' + jobbase + '"\n')
+        elif 'ecl-deck-file-name' in x:
+            file.write('ecl-deck-file-name="' + jobbase + '"\n')
+        else:
+            file.write(x + '\n')
+    file.write('# \n')
+    file.write('# End of Parameter File \n')
+    file.close()
+    sg.popup_ok('Base Simulation Parameter File ' + jobmsg + ':\n\n' + str(jobfile) + '\n',
+                title='OPMRUN Sensitivity', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+
+
 def sensitivity_check(basefile, header, factors, scenario):
     """ Checks Files and Data Prior to Generating Sensitivity Scenarios
 
@@ -123,39 +241,15 @@ def sensitivity_check(basefile, header, factors, scenario):
     #
     if Path(basefile).is_file():
         parmfile = Path(basefile).with_suffix('.param')
-        #
-        # Check if PARAM File Has Template Variable, If Not Include It
-        #
+        # Check for PARAM File
         if Path(parmfile).is_file():
-            with open(parmfile, 'r') as file:
-                filedata = file.readlines()
-                i    = -1
-                ierr = True
-                for line in filedata:
-                    i = i + 1
-                    if 'ecl-deck-file-name=' in line:
-                        filedata[i] = 'ecl-deck-file-name=$jobfile \n'
-                        sg.cprint('Checkerr: Param File Template Variable ' +
-                                                   '"ecl-deck-file-name=$jobfile" Set')
-                        ierr = False
-                        break
-            if ierr:
-                sg.print('Checkerr: Param File Template Error Template Variable "ecl-deck-file-name" Not Found')
-                checkerr = checkerr + 1
-
-            with open(parmfile, 'w') as file:
-                file.writelines(filedata)
-        #
+            sg.cprint('Checkerr: Base File Parameter File Found:\n'  + str(parmfile.name))
         # PARAM File Missing
-        #
         else:
-            sg.cprint('Checkerr: Base File Parameter File Does Not Exist\n'
-                      'Checkerr: ' + str(parmfile.name))
+            sg.cprint('Checkerr: Base File Parameter File Does Not Exist\n' + 'Checkerr: ' + str(parmfile.name))
             checkerr = checkerr + 1
     else:
-        #
         # Base DATA File Missing
-        #
         sg.cprint('Checkerr: Base File Does Not Exist')
         checkerr = checkerr + 1
     #
@@ -455,9 +549,17 @@ def sensitivity_write_cases(basefile, header, factors, scenario):
 
     sg.cprint('Scenario:  ' + scenario + ' End')
     if not joberr:
-        sg.cprint('WriteQueu: Start')
-        sensitivity_write_queue(jobs)
-        sg.cprint('WriteQueu: End')
+        text = sg.popup_yes_no('Scenario: ' + scenario + 'as Created ' + str(len(jobs)) + ' Jobs\n\n' +
+                               'Do You Wish to Continue and Generate the OPMRUN Queue File to Run the Jobs?',
+                               title='Scenario: ' + scenario, no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        if text == 'Yes':
+            sg.cprint('WriteQueu: Start')
+            sensitivity_write_queue(jobs)
+            sg.cprint('WriteQueu: End')
+        else:
+            sg.cprint('WriteQueu: Cancelled')
+            sg.popup_ok('OPMRUN Queue File Generation Cancelled', title='Scenario: ' + scenario,
+                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
     return()
 
@@ -523,8 +625,8 @@ def sensitivity_write_data(scenario, nlevel, nfactor, jobdf, jobstart, jobnum, j
         file.close()
 
     except Exception as error:
-        sg.popup_error('Error Writing: ' + '\n  \n' + str(jobfile),
-                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        sg.popup_error('Error Writing: ' + '\n  \n' + str(jobfile), no_titlebar=False, grab_anywhere=False,
+                       keep_on_top=True)
         sg.cprint('WriteParam: Error Writing - ' + str(jobname))
         return True
     #
@@ -546,7 +648,7 @@ def sensitivity_write_data(scenario, nlevel, nfactor, jobdf, jobstart, jobnum, j
         sg.cprint('WriteData: Generated ' + str(jobname))
 
     except Exception as error:
-        sg.popup_error('Error Processing Base Data File: ' + '\n  \n' + str(jobfile),
+        sg.popup_error('Error Processing Base Data File: ' + '\n  \n' + str(jobfile), title='OPMRUN Sensitivity',
                       no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         sg.cprint('WriteData: Error Processing Base Data File ' + str(jobname))
         return True
@@ -583,17 +685,15 @@ def sensitivity_write_param(jobstart, jobnum, jobparm, jobdata, jobs):
     jobnum  = str(jobnum + jobstart).zfill(3)
     jobname = Path(jobparm).stem + '-' + jobnum + str(Path(jobparm).suffix)
     jobfile = Path(jobparm).with_name(jobname)
-
-    job     = Path(jobdata).stem + '-' + jobnum + str(Path(jobdata).suffix)
-    jobdeck = Path(jobdata).with_name(job)
+    jobdeck = Path(jobdata).stem + '-' + jobnum + str(Path(jobdata).suffix)
     #
     # Create PARAM File
     #
     try:
         Path(jobfile).write_text(Path(jobparm).read_text())
     except Exception as error:
-        sg.popup_error('Error Writing: ' + '\n  \n' + str(jobfile),
-                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        sg.popup_error('Error Writing Parameter File: ' + '\n\n' + str(jobfile), str(error) + ': ' + str(type(error)),
+                       title='OPMRUN Sensitivity', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         sg.cprint('WriteParam: Error Writing - ' + str(jobname))
         return True
     #
@@ -615,9 +715,9 @@ def sensitivity_write_param(jobstart, jobnum, jobparm, jobdata, jobs):
         sg.cprint('WriteParm: Generated ' + str(jobname))
 
     except Exception as error:
-        sg.popup_error('Error Processing Template: ' + '\n  \n' + str(jobfile),
-                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
-        sg.cprint('WriteParam: Processing Template - ' + str(jobname))
+        sg.popup_error('Error Processing Parameter File ' + '\n\n' + str(jobfile), str(error) + ': ' + str(type(error)),
+                       title='OPMRUN Sensitivity', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        sg.cprint('WriteParam: Processing Error - ' + str(jobname))
         return True
 
     return joberr, jobs
@@ -643,57 +743,62 @@ def sensitivity_write_queue(jobs):
         sg.popup_ok('No Job Jobs to Process', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         return ()
 
-    #   numcpus = cpu_count() + 1
-    ncpu    = 5
     layout2 = [[sg.Text('OPMRUN Queue File')],
                 [sg.InputText(key='_jobfile_', size=(80, None)),
                  sg.FileSaveAs(target='_jobfile_', initial_folder=Path(jobs[0]).parent,
-                                file_types=[('OPMRUN Queue File', ['*.que', '*.QUE']), ('All', '*.*')])],
+                               file_types=[('OPMRUN Queue File', ['*.que', '*.QUE']), ('All', '*.*')])],
                 [sg.Text('Run Parameters')],
                 [sg.Radio('Sequential Run', "bRadio", key='_jobseq_', default=True)],
                 [sg.Radio('Parallel Run  ', "bRadio", key='_jobpar_'),
                  sg.Text('No. of Nodes'),
-                 sg.Listbox(values=list(range(1, ncpu + 1)), default_values=[1], size=(5, 3), key='_jobnode_')],
+                 sg.Listbox(values=list(range(1, cpu_count() + 1)), default_values=[1], size=(5, 3), key='_jobnode_')],
                 [sg.Submit(), sg.Cancel()]]
 
     window2 = sg.Window('Select OPMRUN Queue File', layout=layout2, finalize=True,
                         no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
     (event, values) = window2.read()
+    while True:
+        jobfile = values['_jobfile_']
+        jobseq  = values['_jobseq_']
+        jobpar  = values['_jobpar_']
+        jobnode = values['_jobnode_']
+        jobcmd  = 'flow --parameter-file='
+        if jobpar:
+            jobcmd = 'mpirun -np ' + str(jobnode).strip("[]") + ' flow --parameter-file='
+
+        if event == 'Submit':
+            if jobfile:
+                file = open(jobfile, 'w')
+                file.write('# \n')
+                file.write('# OPMRUN Queue File \n')
+                file.write('# \n')
+            #    file.write('# Created By  : ' + opmuser + '\n')
+                file.write('# Date Created: ' + get_time() + '\n')
+                file.write('# Queue Length: ' + str(len(jobs)) + '\n')
+                file.write('# \n')
+                for job in jobs:
+                    file.write(jobcmd + str(job) + '\n')
+
+                file.write('# \n')
+                file.write('# End of Queue \n')
+                file.close()
+
+                sg.popup_ok('OPMRUN Queue File Saved to: ' + jobfile,
+                            no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                break
+            else:
+                sg.popup_error('OPMRUN Queue File Invalid: ' + jobfile,
+                            no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                continue
+        else:
+            break
+
     window2.Close()
-
-    jobfile = values['_jobfile_']
-    jobseq  = values['_jobseq_']
-    jobpar  = values['_jobpar_']
-    jobnode = values['_jobnode_']
-    jobcmd  = 'flow --parameter-file='
-    if jobpar:
-        jobcmd = 'mpirun -np ' + str(jobnode).strip("[]") + ' flow --parameter-file='
-
-    if event == 'Submit':
-        if jobfile:
-            file = open(jobfile, 'w')
-            file.write('# \n')
-            file.write('# OPMRUN Queue File \n')
-            file.write('# \n')
-        #    file.write('# Created By  : ' + opmuser + '\n')
-        #    file.write('# Date Created: ' + get_time() + '\n')
-            file.write('# Queue Length: ' + str(len(jobs)) + '\n')
-            file.write('# \n')
-            for job in jobs:
-                file.write(jobcmd + str(job) + '\n')
-
-            file.write('# \n')
-            file.write('# End of Queue \n')
-            file.close()
-
-            sg.popup_ok('OPMRUN Queue File Saved to: ' + jobfile,
-                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
-
     return()
 
 
-def sensitivity_main(**opmoptn):
+def sensitivity_main(jobparam, opmoptn, opmsys):
     """OPMRUN Sensitivity Case Generator Utility Main Function
 
     OPM Flow  Sensitivity Case Generator Utility is a Graphical User Interface ("GUI") program for the Open Porous Media
@@ -721,7 +826,7 @@ def sensitivity_main(**opmoptn):
     #
     # Initialize
     #
-    opm_initialize()
+    set_gui_options()
 
     helptext = ('OPMRUN Sensitivity Case Generator Utility \n' +
                 '\n'
@@ -787,13 +892,14 @@ def sensitivity_main(**opmoptn):
                  'Factorial Low, Best and High Full',
                  'Factorial Low, Best and High Box-Behnken']
     # ------------------------------------------------------------------------------------------------------------------
-    # Define Display Window
+    # Define Display Window col_widths=[12, 44, 12, 12, 12],
     # ------------------------------------------------------------------------------------------------------------------
     outlog     = '_outlog1_'+sg.WRITE_ONLY_KEY
 
     factlayout = [[sg.Text('Sensitivity Factor Parameters')],
-                  [sg.Table(values=factors, headings=header, display_row_numbers=False, col_widths=[12, 44, 12, 12, 12],
+                  [sg.Table(values=factors, headings=header, display_row_numbers=False, col_widths=[12, 55, 12, 12, 12],
                    num_rows=nrow, alternating_row_color='lightgreen', text_color='black', justification='left',
+                   font=(opmoptn['output-font'], int(opmoptn['output-font-size']) + 1),
                    auto_size_columns=False, enable_events=True, select_mode='browse', key='_factors_')]]
 
     baselayout = [[sg.Text('Deck Sensitivity Base Template')],
@@ -803,10 +909,9 @@ def sensitivity_main(**opmoptn):
 
     mainwind  = [[sg.Text('OPMSENS Deck Sensitivity Generation')],
                  [sg.TabGroup([
-                    [sg.Tab('Factors', factlayout, key='_tab_factors_',
-                              title_color='black', background_color='white'),
-                     sg.Tab('Base', baselayout, key='_tab_base_',
-                            title_color='darkgreen', background_color='white', border_width=None)]],
+                    [sg.Tab('Factors', factlayout, key='_tab_factors_', title_color='black', background_color='white'),
+                     sg.Tab('Base', baselayout, key='_tab_base_', title_color='darkgreen', background_color='white',
+                            border_width=None)]],
                      title_color='black', background_color='white')],
 
                  [sg.Text('Sensitivity Base OPM Flow Input Deck Template')],
@@ -857,25 +962,7 @@ def sensitivity_main(**opmoptn):
         # Base (Input Deck Template)
         #
         if event == '_base_':
-            basefile = sg.popup_get_file('OPMSENS Set OPM Flow Input Deck Template', default_path=str(os.getcwd()),
-                                       initial_folder=str(os.getcwd()), file_types=[('OPM', ['*.data', '*.DATA'])],
-                                       size=(110,1), no_titlebar=False, grab_anywhere=False, keep_on_top=True)
-            if basefile is not None:
-                if Path(basefile).is_file():
-                    window1['_basefile_'].update(value=basefile)
-                    file = open(basefile, 'r')
-                    base = file.read()
-                    file.close()
-                    window1['_basedeck_'].update('')
-                    window1['_basedeck_'].update(value=base)
-                    window1['_tab_base_'].select()
-
-                else:
-                    sg.popup_error('File Does Not Exist: \n\n' + str(basefile) + '\n',
-                                  no_titlebar=False, grab_anywhere=False, keep_on_top=True)
-                    basefile = ''
-                    window1['_basefile_'].update(value=basefile)
-
+            basefile = sensitivity_base_file(jobparam, opmsys, window1)
             continue
         #
         # Clean

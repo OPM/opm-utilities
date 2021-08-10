@@ -42,7 +42,7 @@
 -- RUN STARTS                :               (YYYY-MM-DD)                                                  
 -- RUN ENDS                  :               (YYYY-MM-DD)                                                  
 -- RESTART                   :               (DD.MM.YYYY - RESTART 'NNNNNNxx  ??' / AT ????.? DAYS (??.?YEARS))
--- MACHINE ID                :                                                 
+-- MACHINE ID                : $Node
 -- MACHINE OPERATING SYSTEM  : $OSName - $OSLevel                               
 -- MACHINE TYPE              : $OSArch                               
 -- MACHINE CPU TIME          :               (SECS)                            

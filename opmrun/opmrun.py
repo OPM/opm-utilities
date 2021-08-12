@@ -186,9 +186,8 @@ Date    : 30-July-2021
 __version__ = '2021.07.1'
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Import Modules and Start Up Section
+# Import Modules and Start Up Section - All Modules Used by the OPMRUN Modules are Imported Upfront for Verification.
 # ----------------------------------------------------------------------------------------------------------------------
-
 print('OPMRUN Startup: Importing Standard Modules')
 #
 # Check if tkinter Has Been Installed on the System
@@ -207,15 +206,21 @@ except ImportError as error:
 #
 # Standard Library Modules
 #
-import getpass
-import importlib
-import os
-import pkg_resources
-import platform
-import psutil
-import subprocess
-import sys
-from pathlib import Path, PureWindowsPath
+starterr = False
+packages = ['getpass', 'importlib', 'numpy', 'os', 'pandas', 'pathlib', 'pkg_resources', 'platform', 'psutil',
+            'subprocess', 'sys']
+try:
+       import getpass, importlib, numpy, os, pandas as pd
+       from pathlib import Path, PureWindowsPath
+       import pkg_resources, platform, psutil
+#      from psutil import cpu_count, __version__
+       import subprocess, sys
+except ImportError as error:
+    print('   Importing Standard Modules Failed')
+    print('   ' + str(error) + ': ' + str(type(error)))
+    print('   Required Packages: '+ str(packages))
+    print('   Continue with Startup Check')
+    starterr = True
 
 print('OPMRUN Startup: Importing Standard Modules Complete')
 #
@@ -230,32 +235,36 @@ print('OPMRUN Startup: Python Version Check Complete')
 # Import Required Non-Standard Modules
 #
 print('OPMRUN Startup: Importing Non-Standard Modules')
-starterr = False
-for package in  {'airspeed', 'numpy', 'pandas', 'psutil', 'pyDOE2', 'PySimpleGUI'}:
+# Special Code for notifypy Import
+try:
+    from notifypy import Notify
+except ImportError:
+    print('   Import Require Package - notifypy Failed')
+    print('   Use "pip install notify-py" to install this package (note the package name)')
+    starterr = True
+
+# Import for Other Non-Standard Modules
+for package in  {'airspeed', 'pyDOE2', 'PySimpleGUI'}:
     try:
         dist = pkg_resources.get_distribution(package)
         if package == 'PySimpleGUI':
             sg = importlib.import_module(package)
-        elif package == 'pandas':
-            pd = importlib.import_module(package)
-        elif package == 'psutil':
-            from psutil import cpu_count
         else:
             importlib.import_module(package)
         print('   Require Module - ' + dist.key + '(' + dist.version + ') Imported')
     except pkg_resources.DistributionNotFound:
         print('   Import Require Package - ' + package + ' Failed')
-#       print('Startup: Use "python -m pip install --user ' + package + '" to install')
-        print('   Use "pip install ' + package + '" to install')
+       # print('Startup: Use "python -m pip install --user ' + package + '" to install')
         starterr = True
 
-if starterr:
-    print('   Alternatively use: pip install -r requirements.txt to install required packages')
-    print('   Use "python -m pip --verbose list" to get a list of installed packages')
-    print('OPMRUN Startup: Importing Non-Standard Modules Failed')
-    raise SystemExit('Program Will Exit')
-
 print('OPMRUN Startup: Importing Non-Standard Modules Complete')
+
+if starterr:
+    print('Import Package Failure:')
+    print('   Use "pip install ' + '"PackageName" to install, or')
+    print('   alternatively use: pip install -r requirements.txt to install required packages')
+    print('   Use "python -m pip --verbose list" to get a list of installed packages')
+    raise SystemExit('Program Will Exit')
 #
 # Check for Suitable Version of PySimpleGUI
 #
@@ -387,7 +396,7 @@ def add_job(joblist, jobparam, jobsys):
                     if text == 'Overwrite':
                         save_parameters(job, jobparam, jobbase, jobfile, jobsys)
 
-                if jobfile.is_file() and jobopt == ['Overwrite']:
+                if jobfile.is_file() and jobopt == 'Overwrite':
                     save_parameters(job, jobparam, jobbase, jobfile, jobsys)
 
             window1['_jobdir_'].update('')
@@ -516,9 +525,9 @@ def add_jobs_recursively(joblist, jobparam, jobsys):
 
             window1['_jobdir_'].update('')
 
- #           set_window_status(True)
+            # set_window_status(True)
             window0['_joblist_'].update(joblist)
- #           set_window_status(False)
+            # set_window_status(False)
             sg.popup_ok('Add Jobs Directory Load: From: ' + jobdir,'A Total of ' + str(len(files)) + ' Jobs Added',
                         'Complete', title='OPMRUN Directory Load',no_titlebar=False, grab_anywhere=False,
                         keep_on_top=True)
@@ -1265,7 +1274,7 @@ def load_manual(opmsys1, filename):
     #
     # Linux System
     #
-    if opmsys1['system'] == 'Linux':
+    if sg.running_linux():
         try:
             subprocess.Popen(["xdg-open", filename])
         except Exception:
@@ -1276,7 +1285,7 @@ def load_manual(opmsys1, filename):
     #
     # Windows System
     #
-    if opmsys1['system'] == 'Windows':
+    else:
         try:
             os.startfile(filename)
         except Exception:
@@ -1565,23 +1574,26 @@ def opm_startup(opmvers, opmsys1, opmlog1):
         OPM log file pointer
     """
 
-    opmsys1                 = platform.uname()._asdict()
-    opmsys1['python'       ] = platform.python_version()
+    opmsys1                  = platform.uname()._asdict()
+    python                   = sys.executable
+    opmsys1['python'       ] = Path(python).name
+    opmsys1['pythondir'    ] = Path(python)
+    opmsys1['pythonvers'   ] = platform.python_version()
     opmsys1['opmgui'       ] = 'PySimpleGUI - ' + str(sg.version)
     opmsys1['airspeed'     ] = 'airspeed - ' + str(pkg_resources.get_distribution('airspeed').version)
-    opmsys1['datetime'     ] = 'datetime - ' + opmsys1['python']
+    opmsys1['datetime'     ] = 'datetime - ' + opmsys1['pythonvers']
     opmsys1['getpass'      ] = 'getpass - ' + str(pd.__version__)
-    opmsys1['importlib'    ] = 'importlib - ' + opmsys1['python']
-    opmsys1['os'           ] = 'os - ' + opmsys1['python']
+    opmsys1['importlib'    ] = 'importlib - ' + opmsys1['pythonvers']
+    opmsys1['os'           ] = 'os - ' + opmsys1['pythonvers']
     opmsys1['pandas'       ] = 'pandas - ' + str(pd.__version__)
-    opmsys1['pathlib'      ] = 'pathlib - ' + opmsys1['python']
-    opmsys1['pkg_resources'] = 'pkg_resources - ' + opmsys1['python']
-    opmsys1['platform'     ] = 'platform - ' + opmsys1['python']
+    opmsys1['pathlib'      ] = 'pathlib - ' + opmsys1['pythonvers']
+    opmsys1['pkg_resources'] = 'pkg_resources - ' + opmsys1['pythonvers']
+    opmsys1['platform'     ] = 'platform - ' + opmsys1['pythonvers']
     opmsys1['psutil'       ] = 'psutil - ' + str(psutil.__version__)
     opmsys1['pyDOE2'       ] = 'pyDOE2 - ' + str(pkg_resources.get_distribution('pyDOE2').version)
-    opmsys1['re'           ] = 're - ' + opmsys1['python']
-    opmsys1['subprocess'   ] = 'subprocess - ' + opmsys1['python']
-    opmsys1['sys'          ] = 'sys - ' + opmsys1['python']
+    opmsys1['re'           ] = 're - ' + opmsys1['pythonvers']
+    opmsys1['subprocess'   ] = 'subprocess - ' + opmsys1['pythonvers']
+    opmsys1['sys'          ] = 'sys - ' + opmsys1['pythonvers']
     #
     # Check for Windows 10 for Windows Based Operating Systems
     #
@@ -1600,7 +1612,7 @@ def opm_startup(opmvers, opmsys1, opmlog1):
         opmflow = run_command('flow --version')
         opmjob = 'OPMRUN.job'
     opmsys1['opmvers'] = opmvers
-    opmsys1['opmflow'] = opmflow.rstrip()
+    opmsys1['opmflow'] = opmflow.replace('\n','')
     #
     # Determine If Running in Exe or Script Mode
     #
@@ -1861,6 +1873,7 @@ def run_jobs(joblist, jobsys, outlog):
                            'Use Edit/Options to Set the Correct Terminal Type for Background Processing',
                            'Process Terminated', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             return()
+
         try:
             out_log('OPMRUN Running Batch Command: ' + ', '.join(cmd) + ', ' + str(jobsys['opmjob']), True)
             if sg.running_windows():
@@ -2107,28 +2120,55 @@ def save_jobs(joblist, jobtype, jobext, jobsys, outlog=True):
     """
 
     jobnum = 0
-    file   = open(jobsys['opmjob'], 'w')
-    file.write('# \n')
+    jobmax = len(joblist)
+    # Open Job File and Process
+    file = open(jobsys['opmjob'], 'w')
+    file.write('# ' + 130*'=' + '\n')
     file.write('# OPMRUN Job File \n')
     file.write('# \n')
-    file.write('# File Name   : '  + str(jobsys['opmjob']) + '\n')
-    file.write('# Created By  : '  + str(jobsys['opmuser']) + '\n')
-    file.write('# Date Created: '  + get_time() + '\n')
+    file.write('# System      : ' + str(jobsys['system']) + '\n')
+    file.write('# Node        : ' + str(jobsys['node']) + '\n')
+    file.write('# Version     : ' + str(jobsys['version']) + '\n')
+    file.write('# Python      : ' + str(jobsys['python']) + '\n')
+    file.write('# Python Vers : ' + str(jobsys['pythonvers']) + '\n')
+    file.write('# OPM Flow    : ' + str(jobsys['opmflow']) + '\n')
+    file.write('# OPMRUN      : ' + str(jobsys['opmvers']) + '\n')
     file.write('# \n')
+    file.write('# File Name   : ' + str(jobsys['opmjob']) + '\n')
+    file.write('# Author      : ' + str(jobsys['opmuser']) + '\n')
+    file.write('# Date        : ' + get_time() + '\n')
+    file.write('# \n')
+
+    # Notification Command
+    notify = str(jobsys['python']) + ' ' + str(Path(jobsys['opmpath'] / 'opm_notify.py '))
     for cmd in joblist:
         jobnum  = jobnum + 1
         (job, jobcmd, jobpath, jobbase, jobroot, joblog) = flow_job(cmd)
+
+        start = notify + '--title=' + '"' + jobroot + '"' + ' --message="Start Job No. ' + str(jobnum) + \
+                ' of ' + str(jobmax) + '" \n'
+        end   = notify + '--title=' + '"' + jobroot + '"' + ' --message="End Job No. ' + str(jobnum) + \
+                ' of ' + str(jobmax) + '" --status="0"'
+        fail  = notify + '--title=' + '"' + jobroot + '"' + ' --message="Failed Job No. ' + str(jobnum) + \
+                ' of ' + str(jobmax) + '" --status="1"'
 
         if jobtype == '_nosim_':
             jobcase = jobcmd + str(jobbase) + ' --enable-dry-run="true"' + ' | tee ' + str(joblog)
         else:
             jobcase = jobcmd + str(jobbase)  + ' | tee ' + str(joblog)
+        #
+        # Check if Running Windows
+        #
         if sg.running_windows():
             jobcase = 'wsl ' + jobcase
+            check = 'if ($? -eq $true ) {\n   ' + end + '\n} else {\n   ' + fail + '\n} \n'
+        else:
+            check = 'if [ $? -eq 0 ] \nthen \n   ' + end + '\nelse \n   ' + fail + '\nfi \n'
 
-        file.write('# \n')
+        file.write('# ' + 130 * '-' + '\n')
         file.write('# Job Number ' + str(jobnum) + ' \n')
-        file.write('# \n')
+        file.write('# ' + 130 * '-' + '\n')
+        file.write(start)
         file.write('cd ' + str(jobpath) + ' \n')
         status =  set_directory(jobpath, outlog=False, outpop=False, outprt=False, window=None)
         if status == False:
@@ -2140,9 +2180,11 @@ def save_jobs(joblist, jobtype, jobext, jobsys, outlog=True):
             if filename.is_file():
                 file.write('rm ' + str(filename) + ' \n')
         file.write(jobcase + ' \n')
+        file.write(check)
 
     file.write('# \n')
     file.write('# End of OPMRUN Jobs File \n')
+    file.write('# ' + 130*'=' + '\n')
     file.close()
     #
     # Set Permissions for Linux
@@ -2427,8 +2469,7 @@ def set_menu(opmoptn):
     None
     """
 
-    menu  = [['File',  ['Add Jobs',
-                        'Add Jobs Recursively',
+    menu  = [['File',  ['Open',
                         'Project',
                                   [opmoptn['prj-name-01'] + '::_prj-name-01_',
                                    opmoptn['prj-name-02'] + '::_prj-name-02_',
@@ -2440,11 +2481,16 @@ def set_menu(opmoptn):
                         'Exit'
                         ]
               ],
-             ['Edit',  ['Edit Data File',
+             ['Edit',  ['Add Jobs',
+                        'Add Jobs Recursively',
+                        '---',
+                        'Edit Data File',
                         'Edit Parameter File',
+                        '---',
                         'Edit Parameters',
                         'List Parameters',
                         'Set Parameters',
+                        '---',
                         'Options',
                         'Projects'],
               ],
@@ -2709,7 +2755,7 @@ def opmrun():
         #
         # Add Job
         #
-        elif event == '_add_job_' or event == 'Add Jobs':
+        elif event in ['_add_job_', 'Add Jobs']:
             set_window_status(False)
             add_job(joblist, jobparam, opmsys)
             set_window_status(True)
@@ -2842,7 +2888,7 @@ def opmrun():
         #
         # Load Queue
         #
-        elif event == '_load_queue_':
+        elif event in ['_load_queue_', 'Open']:
             joblist = load_queue(joblist, jobparam)
             continue
         #
@@ -2880,7 +2926,7 @@ def opmrun():
         #
         # Save Queue
         #
-        elif event == '_save_queue_' or event == 'Save':
+        elif event in ['_save_queue_', 'Save']:
             save_queue(joblist, opmsys['opmuser'])
             continue
         #

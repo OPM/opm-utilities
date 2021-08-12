@@ -3,6 +3,7 @@ datetime>=3.7.0
 getpass>=1.1.15
 importlib>=3.7
 os>=3.7
+notify-py>=0.3.3
 pandas>=1.1.5
 pathlib>=3.7.0
 pkg_resources>=3.7

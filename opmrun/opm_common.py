@@ -705,16 +705,13 @@ def wsl_path(filein):
         WSL file name.
     """
 
-    sg.Print('WSL_PATH: Start')
     if sg.running_windows():
         filein  = str(filein)[0].lower() + str(filein)[2:]
         fileout = Path('//mnt//')/Path(filein)
         fileout = PureWindowsPath(fileout).as_posix()
     else:
         fileout = filein
-    sg.Print(filein)
-    sg.Print(fileout)
-    sg.Print('WSL_PATH: End')
+
     return fileout
 
 # ======================================================================================================================

@@ -3,151 +3,35 @@
 #
 """OPMRUN.py - Run OPM Flow
 
-OPMRUN is a Graphical User Interface ("GNU") program for the Open Porous Media ("OPM") Flow simulator.
-The software enables submitting OPM Flow simulation input decks together with editing of the associated PARAM file,
-as well as compressing and uncompress OPM Flow's input and output files in order to save disk space. This is the main
-code based which allows for incorporating additional tools via the Tool menu. See the OPMRUN function for further
-details.
+OPMRUN
+------
+OPMRUN is a Graphical User Interface ("GNU") program for the Open Porous Media ("OPM") Flow simulator. The software
+enables submitting OPM Flow simulation input decks together with editing of the associated PARAM file, as well as
+compressing and uncompress OPM Flow's input and output files in order to save disk space. This is the main code based
+which allows for incorporating additional tools via the Tool menu. See the OPMRUN function for further details.
 
 PySimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated for fixes and
 new features. Each release of OPMRUN will update to the latest release of PySimpleGUI.
 
-Program Documentation
----------------------
-Only Python 3 is supported and tested Python2 support has been depreciated.
+Running OPMRUN
+--------------
+In the directory where the the main *opmrun.py* module is located use on of the following commands:
 
-2021.07-01  - Implemented support for Windows 10 WSL. OPMRUN can now run under Windows 10 and run OPM Flow via WSL with
-              the same functionality as that under Linux. For running under WSL the terminal type should be set to wsl
-              under the Edit/Options menu item. The compression/uncompression tool has also been implemented under WSL
-              using the same linux commands, as the Windows 10 command line tools have limited functionality. A message
-              is now written to the screen if the zip/unzip commands are not available. The WSL option has been tested
-              via Unbuntu 20.04 LTS using OPM Flow 20.04.
-            - Added the facility to add a directory of jobs recursively with automatic checking and generation of the
-              associated parameter files.
-              Added additional tools under the Tools Menu:
-              (1)  Simulation Input
-                   (1) Keywords (Major re-factoring of code to implement loading of an input file and basic editing).
-                   (2) Production Schedule to generate production schedule using WCONHIST.
-                   (3) Sensitivities (previously available).
-                   (4) Well Specification to generate WELSPECS, COMPDATA and COMPLUMP keywords.
-              (2) Well Trajectory Conversion to convert Petrel exported trajectories to OPM Resinght format.
-            - Added a terminal parameter in order to support various terminals in batch processing, currently konsole,
-              mate-terminal and xterm supported. Option can be selected via Edit/Options.
-            - Added File/Properties option to list OPMRUN properties.
-            - Added Help/System option to display OPM system properties.
-            - Improvements to opm-sensitivity and renaming of all functions to be consistent with module name.
-            - Add the ability to cancel all jobs in a queue if the user kills a job.
-            - Updated keyword and model velocity templates.
-            - Major refactoring to improve code readability and moving some common routines to opm-common, including
-              moving compress and uncompress routines to separate module.
-            - Changed output elements to multi-line elements in order to support color output, also added job queue
-              statistics after the all the jobs have been completed in the queue.
-            - Upgraded PySimpleGUI~=4.44.0 and also check if this or a later version is installed at run time.
-2021.04.01  - Added OPMRUN Sensitivity Case Generator Utility to generate sensitivity cases using a base case run.
-            - For the RUN jobs option, the program now checks the parameter file exists, if not then the user has the
-              to use the option to use the current. This can happen when a series of jobs are load from a QUE file.
-            - Catch Background terminal error when xterm is not available on the system.
-            - Added SUMMARY Performance section set of keywords.
-            - Change the Output window to to MultiLine for greater flexibility and coloring of the output.
-            - Added a COPY option to the main window to copy output to the clipboard.
-            - Upgraded PySimpleGUI~=4.41.2
-2020.04.05  - Remove debug popup when loading ResInsight with job results.
-            - Fixed bug when loading and the default directory does not exist.
-2020.04.04  - Add right-click menu options to the status table to edit files, view results, load results into OPM
-              ResInsight, etc.
-            - Refactor code to improve maintainability, including moving some functions to the opm-common module.
-            - Moved various global variables to global dictionary variable opmsys to simplify code, the intention is
-              to eventually remove all global variables.
-            - Re-factored the manner in which imports are loaded to be more robust and moved to PySimpleGUI~=4.19.0
-            - Refactored compress and uncompress routines to be use the print to multiline option.
-            - Re-factored job run functions to be more robust in checking for OPM Flow aborts and segmentation faults,
-              also added code to kill orphaned mpirun processes caused by segmentation faults.
-            - Changed version number and added __version__  variable.
-2020.04.03  - Changed version number.
-            - Updated all templates to be consistent with OPM Flow manual.
-            - Updated documentation for this release.
-2020.04.02  - Fix a bug with Compress/Uncompress windows preventing printing to the main Out element. This was because
-              these two windows used an an Out element as well, and there can be only one Out element in the
-              application. The fix was to use the Multiline element for the Compress/Uncompress windows, this resulted
-              in various code changes to other functions.
-              Fix initial directory bug when loading a queue. Need to set default and initial directory variables in
-              popup_get_file() call.
-            - Moved main code into function to comply with PEP8 and refactored where necessary. Changed event status
-              when running jobs. Also fixed some typos in the Help and About text.
-            - Fixed inconsistent Python major release check.
-            - Changed the job queue list so that the current job is highlighted in the list when running in
-              foreground mode.
-            - Fixed potential bug in the add_job() function by using the set_window_status() function to enable and
-              disable the main window. Previously the direct methods were used and this may cause the application to
-              freeze under Linux.
-            - Fixed some typos.
-            - Used NumPy/SciPy Docstrings documentation format and document all functions.
-            - Move several functions to opm_common to reduce code duplication.
-2020.04.01  - Fixed a tKinter bug that centers windows by the total x-direction display space, rather than the using
-            - just the primary display size (multi-monitor issue). All pops are now based on the current main window
-              location.
-            - Added initial folder option when setting the  OPM Flow manual location.
-            - Removed base64 icon graphic from code, and loaded png graphic from file, for code readability reasons and
-              replaced manual reference of icon for all windows with SetOption default.
-            - Fixed warning message associated with logging before main window was realized.
-            - Added warning message if Python 3.7.3 or greater is being used.
-            - Fixed Popup displays not showing text in PySimpleGUI 4.14.1 due to default color of text being None.
-            - Support for Python 2 depreciated.
-            - Moved to PySimpleGUI version 4.14.1
-            - Added PySimpleGUI version to About dialog box for additional information
-            - Initial release of OPMKEYW.
-2019.04.05  - Added checks and warnings for importing PySimpleGUI and pathlib/pathlib2 for robustness.
-            - Fixed display bug in several popup_get_file() calls and add_job and load_queue functions.
-            - Updated program code documentation and the Release-Notes.txt file.
-            - Updated README.md file fixing some minor layout issues
-2019.04.04  - Added suport for Python 2 by using the pathlib2 module from https://pypi.org/project/pathlib2/
-              (not tested).
-            - Updated program code documentation and the Release-Notes.txt file.
-            - Updated README.md file to based on PDF documentation
-            - Deleted binary file from the repository.
-2019.04.03  - Added OPM Flow icon to all Windows via Base64 Encoded PNG File and added OPMRUN.svg icon to release.
-            - Changed all Popup messages to have no title bar, grab anywhere, and keep on top options.
-            - Moved job parameter manipulation into a separate function get__job function to reduce code duplication,
-              as well as to have most of the path manipulation in the one routine.
-            - Modified documentation.
-            - Re-compiled binary generated tested on Unbuntu-Mate 18-04 and 19-04.
-2019.04.02  - Fixed menu layout bug.
-            - Fixed Project Directory bug for when the default OPMRUN.ini file is created.
-            - Fixed Edit Parameters bug for when OPM Flow has not been installed.
-            - Changed some text messages to be consistent with Options.
-            - Re-compiled binary generated.
-2019.04.01  - Fixed bug in running parallel jobs.
-            - Added functionality to kill a running job, and disable certain buttons when jobs are running.
-            - Fixed printing bug when OPM Flow terminates with errors.
-            - Added windows dialog sizes to OPMRUN.ini file so that user can change the windows size at next re-start.
-            - Moved pre-processing code to separate module for code readability (after suggestion by Joakim Hove).
-            - Upgraded to PySimpleGUI 3.36.0.
-            - Disable X close event or check for None.
-            - Added option to Edit OPMRUN options.
-            - When adding a job clear the file name field after the job has been added to the queue.
-            - Added Compress Jobs and Uncompress Jobss to the Tools menu.
-            - Added ResInsight option to the Tools menu.
-            - Added option to clear the output and log elements.
-            - For the Add Job dialog list the number of CPUs available; previously the range went from one to 64. Also
-              implemented multiple job selection.
-            - Added projects as shortcut to project directories.
-            - Added option to run job queue in foreground (that is under OPMRUN) and background via xterm (should be
-              computationally more efficient).
-            - Major re-factoring of code and code clean up.
-            - Create stand alone executable for Linux systems (works on Ubuntu-Mate 18-04).
-2018.10.02  - Fix printing bug associated with listing of jobparam.
-              Create stand alone executable for Linux systems (works on Ubuntu-Mate 18-04)
-2018.10.01  - Initial release.
+- To run with a console/terminal window, especially for the first time, use *python opmrun.py*
+- To run with a non console/terminal window, use *pythonw opmrun.py*
 
-Compiling Source
-----------------
+Note on some systems one may have to use *python3* and *pythonw3* to execute the code.
+
+Compiling OPMRUN Source
+-----------------------
 It's possible to create a single executable binary file that can be distributed to Linux users. There is no
 requirement to install the Python interpreter on the PC you wish to run it on. Everything it needs is in the one
 binary executable file, assuming you are running a somewhat up to date version of Linux.
 
-Installation of the packages, you'll need to install PySimpleGUI and PyInstaller (you need to install only once)
+Installation of the packages, you'll need to install PySimpleGUI and all the othe packages listed in
+requirements.txt, as well as PyInstaller that generates the executable (you only need to install the packages only once)
 
-       pyinstaller --clean --onefile opmrun.py
+*pyinstaller --clean --onefile opmrun.py*
 
 You will be left with a single file, opmrun, located in a folder named dist under the folder where you executed
 the pyinstaller command. opmrun file should run without creating a "terminal window". Only the GUI window should show
@@ -157,6 +41,179 @@ Note there are other tools for compiling Python code; however, PyInstaller's mai
 PyInstaller works with Python 2.7 and 3.4-3.7, it builds smaller executables thanks to transparent compression,
 it is fully multi-platform, and use the OS support to load the dynamic libraries, thus ensuring full compatibility.
 See https://www.pyinstaller.org/ for further information
+
+Revision History
+----------------
+Only Python 3 is supported and tested Python2 support has been depreciated.
+
+**2021.07-01**
+
+Implemented support for Windows 10 WSL. OPMRUN can now run under Windows 10 and run OPM Flow via WSL with the same
+functionality as that under Linux. For running under WSL the terminal type should be set to wsl under the
+Edit/Options menu item. The compression/uncompression tool has also been implemented under WSL using the same
+Edit/Options menu item. The compression/uncompression tool has also been implemented under WSL using the same linux
+commands, as the Windows 10 command line tools have limited functionality. A message is now written to the screen if
+the zip/unzip commands are not available. The WSL option has been tested via Unbuntu 20.04 LTS using OPM Flow 20.04.
+
+Added a "Reset Queue" option that  resets the the queue parameters by converting the file names to/from windows
+and linux file names, as well well editing the run time options for all jobs. This windows once can easily switch
+from from running in under Linux and WSL.
+
+Added a terminal parameter in order to support various terminals in batch processing, currently: konsole,
+mate-terminal and xterm supported. Option can be selected via Edit/Options.
+
+Major refactoring to improve code readability and moving some common routines to opm-common, including moving
+compress and uncompress routines to separate module.
+
+Changed output elements to multi-line elements in order to support color output, also added job queue statistics
+after the all the jobs have been completed in the queue.
+
+Added additional tools under the Tools Menu:
+
+1.  Simulation Input
+     (1) Keywords (Major re-factoring of code to implement loading of an input file and basic editing).
+     (2) Production Schedule to generate production schedule using WCONHIST.
+     (3) Sensitivities (previously available).
+     (4) Well Specification to generate WELSPECS, COMPDATA and COMPLUMP keywords.
+2.  Well Trajectory Conversion to convert Petrel exported trajectories to OPM Resinght format.
+
+- Added the facility to add a directory of jobs recursively with checking/generation of the associated parameter files.
+- Added File/Properties option to list OPMRUN properties (the user defined prroperties).
+- Added Help/System option to display OPMRUN system properties.
+- Improvements to opm-sensitivity tool and renaming of all functions to be consistent with module name.
+- Add the ability to cancel all jobs in a queue if the user kills a job.
+- Updated keyword and model velocity templates.
+- Upgraded PySimpleGUI~=4.44.0 and also check if this or a later version is installed at run time.
+
+**2021.04.01**
+
+For the RUN jobs option, the program now checks the parameter file exists, if not then the user has the to use the
+option to use the current. This can happen when a series of jobs are load from a QUE file.
+
+- Added OPMRUN Sensitivity Case Generator Utility to generate sensitivity cases using a base case run.
+- Catch Background terminal error when xterm is not available on the system.
+- Added SUMMARY Performance section set of keywords.
+- Change the Output window to to Multiline for greater flexibility and coloring of the output.
+- Added a COPY option to the main window to copy output to the clipboard.
+- Upgraded PySimpleGUI~=4.41.2
+
+**2020.04.05**
+
+- Remove debug popup when loading ResInsight with job results.
+- Fixed bug when loading and the default directory does not exist.
+
+**2020.04.04**
+
+- Add right-click menu options to the status table to edit files, view results, load results into OPM ResInsight, etc.
+- Refactor code to improve maintainability, including moving some functions to the opm-common module.
+- Moved various global variables to global dictionary variable opmsys to simplify code.
+- The intention is to eventually remove all global variables.
+- Re-factored the manner in which imports are loaded to be more robust and moved to PySimpleGUI~=4.19.0
+- Refactored compress and uncompress routines to be use the print to Multiline option.
+- Re-factored job run functions to be more robust in checking for OPM Flow aborts and segmentation faults,
+- also added code to kill orphaned mpirun processes caused by segmentation faults.
+- Changed version number and added __version__  variable.
+
+**2020.04.03**
+
+- Changed version number.
+- Updated all templates to be consistent with OPM Flow manual.
+- Updated documentation for this release.
+
+**2020.04.02**
+
+Fix a bug with Compress/Uncompress windows preventing printing to the main Out element. This was because these two
+windows used an an Out element as well, and there can be only one Out element in the application. The fix was to use
+the Multiline element for the Compress/Uncompress windows, this resulted in various code changes to other functions.
+
+Fixed potential bug in the add_job() function by using the set_window_status() function to enable and disable the
+main window. Previously the direct methods were used and this may cause the application to freeze under Linux.
+
+- Fix initial directory bug when loading a queue. Need to set default and initial directory variables in popup_get_file() call.
+- Moved main code into function to comply with PEP8 and refactored where necessary.
+- Changed event status when running jobs. Also fixed some typos in the Help and About text.
+- Fixed inconsistent Python major release check.
+- Changed the job queue list so that the current job is highlighted in the list when running in foreground mode.
+- Fixed some typos.
+- Used NumPy/SciPy Docstrings documentation format and document all functions.
+- Move several functions to opm_common to reduce code duplication.
+
+**2020.04.01**
+
+Fixed a tKinter bug that centers windows by the total x-direction display space, rather than the using just the
+primary display size (multi-monitor issue).  All pops are now based on the current main window location.
+
+- Added initial folder option when setting the  OPM Flow manual location.
+- Removed base64 icon graphic from code, and loaded png graphic from file, for code readability reasons and
+  replaced manual reference of icon for all windows with SetOption default.
+- Fixed warning message associated with logging before main window was realized.
+- Added warning message if Python 3.7.3 or greater is being used.
+- Fixed Popup displays not showing text in PySimpleGUI 4.14.1 due to default color of text being None.
+- Support for Python 2 depreciated.
+- Moved to PySimpleGUI version 4.14.1
+- Added PySimpleGUI version to About dialog box for additional information
+- Initial release of OPMKEYW.
+
+**2019.04.05**
+
+- Added checks and warnings for importing PySimpleGUI and pathlib/pathlib2 for robustness.
+- Fixed display bug in several popup_get_file() calls and add_job and load_queue functions.
+- Updated program code documentation and the Release-Notes.txt file.
+- Updated README.md file fixing some minor layout issues
+
+**2019.04.04**
+
+- Added support for Python 2 by using the pathlib2 module from https://pypi.org/project/pathlib2/ (not tested).
+- Updated program code documentation and the Release-Notes.txt file.
+- Updated README.md file to based on PDF documentation
+- Deleted binary file from the repository.
+
+**2019.04.03**
+
+- Added OPM Flow icon to all Windows via Base64 Encoded PNG File and added OPMRUN.svg icon to release.
+- Changed all Popup messages to have no title bar, grab anywhere, and keep on top options.
+- Moved job parameter manipulation into a separate function get__job function to reduce code duplication,
+  as well as to have most of the path manipulation in the one routine.
+- Modified documentation.
+- Re-compiled binary generated tested on Unbuntu-Mate 18-04 and 19-04.
+
+**2019.04.02**
+
+- Fixed menu layout bug.
+- Fixed Project Directory bug for when the default OPMRUN.ini file is created.
+- Fixed Edit Parameters bug for when OPM Flow has not been installed.
+- Changed some text messages to be consistent with Options.
+- Re-compiled binary generated.
+
+**2019.04.01**
+
+- Fixed bug in running parallel jobs.
+- Added functionality to kill a running job, and disable certain buttons when jobs are running.
+- Fixed printing bug when OPM Flow terminates with errors.
+- Added windows dialog sizes to OPMRUN.ini file so that user can change the windows size at next re-start.
+- Moved pre-processing code to separate module for code readability (after suggestion by Joakim Hove).
+- Upgraded to PySimpleGUI 3.36.0.
+- Disable X close event or check for None.
+- Added option to Edit OPMRUN options.
+- When adding a job clear the file name field after the job has been added to the queue.
+- Added Compress Jobs and Uncompress Jobs to the Tools menu.
+- Added ResInsight option to the Tools menu.
+- Added option to clear the output and log elements.
+- For the Add Job dialog list the number of CPUs available; previously the range went from one to 64.
+- Also implemented multiple job selection.
+- Added projects as shortcut to project directories.
+- Added option to run job queue in foreground (that is under OPMRUN) and background via xterm (computationally efficient).
+- Major re-factoring of code and code clean up.
+- Create stand alone executable for Linux systems (works on Ubuntu-Mate 18-04).
+
+**2018.10.02**
+
+- Fix printing bug associated with listing of jobparam.
+- Create stand alone executable for Linux systems (works on Ubuntu-Mate 18-04)
+
+**2018.10.01**
+
+Initial release.
 
 Copyright Notice
 ----------------
@@ -211,7 +268,7 @@ packages = ['getpass', 'importlib', 'numpy', 'os', 'pandas', 'pathlib', 'pkg_res
             'subprocess', 'sys']
 try:
        import getpass, importlib, numpy, os, pandas as pd
-       from pathlib import Path, PureWindowsPath
+       from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
        import pkg_resources, platform, psutil
 #      from psutil import cpu_count, __version__
        import subprocess, sys
@@ -329,16 +386,16 @@ def add_job(joblist, jobparam, jobsys):
         The updated joblist
     """
 
+    if not jobparam:
+        sg.popup_error('Job Parameters Missing; Cannot Add Cases - Check if OPM Flow is Installed',
+                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        return()
+
     ncpu = cpu_count()
     if ncpu > 1:
         bcpu = False
     else:
         bcpu = True
-
-    if not jobparam:
-        sg.popup_error('Job Parameters Missing; Cannot Add Cases - Check if OPM Flow is Installed',
-                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
-        return()
 
     layout1 = [[sg.Text('File to Add to Queue')],
                [sg.InputText(key='_jobdir_', size=(80, None)),
@@ -356,6 +413,10 @@ def add_job(joblist, jobparam, jobsys):
 
     while True:
         (event, values) = window1.read()
+
+        if event in ['Exit', sg.WIN_CLOSED]:
+            break
+
         jobs    = values['_jobdir_']
         jobseq  = values['_jobseq_']
         jobpar  = values['_jobpar_']
@@ -363,9 +424,6 @@ def add_job(joblist, jobparam, jobsys):
         jobopt  = values['_jobopt_'][0]
         if not jobnode:
             jobnode = 2
-
-        if event == 'Exit' or event is None:
-            break
 
         if event == 'Submit':
             if len(jobs) == 0:
@@ -429,11 +487,6 @@ def add_jobs_recursively(joblist, jobparam, jobsys):
         Updated job list via global variable
     """
 
-    ncpu = cpu_count()
-    if ncpu > 1:
-        bcpu = False
-    else:
-        bcpu = True
     #
     # Check if OPM Flow Parameters Have Been Set
     #
@@ -449,6 +502,12 @@ def add_jobs_recursively(joblist, jobparam, jobsys):
                              no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         if text == 'No':
             return()
+
+    ncpu = cpu_count()
+    if ncpu > 1:
+        bcpu = False
+    else:
+        bcpu = True
     #
     # Load Queue if Valid Entry
     #
@@ -469,6 +528,10 @@ def add_jobs_recursively(joblist, jobparam, jobsys):
 
     while True:
         (event, values) = window1.read()
+
+        if event in ['Exit', sg.WIN_CLOSED]:
+            break
+
         jobdir  = values['_jobdir_']
         jobseq  = values['_jobseq_']
         jobpar  = values['_jobpar_']
@@ -476,9 +539,6 @@ def add_jobs_recursively(joblist, jobparam, jobsys):
         jobopt  = values['_jobopt_'][0]
         if not jobnode:
             jobnode = 2
-
-        if event == 'Exit' or event is None:
-            break
 
         if event == 'Submit':
             if jobdir == '' or not Path(jobdir).is_dir():
@@ -715,8 +775,7 @@ def edit_data(job, jobsys, filetype='.data'):
         file0 = file2
     else:
         sg.popup_error('Cannot Find  File: ', str(file1),
-                      'or ' , str(file2),
-                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                      'or ' , str(file2), no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         out_log('Cannot Find: ' + str(file1) + ' or ' + str(file2), True)
 
         return()
@@ -907,6 +966,7 @@ def edit_options(opmsys1, opmoptn1):
             opm-flow-manual  = define the location of the OPM Flow Manual (None)
             opm-resinsight   = defines the ResInsight command
             edit-command     = defines the edit and editor options to edit the input deck (None)
+            term-command     = defines the terminal console to run the jobs in backgrounf mode (None)
 
             input-width      = set the size of the input list window in the x-direction (144)
             input-heigt      = set the size of the input list window in the y-direction (10)
@@ -966,7 +1026,7 @@ def edit_options(opmsys1, opmoptn1):
                  [sg.Listbox(values= terminals,key='_term-command_', default_values=term, size=(80, 4))],
 
                  [sg.Text(''                                                                          )],
-                 [sg.Text('OPM Keyword Generator Variables'                                           )],
+                 [sg.Text('User Information for Reporting'                                            )],
                  [sg.Text('Author'                                                   , size=(30, None)) ,
                   sg.InputText(opmoptn1['opm-author1'    ], key='_opm-author1_'      , size=(48, None))],
                  [sg.Text('Company Name'                                             , size=(30, None)) ,
@@ -1025,6 +1085,8 @@ def edit_options(opmsys1, opmoptn1):
         opmoptn1['output-font-size'] = values['_output-font-size_']
 
         save_options(opmsys1, opmoptn1)
+        sg.popup_auto_close(' Options Have Been Saved', title='Edit Options', no_titlebar=False, grab_anywhere=False,
+                            keep_on_top=True)
 
     set_window_status(True)
     return opmoptn1
@@ -1091,7 +1153,7 @@ def edit_parameters(fileparam, jobparam, **jobhelp):
                         paramhelp = 'Help not found for ' + texthelp
                     window1['_texthelp_'].update(paramhelp)
 
-            if event == 'Save':
+            elif event == 'Save':
                 param = values['_text_']
                 key   = param[:param.find('=')]
                 for n, text in enumerate(jobparam):
@@ -1102,24 +1164,22 @@ def edit_parameters(fileparam, jobparam, **jobhelp):
                         break
                 window1['_listbox_'].update(jobparam)
 
-            if event == 'Cancel' or event is None:
-                text = sg.popup_yes_no('Cancel Changes?',
-                                     no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+            elif event == 'Cancel':
+                text = sg.popup_yes_no('Cancel Changes?', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
                 if text == 'Yes':
                     jobparam  = jobparam0
                     exitcode  = event
                     break
-                else:
-                    event = 'Edit'
-                    continue
 
-            if event == 'Exit':
-                text = sg.popup_yes_no('Save and Exit?',
-                                     no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+            elif event == 'Exit':
+                text = sg.popup_yes_no('Save and Exit?', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
                 if text == 'Yes':
                     jobparam = window1['_listbox_'].get_list_values()
                     exitcode = event
                     break
+
+            elif event == sg.WIN_CLOSED:
+                break
 
         window1.Close()
         set_window_status(True)
@@ -1187,7 +1247,7 @@ def edit_projects(opmoptn1, opmsys1):
     (event, values) = window1.read()
     window1.Close()
 
-    if event == 'Cancel' or event is None:
+    if event in ['Cancel', sg.WIN_CLOSED]:
         opmoptn1 = opmoptn0
 
     if event == 'Submit':
@@ -1202,6 +1262,8 @@ def edit_projects(opmoptn1, opmsys1):
         opmoptn1['prj-dirc-04'] = values['_prj-dirc-04_']
         opmoptn1['prj-dirc-05'] = values['_prj-dirc-05_']
         save_options(opmsys1, opmoptn1)
+        sg.popup_auto_close('Projects Have Been Saved', title='Edit Projects', no_titlebar=False, grab_anywhere=False,
+                            keep_on_top=True)
 
     set_window_status(True)
     return opmoptn1
@@ -1232,6 +1294,7 @@ def flow_job(cmd):
         The job file with suffix '.LOG'
     """
 
+    debug   = False
     istart  = cmd.find('=')
     job     = cmd[istart + 1:]
     jobcmd  = cmd[:istart + 1]
@@ -1239,6 +1302,13 @@ def flow_job(cmd):
     jobbase = Path(job).name
     jobroot = Path(job).stem
     joblog  = Path(jobbase).with_suffix('.LOG')
+    if debug:
+        sg.Print('job     : ' + str(job    ))
+        sg.Print('jobcmd  : ' + str(jobcmd ))
+        sg.Print('jobpath : ' + str(jobpath))
+        sg.Print('jobbase : ' + str(jobbase))
+        sg.Print('jobroot : ' + str(jobroot))
+        sg.Print('joblog  : ' + str(joblog ))
     return job, jobcmd, jobpath, jobbase, jobroot, joblog
 
 
@@ -1552,9 +1622,9 @@ def load_queue(joblist, jobparam):
 def opm_startup(opmvers, opmsys1, opmlog1):
     """OPMRUN Startup Setup System Variables and File Creation
 
-    Sets up the various system variables in the opmsys dictionary which is then routine to the global version of
-    opmsys. The function then checks for the users OPM home directory and if not available creates it. Finally, the
-    function opens the log file and writes a header to the file.
+    Sets up the various system variables in the opmsys dictionary which is then reset to the global version of opmsys.
+    The function then checks for the users OPM home directory and if not available creates it. Finally, the function
+    opens the log file and writes a header to the file.
 
     Parameters
     ----------
@@ -1599,7 +1669,7 @@ def opm_startup(opmvers, opmsys1, opmlog1):
     #
     if opmsys1['system'] == 'Windows' and opmsys1['release'] != '10':
         sg.popup_error('Windows ' + str(opmsys1['release']) + 'Detected\n' +
-                       'OPMRUN Requires Windows 10 and WSL to Run and Windows Operating Systems\n' +
+                       'OPMRUN Requires Windows 10 and WSL to Run OPM Flow on Windows Operating Systems\n' +
                        'Program Will Exit', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         raise SystemExit('Windows ' + str(opmsys1['release']) + 'Detected - Require Windows 10 or Linux')
     #
@@ -1702,6 +1772,175 @@ def out_log(text, outlog, outprt=False, window=None, colors=(None,None)):
         opmlog.flush()
 
     return()
+
+
+def reset_queue(joblist, jobparam, jobsys):
+    """Reset Job Queue Options
+
+    The function resets the the queue parameters by converting the file names to/from windows and linux file names,
+    as well editing the run time options for all jobs in the queue, for example changing from sequential to parallel,
+    as well as changing the mpi parameters.
+
+    Parameters
+    ----------
+    joblist : list
+        Job list for queue
+    jobparam : list
+        OPM Flow PARAM file data set
+    jobsys : dict
+        Contains a dictionary list of all OPMRUN System parameters
+
+    Returns
+    -------
+    joblist1 : list
+        The updated joblist
+    """
+
+    if joblist == []:
+        sg.popup_ok('No Cases In Job Queue to Delete', title='OPMRUN Reset Job Queue Parameters', no_titlebar=False,
+                   grab_anywhere=False, keep_on_top=True)
+        return joblist
+
+    joblist1 = []
+    ncpu = cpu_count()
+    if ncpu > 1:
+        bcpu = False
+    else:
+        bcpu = True
+
+    layout1 = [[sg.Text('Convert Parameter File Name to:')],
+               [sg.Radio('Linux Compatible Name'  , 'bRadio1', key='_filelin_', disabled=sg.running_windows()),
+                sg.Radio('Windows Compatible Name', 'bRadio1', key='_filewin_', disabled=sg.running_linux()),
+                sg.Radio('No Renaming            ', 'bRadio1', key='_cancel_' , default=True)],
+               [sg.Text('Linux\nMounts', size=(8,2)),
+                sg.Listbox(values=[], size=(62,5,), key='_pathlin_')],
+               [sg.Text('Windows\nDrives:', size=(8,2)),
+                sg.Listbox(values=[], size=(62,5,), key='_pathwin_')],
+               [sg.Button(button_text='Paths'), sg.Button(button_text='Rename')],
+               [sg.Text('\nSelect New Run and Parameter File Options')],
+               [sg.Radio('Sequential Run', "bRadio", key='_jobseq_', default=True)],
+               [sg.Radio('Parallel Run Number of Nodes', "bRadio", key='_jobpar_', disabled=bcpu),
+                sg.Listbox(values=list(range(1, ncpu + 1)), size=(10, 3), key='_jobnode_', default_values=[ncpu],
+                           disabled=bcpu),
+                sg.Text('Overwrite Parameter\nFile Options'),
+                sg.Listbox(values=['Ask', 'Keep', 'Overwrite'], size=(10, 3), key='_jobopt_', default_values=['Keep'])],
+               [sg.Submit(), sg.Exit()]]
+    window1 = sg.Window('OPMRUN Reset Job Queue Parameters', layout=layout1)
+
+    while True:
+        (event, values) = window1.read()
+
+        if event in ['Exit', None, sg.WIN_CLOSED]:
+            break
+
+        jobseq  = values['_jobseq_']
+        jobpar  = values['_jobpar_']
+        jobnode = values['_jobnode_'][0]
+        jobopt  = values['_jobopt_'][0]
+        filelin = values['_filelin_']
+        filewin = values['_filewin_']
+
+        if not jobnode:
+            jobnode = 2
+
+        if event == 'Paths':
+            if sg.running_linux():
+                (jobwin, jobcmd, jobpath, jobbase, jobroot, joblog) = flow_job(joblist[0])
+                pathlin = []
+                for p in psutil.disk_partitions(all=True):
+                    pathlin.append(p.mountpoint)
+                window1['_pathlin_'].update(pathlin)
+
+                pathwin = []
+                pathwin.append(PureWindowsPath(jobwin).drive)
+                window1['_pathwin_'].update(pathwin)
+
+            else:
+                (joblin, jobcmd, jobpath, jobbase, jobroot, joblog) = flow_job(joblist[0])
+                try:
+                    window1['_pathlin_'].update(PurePosixPath(joblin).parents)
+                    pathwin = [chr(x) + ":" for x in range(65, 91) if os.path.exists(chr(x) + ":")]
+                    window1['_pathwin_'].update(pathwin)
+                except Exception as error:
+                    sg.popup_error('Error Getting File and Drive Information: ' + '\n\n' + str(job)
+                                   + '\n\n' + str(error) + ': ' +  str(type(error)) +
+                                   '\n\nProcess Cancelled', title='OPM Rename Parameter File',
+                                   no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                    continue
+
+        if event == 'Rename':
+            try:
+                pathlin = values['_pathlin_'][0]
+                pathwin = values['_pathwin_'][0]
+            except IndexError:
+                sg.popup_error('Error Getting Paths; Select Both a Linux Mount and Windows Drive to Rename Jobs ' +
+                               '- Renaming Cancelled', title='OPM Rename Parameter File',
+                               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                continue
+            #
+            # Convert Windows File Name to Linux File Name
+            #
+            if filelin:
+                text = sg.popup_yes_no('Confirm Renaming of All Parameter Files in Queue from\n' + str(pathwin) +
+                                       '\n\nto drive ' + str(pathlin) + '\n\nCorrect?',
+                                       title='OPM Rename Parameter File',
+                                       no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                if text == 'Yes':
+                    joblist1 =[]
+                    for cmd in joblist:
+                        (joblin, jobcmd, jobpath, jobbase, jobroot, joblog) = flow_job(cmd)
+                        job = jobcmd + joblin.replace(str(pathwin), str(pathlin))
+                        joblist1.append(job)
+                    joblist = joblist1
+                    window0['_joblist_'].update(joblist)
+                    continue
+            #
+            # Convert Linux File Name to Windows File Name
+            #
+            if filewin:
+                text = sg.popup_yes_no('Confirm Renaming of All Parameter Files in Queue from\n' + str(pathlin) +
+                                       '\n\nto drive ' + str(pathwin) + '\n\nCorrect?',
+                                       title='OPM Rename Parameter File',
+                                       no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                if text == 'Yes':
+                    joblist1 =[]
+                    for cmd in joblist:
+                        (joblin, jobcmd, jobpath, jobbase, jobroot, joblog) = flow_job(cmd)
+                        job = jobcmd + joblin.replace(str(pathlin), str(pathwin))
+                        joblist1.append(job)
+                    joblist = joblist1
+                    window0['_joblist_'].update(joblist)
+                    continue
+
+        if event == 'Submit':
+            joblist1 = []
+            for cmd in joblist:
+                (job, jobcmd, jobpath, jobbase, jobroot, joblog) = flow_job(cmd)
+                if jobseq:
+                    joblist1.append('flow --parameter-file=' + str(job))
+                if jobpar:
+                    joblist1.append('mpirun -np ' + str(jobnode) + ' flow --parameter-file='
+                                   + str(job))
+                #
+                # PARAM File Processing save_parameters(job, jobparam, jobbase, jobfile, jobsys):
+                #
+                jobfile = Path(job)
+                if jobfile.is_file() and jobopt == 'Ask':
+                    text = sg.popup('Parameter file:', str(job),
+                                    'Already exists; do you wish to overwrite it with the current defaults,'
+                                    ' or keep the existing parameter file?', custom_text=('Overwrite', 'Keep', None),
+                                    title='OPMRUN Reset Job Queue Parameters', no_titlebar=False,
+                                    grab_anywhere=False, keep_on_top=True)
+                    if text == 'Overwrite':
+                        save_parameters(job, jobparam, jobbase, jobfile, jobsys)
+
+                if jobfile.is_file() and jobopt == 'Overwrite':
+                    save_parameters(jobroot, jobparam, jobroot, jobfile, jobsys)
+
+            window0['_joblist_'].update(joblist1)
+            break
+    window1.close()
+    return joblist1
 
 
 def run_job(command, opmsys):
@@ -2345,18 +2584,19 @@ def set_button_status(status, statuskill=False):
     None
     """
 
-    window0['_add_job_'    ].update(disabled=status)
-    window0['_delete_job_' ].update(disabled=status)
-    window0['_edit_job_'   ].update(disabled=status)
+    window0['_add_job_'     ].update(disabled=status)
+    window0['_delete_job_'  ].update(disabled=status)
+    window0['_edit_job_'    ].update(disabled=status)
 
-    window0['_clear_queue_'].update(disabled=status)
-    window0['_load_queue_' ].update(disabled=status)
-    window0['_save_queue_' ].update(disabled=status)
+    window0['_clear_queue_' ].update(disabled=status)
+    window0['_load_queue_'  ].update(disabled=status)
+    window0['_reset_queue_' ].update(disabled=status)
+    window0['_save_queue_'  ].update(disabled=status)
 
-    window0['_run_jobs_'   ].update(disabled=status)
-    window0['_copy_'       ].update(disabled=status)
-    window0['_clear_'      ].update(disabled=status)
-    window0['_exit_'       ].update(disabled=status)
+    window0['_run_jobs_'    ].update(disabled=status)
+    window0['_copy_'        ].update(disabled=status)
+    window0['_clear_'       ].update(disabled=status)
+    window0['_exit_'        ].update(disabled=status)
 
     if statuskill:
         window0['_kill_job_'].update(disabled=status)
@@ -2698,7 +2938,8 @@ def opmrun():
                       sg.Button('Edit Job'   , key='_edit_job_'   ),
                       sg.Button('Delete Job' , key='_delete_job_' ),
                       sg.Button('Clear Queue', key='_clear_queue_'),
-                      sg.Button('Load Queue' , key='_load_queue_' ),
+                      sg.Button('Load Queue' , key='_load_queue_'),
+                      sg.Button('Reset Queue', key='_reset_queue_', tooltip='Reset Run Options for jobs in the Queue'),
                       sg.Button('Save Queue' , key='_save_queue_' )],
 
                   [sg.TabGroup([[sg.Tab('Output', flowlayout, key='_tab_outflow_',
@@ -2910,6 +3151,12 @@ def opmrun():
         #
         elif event == 'Properties':
             print_dict('OPMOPTN', opmoptn, option='print')
+            continue
+        #
+        # Reset Queue Job Options
+        #
+        elif event == '_reset_queue_':
+            joblist = reset_queue(window0['_joblist_'].get_list_values(), jobparam, opmsys)
             continue
         #
         # ResInsight

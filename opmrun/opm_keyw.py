@@ -777,7 +777,7 @@ def keyw_main(opmoptn, opmsys):
     # ------------------------------------------------------------------------------------------------------------------
     menu  = [['File', ['&Open', '&Save', '&Properties', 'E&xit']],
              ['Edit', ['Cut', 'Copy', 'Paste', 'Select All','Undo'], ],
-             ['Generate', ['RUNSPEC', 'GRID', 'EDIT', 'PROPS', 'SOLUTION', 'SCHEDULE'],],
+             ['Generate', ['RUNSPEC', 'GRID', 'EDIT', 'PROPS', 'SUMMARY', 'SOLUTION', 'SCHEDULE'],],
              ['Help', ['Keyword Help', 'Template Help']],]
 
     width = 10
@@ -840,7 +840,7 @@ def keyw_main(opmoptn, opmsys):
         #
         # Pre-Process Menu Generate Section to Use Keywords Section
         #
-        if event in ['RUNSPEC', 'GRID', 'EDIT', 'PROPS', 'SOLUTION', 'SCHEDULE']:
+        if event in ['RUNSPEC', 'GRID', 'EDIT', 'PROPS', 'SUMMARY', 'SOLUTION', 'SCHEDULE']:
             values['_keylist_'] = [event]
             event               = '_keylist_'
         #

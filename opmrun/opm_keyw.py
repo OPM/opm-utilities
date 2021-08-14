@@ -596,10 +596,8 @@ def keyw_main(opmoptn, opmsys):
 
 
     opmoptn['opm-keywdir'] = keywdir
-    text = sg.popup_ok ('Using Keyword Template Directory \n \n' + str(keywdir) + '\n ',
-                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
-    if text == sg.WIN_CLOSED:
-        return ()
+    sg.popup_ok('Using Keyword Template Directory \n \n' + str(keywdir) + '\n ',
+               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
     filetype = 'OPM FLOW SIMULATION FILE'
     helptext = (

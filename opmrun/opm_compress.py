@@ -158,10 +158,6 @@ def compress_files(opmoptn):
     #
     while True:
         (event, values) = window1.read()
-
-        if event == sg.WIN_CLOSED:
-            break
-
         jobopt  = values[0]
         #
         # Add Files
@@ -193,6 +189,8 @@ def compress_files(opmoptn):
                 break
             else:
                 continue
+        elif event == sg.WIN_CLOSED:
+            break
         #
         # Get Directory and List Files
         #
@@ -298,9 +296,6 @@ def uncompress_files(opmoptn):
     while True:
         (event, values) = window1.read()
 
-        if event == sg.WIN_CLOSED:
-            break
-
         if event == 'Add':
             jobs = sg.popup_get_file('Select ZIP Files to Uncompress', no_window=False,
                                    default_path=str(Path().absolute()), initial_folder=str(Path().absolute()),
@@ -328,6 +323,8 @@ def uncompress_files(opmoptn):
                 break
             else:
                 continue
+        elif event == sg.WIN_CLOSED:
+            break
         #
         # Get Directory and List Files
         #

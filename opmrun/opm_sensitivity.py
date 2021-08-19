@@ -92,7 +92,7 @@ import pyDOE2
 #
 # Import OPM Common Modules
 #
-from opm_common import get_time, opm_popup, set_gui_options
+from opm_common import get_time, opm_popup, set_gui_options, window_debug
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section
@@ -953,11 +953,7 @@ def sensitivity_main(jobparam, opmoptn, opmsys):
         # Read the Window and Process
         #
         event, values = window1.read()
-        if debug:
-            sg.Print('Buttons')
-            sg.Print(event)
-            sg.Print('Values')
-            sg.Print(values)
+        window_debug(event, 'values', values, False)
         #
         # Base (Input Deck Template)
         #

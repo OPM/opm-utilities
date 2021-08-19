@@ -50,7 +50,7 @@ import PySimpleGUI as sg
 #
 # Import OPM Common Modules
 #
-from opm_common import file_lstrip , opm_popup, opm_header_file, opm_view
+from opm_common import file_lstrip , opm_popup, opm_header_file, opm_view, window_debug
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section
@@ -565,11 +565,7 @@ def prodsched_main(opmoptn, opmsys):
     # ------------------------------------------------------------------------------------------------------------------
     while True:
         event, values = window1.read()
-        if debug:
-            sg.Print('Print Events')
-            sg.Print(event)
-            sg.Print('Print Values')
-            sg.Print(values)
+        window_debug(event, 'values', values, False)
         #
         # Clear
         #

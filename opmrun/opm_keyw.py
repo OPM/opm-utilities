@@ -76,7 +76,7 @@ import PySimpleGUI as sg
 #
 # Import OPM Common Modules
 #
-from opm_common import copy_to_clipboard, opm_popup, print_dict, set_gui_options
+from opm_common import copy_to_clipboard, opm_popup, print_dict, set_gui_options, window_debug
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define OPMKEYW Specific Modules
@@ -835,10 +835,7 @@ def keyw_main(opmoptn, opmsys):
         # Read the Window and Process
         #
         event, values = window1.read()
-        if debug:
-            sg.Print('Button: ' + event)
-            sg.Print('Values:')
-            sg.Print(values)
+        window_debug(event, 'values', values, False)
         #
         # Pre-Process Menu Generate Section to Use Keywords Section
         #

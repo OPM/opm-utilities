@@ -497,6 +497,37 @@ def remove_ansii_escape_codes(linein):
     return lineout
 
 
+def remove_tree(root):
+    """Remove a Directory and All Files Recursively
+
+    The function removes a directory and all files recursively.
+
+    Parameters
+    ----------
+    root : str
+        The root directory to start the recursive delete.
+
+    Returns
+    -------
+    status : boolean or str
+        Return status, set to True for errors, otherwise False
+    err : str
+        Error string from try/except block
+    """
+
+    try:
+        for item in root.iterdir():
+            if item.is_dir():
+                remove_tree(item)
+            else:
+                item.unlink()
+        root.rmdir()
+    except Exception as err:
+        return(True, err)
+
+    return(False, None)
+
+
 def run_command(command, timeout=None, window=None):
     """Run Shell Command
 
@@ -687,6 +718,38 @@ def version_check(version):
         return tuple(map(int, version.split(".")))
 
     return get_tuple(sg.__version__) >= get_tuple(version)
+
+
+def window_debug(event, dict_name, dict_var, debug):
+    """Print to Debug Window After Windows Read to List the Read Variables, event and values
+
+    Prints the windows read event and values (Python dictionary) parameters to the sg.Print debug window. Use for
+    debugging code only instead of hard coding the debug output in the individual routines.
+
+    Parameters
+    ----------
+    event : str
+        The event returned from the window.
+    dict_name : str
+        Variable name of the dictionary to be printed
+    dict_var : dict
+        Dictionary to be printed
+    debug : boolean
+        Set to True to print the the windows read event and values, otherwise return.
+
+    Returns
+    -------
+    None
+    """
+
+    if debug:
+        sg.Print('Read Window Debug Start')
+        sg.Print('Event: ' + str(event))
+        sg.Print(dict_name + ':Dictionary Listing')
+        for item in dict_var:
+            sg.Print('Values' + '({:<18}) = {:}'.format(item, dict_var[item]))
+        sg.Print('Read Window Debug End')
+    return
 
 
 def wsl_path(filein):

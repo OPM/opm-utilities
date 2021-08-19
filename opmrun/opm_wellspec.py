@@ -49,7 +49,7 @@ import PySimpleGUI as sg
 #
 # Import OPM Common Modules
 #
-from opm_common import file_lstrip, opm_header_file, opm_popup, opm_view
+from opm_common import file_lstrip, opm_header_file, opm_popup, opm_view, window_debug
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section
@@ -662,11 +662,7 @@ def wellspec_main(opmoptn, opmsys):
         # Read the Form and Process and Take appropriate action based on event
         #
         event, values = window1.read()
-        if debug:
-            sg.Print('Print Events')
-            sg.Print(event)
-            sg.Print('Print Values')
-            sg.Print(values)
+        window_debug(event, 'values', values, False)
         #
         # Clear
         #

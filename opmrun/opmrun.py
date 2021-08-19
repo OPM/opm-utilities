@@ -245,61 +245,71 @@ __version__ = '2021.07.1'
 # ----------------------------------------------------------------------------------------------------------------------
 # Import Modules and Start Up Section - All Modules Used by the OPMRUN Modules are Imported Upfront for Verification.
 # ----------------------------------------------------------------------------------------------------------------------
-print('OPMRUN Startup: Importing Standard Modules')
 #
 # Check if tkinter Has Been Installed on the System
 #
 try:
+    print('OPMRUN Startup: Importing Standard Module (tkinter)')
     import tkinter as tk
-
 except ImportError as error:
-    print('   Error importing module')
-    print('   ' + str(error) + ' ' + str(type(error)))
-    print('   On Linux based systems install tkinter via package manager. \n' +
-          '   Debian versions of Linux you have to install it manually by \n' +
-          '   using the following command: sudo apt-get install python3-tk')
-    print('OPMRUN Startup: Importing Standard Modules Failed')
-    exit('Program Will Exit')
+    print('   Error importing module\n' +
+          '   ' + str(error) + ' ' + str(type(error)) + '\n' +
+          '   On Linux based systems install tkinter via the package manager.\n\n' +
+          '   For Debian/Ubuntu versions of Linux install using:\n\n' +
+          '            sudo apt-get install python3-tk \n\n' +
+          '   On Red Hat Enterprise/CentOS versions of Linux install using:\n\n' +
+          '            sudo yum install python3-tkinter\n\n' +
+          '   Note one may have to use the Python version, for example "python38-tkinter", or\n'
+          '   "dnf install python3-tkinter" for Red Hat Enterprise/CentOS distributions.\n\n'
+          '   On Windows 10 the tkinter package is automatically installed with Python.\n' +
+          'OPMRUN Importing Standard Module (tkinter) Failed')
+    raise SystemExit('Program Will Exit')
 #
 # Standard Library Modules
 #
-starterr = False
-packages = ['getpass', 'importlib', 'numpy', 'os', 'pandas', 'pathlib', 'pkg_resources', 'platform', 'psutil',
-            'subprocess', 'sys']
 try:
-       import getpass, importlib, numpy, os, pandas as pd
-       from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
-       import pkg_resources, platform, psutil
-#      from psutil import cpu_count, __version__
-       import subprocess, sys
+    print('OPMRUN Startup: Importing Standard Modules')
+    import getpass, importlib, numpy, os
+    import pandas as pd
+    from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
+    import pkg_resources, platform, psutil
+    import subprocess, sys
+    print('OPMRUN Startup: Importing Standard Modules Complete')
 except ImportError as error:
-    print('   Importing Standard Modules Failed')
-    print('   ' + str(error) + ': ' + str(type(error)))
-    print('   Required Packages: '+ str(packages))
-    print('   Continue with Startup Check')
-    starterr = True
-
-print('OPMRUN Startup: Importing Standard Modules Complete')
-#
-# Check for Python 2 Version
-#
-print('OPMRUN Startup: Python Version Check')
-if platform.python_version_tuple()[0] == '2':
-    print('OPMRUN Startup: Program only works with Python 3, Python 2 Support is Depreciated')
+    packages = ['getpass', 'importlib', 'numpy', 'os', 'pandas', 'pathlib', 'pkg_resources', 'platform', 'psutil',
+                'subprocess', 'sys']
+    print('   Importing Standard Modules Failed\n' +
+          '   ' + str(error) + ': ' + str(type(error)) + '\n' +
+          '   Required Packages: '+ str(packages) + '\n' +
+          '   To install use:\n' +
+          '            pip install --user ' + '"PackageName"\n' +
+          '   Alternatively use:\n ' +
+          '            pip install -r requirements.txt \n' +
+          '   to install all the required packages\n' +
+          '   Use "python -m pip --verbose list" to get a list of installed packages\n\n' +
+          '   On Debian based Linux systems, if pip has not been installed, use the following to install:\n' +
+          '            sudo apt update\n' +
+          '            sudo apt install python3-pip\n' +
+          '   On Red Hat Enterprise/CentOS versions pip is installed with Python.\n' +
+          '   Confirm the installation by:\n' +
+          '            pip --version\n' +
+          '   Note on some systems "pip3" should be used instead of "pip".\n' +
+          'OPMRUN Startup: Importing Standard Modules Failed')
     raise SystemExit('Program Will Exit')
-print('OPMRUN Startup: Python Version Check Complete')
 #
 # Import Required Non-Standard Modules
 #
 print('OPMRUN Startup: Importing Non-Standard Modules')
 # Special Code for notifypy Import
+starterr = False
 try:
     from notifypy import Notify
 except ImportError:
-    print('   Import Require Package - notifypy Failed')
-    print('   Use "pip install notify-py" to install this package (note the package name)')
+    print('   Import Require Package - notifypy Failed\n' +
+          '   To install this package use:\n' +
+          '            pip install --user notify-py\n' +
+          '   Note the package name for the install')
     starterr = True
-
 # Import for Other Non-Standard Modules
 for package in  {'airspeed', 'pyDOE2', 'PySimpleGUI'}:
     try:
@@ -311,32 +321,27 @@ for package in  {'airspeed', 'pyDOE2', 'PySimpleGUI'}:
         print('   Require Module - ' + dist.key + '(' + dist.version + ') Imported')
     except pkg_resources.DistributionNotFound:
         print('   Import Require Package - ' + package + ' Failed')
-       # print('Startup: Use "python -m pip install --user ' + package + '" to install')
         starterr = True
 
-print('OPMRUN Startup: Importing Non-Standard Modules Complete')
-
 if starterr:
-    print('Import Package Failure:')
-    print('   Use "pip install ' + '"PackageName" to install, or')
-    print('   alternatively use: pip install -r requirements.txt to install required packages')
-    print('   Use "python -m pip --verbose list" to get a list of installed packages')
+    print('   Import Non-Standard Modules Failure:\n' +
+          '   To install use:\n' +
+          '            pip install --user ' + '"PackageName"\n' +
+          '   Alternatively use:\n ' +
+          '            pip install -r requirements.txt \n' +
+          '   to install all the required packages\n' +
+          '   Use "python -m pip --verbose list" to get a list of installed packages\n\n' +
+          '   On Debian based Linux systems, if pip has not been installed, use the following to install:\n' +
+          '            sudo apt update\n' +
+          '            sudo apt install python3-pip\n' +
+          '   On Red Hat Enterprise/CentOS versions pip is installed with Python.\n' +
+          '   Confirm the installation by:\n' +
+          '            pip --version\n' +
+          '   Note on some systems "pip3" should be used instead of "pip".\n' +
+          'OPMRUN Startup: Importing Non-Standard Modules Failed')
     raise SystemExit('Program Will Exit')
-#
-# Check for Suitable Version of PySimpleGUI
-#
-try:
-    version = sg.__version__
-except Exception:
-    text = ('PySimpleGUI Version Not Found and is invalid, require version 4.44.0 or higher.' +
-            'To upgrade use:\n\n"pip install --user --upgrade PySimpleGUI"\n\nProgram Will Exit')
-    sg.popup_error(text, title='PySimpleGUI Version Check', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
-    raise SystemExit(text)
-if pkg_resources.parse_version(sg.__version__) < pkg_resources.parse_version('4.44.0'):
-    text = ('PySimpleGUI Version ' + str(sg.version) + ' is invalid, require version 4.45 or higher.' +
-            'To upgrade use:\n\n"pip install --user --upgrade PySimpleGUI"\n\nProgram Will Exit')
-    sg.popup_error(text, title='PySimpleGUI Version Check', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
-    raise SystemExit(text)
+
+print('OPMRUN Startup: Importing Non-Standard Modules Complete')
 #
 # Import OPMRUN Modules
 #
@@ -348,6 +353,14 @@ from opm_sensitivity import *
 from opm_prodsched import *
 from opm_wellspec import wellspec_main
 from opm_welltraj import welltraj_main
+#
+# Check for Python 2 Version
+#
+print('OPMRUN Startup: Python Version Check')
+if platform.python_version_tuple()[0] == '2':
+    print('OPMRUN Startup: Program only works with Python 3, Python 2 Support is Depreciated')
+    raise SystemExit('Program Will Exit')
+print('OPMRUN Startup: Python Version Check Complete')
 #
 # Check for Python Version for 3.7 and Issue Warning Message and Continue
 #
@@ -361,6 +374,21 @@ from opm_welltraj import welltraj_main
 #                   'Note that PySimpleGUI version 3.6 is the recommended version for most users. \n'
 #                   '\n' +
 #                   'Program will continue', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+#
+# Check for Suitable Version of PySimpleGUI
+#
+try:
+    version = sg.__version__
+except Exception:
+    text = ('PySimpleGUI Version Not Found and is therefore invalid, OPMRUN requires version 4.44.0 or higher.' +
+            'To upgrade use:\n\n"pip install --user --upgrade PySimpleGUI"\n\nProgram Will Exit')
+    sg.popup_error(text, title='PySimpleGUI Version Check', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+    raise SystemExit(text)
+if pkg_resources.parse_version(sg.__version__) < pkg_resources.parse_version('4.44.0'):
+    text = ('PySimpleGUI Version ' + str(sg.version) + ' is invalid, OPMRUN requires version 4.44 or higher.' +
+            'To upgrade use:\n\n"pip install --user --upgrade PySimpleGUI"\n\nProgram Will Exit')
+    sg.popup_error(text, title='PySimpleGUI Version Check', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+    raise SystemExit(text)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section 
@@ -2976,6 +3004,7 @@ def opmrun():
         #
         sg.cprint_set_output_destination(window0, '_outflow_' + sg.WRITE_ONLY_KEY)
         event, values = window0.read()
+        window_debug(event, 'values', values, False)
         # Check if Window Has Been Closed
         if event in [None, sg.WIN_CLOSED]:
             break

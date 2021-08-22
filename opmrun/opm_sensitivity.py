@@ -1,6 +1,6 @@
 # ======================================================================================================================
 #
-"""OPMSENS.py - OPMRUN Sensitivity Case Generator Utility
+"""OPM_SENSITIVITY.py - OPMRUN Sensitivity Case Generator Utility
 
 OPM Flow  Sensitivity Case Generator Utility is a Graphical User Interface ("GUI") program for the Open Porous Media
 ("OPM") Flow simulator.
@@ -10,7 +10,7 @@ with Low, Best and High estimates. The utility generates both the required OPM F
 various sensitivity scenarios. A sensitivity scenario is a combination of the the various sensitivity factors, for
 example one can run all the Low factors as one sensitivity case, or a full factorial scenario on the Low and High
 sensitivity factors. Various Experimental Designs scenarios are included in the package, including full factorial,
-two-level full factorial, Plackett-Burman and Box-Behnken designs.
+two-level full factorial, Plackett-Burman and Box-Behnken designs based on the pyDOE2 package.
 
 The factors (the statistical term for the variables being used) are defined as $X01 to $X20, as presented on the
 "Factors" tab. These names are used in a "Base" template input deck to define the location and values to be substituted
@@ -41,34 +41,35 @@ can then load the queue file into OPMRUN and run all the jobs.
 
 See the OPM Flow manual for further information.
 
-Notes:
-------
-Only Python 3 is currently supported and tested Python2 support has been depreciated. The following standard module
-libraries are used in this version.
-
-(1) pathlib
-(2) tkinter as tk
-
-For OPMSENS the integrated OPM Flow Sensitivity Case Generator Utility the following additional modules are required:
-
-(1) PySimpleGUI
-(2) pandas
-(3) psutil
-(4) pyDOE2
-
 Program Documentation
---------------------
-2020-04.01 - Initial release of OPMSENS
+---------------------
+Only Python 3 is supported and tested Python2 support has been depreciated.
+
+2021.07-01 - Major re-factoring and function re-naming for consistency with other modules, together with minor bug
+             fixes.
+2020.04.01 - Initial release of OPMSENS
            - Support for Python 3 only.
            - Based PySimpleGUI version 4.14.1
            - Users NumPy/SciPy Docstrings documentation format.
 
-Copyright (C) 2018-2020 Equinox International Petroleum Consultants Pte Ltd.
+Copyright Notice
+----------------
+This file is part of the Open Porous Media project (OPM).
+
+OPM is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+OPM is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the aforementioned GNU General Public Licenses for more
+details.
+
+Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte Ltd.
 
 Author  : David Baxendale
           david.baxendale@eipc.co
-Version : 2020-04.01
-Date    : 30-Jan-2020
+Version : 2021.07.01
+Date    : 17-Jul-2021
+
 """
 # ----------------------------------------------------------------------------------------------------------------------
 # 3456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
@@ -80,69 +81,140 @@ Date    : 30-Jan-2020
 # Import Modules Section
 # ----------------------------------------------------------------------------------------------------------------------
 import os
-import sys
 from pathlib import Path
+from psutil import cpu_count
+#
+# Import Required Non-Standard Modules
+#
+import pandas as pd
+import PySimpleGUI as sg
+import pyDOE2
 #
 # Import OPM Common Modules
 #
-from opm_common import opm_initialize
-from opm_common import opm_popup
-#
-# Check for Python Version and Import Required Non-Standard Modules
-#
-if sys.version_info[0] == 2:
-    exit('OPMRUN Only Works with Python 3, Python 2 Support is Depreciated')
-
-try:
-    import PySimpleGUI as sg
-except ImportError:
-    sg = None
-    exit('OPMRUN Cannot Import PySimpleGUI - Please Install Using pip3')
-
-try:
-    import pandas as pd
-except ImportError:
-    pd = None
-    exit('OPMRUN Cannot Import platform module - Please Install Using pip3')
-
-try:
-    import tkinter as tk
-except ImportError:
-    exit('OPMRUN Cannot Import tkinter - Please Install Using pip3')
-
-try:
-    import pyDOE2
-except ImportError:
-    pyDOE2 = None
-    exit('OPMRUN Cannot Import pyDOE2 - Please Install Using pip3')
-#
-# Check for Python Version for 3.7 and Issue Warning Message and Continue
-#
-if sys.version_info >= (3, 7, 3):
-    sg.PopupError('Python 3.7.3 and Greater Detected OPMRUN May Not Work \n' +
-                  '\n' +
-                  'PySimpleGUI with Python 3.7.3 and 3.7.4+ is known to have problems due to the implementation \n' +
-                  'of tkinter in those versions of Python. If you must run 3.7, try 3.7.2 as this version works \n' +
-                  'with PySimpleGUI with no known issues. \n' +
-                  '\n' +
-                  'Will try to continue', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Define OPMRUN Constants for Stand Alone Running
-# ----------------------------------------------------------------------------------------------------------------------
-opmvers                = '2020-04.01'
-opmoptn                = dict()
-opmoptn['opm-author1'] = None
-opmoptn['opm-author2'] = None
-opmoptn['opm-author3'] = None
-opmoptn['opm-author4'] = None
-opmoptn['opm-author5'] = None
-
+from opm_common import get_time, opm_popup, set_gui_options, window_debug
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section
 # ----------------------------------------------------------------------------------------------------------------------
-def opmsens_check(basefile, header, factors, scenario):
+def sensitivity_base_file(jobparam, jobsys, window1):
+    """Add a OPM Flow Simulation job to the Job List Queue
+
+    The function adds a DATA file to the job list queue by selecting the file via a window, and also defining the job
+    parameters for this series of jobs. Multiple jobs can be selected at a time.
+
+    Parameters
+    ----------
+    jobparam : str
+        OPM Flow PARAM file data set
+    jobsys : dict
+        Contains a dictionary list of all OPMRUN System parameters
+    window : PySimpleGUI window
+        The PySimpleGUI window that the output is going to (needed to do refresh on).
+
+    Returns
+    -------
+    jobfile : str
+        Base file name.
+    """
+
+    jobfile = ''
+    if not jobparam:
+        sg.popup_error('Job Parameters Missing; Cannot Add Cases - Check if OPM Flow is Installed',
+                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        return()
+
+    layout1 = [[sg.Text('Base and Sensitivity Cases File Options')],
+               [sg.InputText(key='_jobfile_', size=(80, None)),
+                sg.FilesBrowse(target='_jobfile_', initial_folder=Path().absolute(),
+                               file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')])],
+               [sg.Text('Parameter File Options')],
+               [sg.Radio('Keep Existing Parameter File'    , "bRadio", key='_keep_', default =True)],
+               [sg.Radio('Overwrite Existing Paramter File', "bRadio", key='_write_')],
+               [sg.Submit(), sg.Exit()]]
+    window2 = sg.Window('Select OPM Flow Input File', layout=layout1)
+
+    while True:
+        (event, values) = window2.read()
+        if event == 'Exit' or event == sg.WIN_CLOSED:
+            break
+
+        jobfile = values['_jobfile_']
+        if event == 'Submit':
+            if not Path(jobfile).is_file():
+                sg.popup_error('Base Simulation Parameter File Does Not Exist:\n\n' + str(jobfile) + '\n',
+                               title='OPMRUN Sensitivity', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                jobfile = ''
+                window1['_basefile_'].update(value=jobfile)
+                continue
+            # Read in Data File
+            file = open(jobfile, 'r')
+            data = file.read()
+            file.close()
+            # Update Display
+            window1['_basefile_'].update(value=jobfile)
+            window1['_basedeck_'].update('')
+            window1['_basedeck_'].update(value=data)
+            window1['_tab_base_'].select()
+            # PARAM File Processing
+            jobbase  = Path(jobfile).name
+            fileout  = Path(jobfile).with_suffix('.param')
+            if fileout.is_file() and values['_write_']:
+                sensitivity_base_param(jobparam, jobbase, fileout, 'Overwritten', jobsys)
+            if not fileout.is_file():
+                sensitivity_base_param(jobparam, jobbase, fileout, 'Created', jobsys)
+            break
+    window2.Close()
+    return(jobfile)
+
+
+def sensitivity_base_param(jobparam, jobbase, jobfile, jobmsg, jobsys):
+    """Save a Job's Parameter File
+
+    Functions saves the current default parameter set to a job's parameter file that used to run an OPM Flow job. The
+    file also contains some additional comments including the user who created the job for documentation.
+
+    Parameters
+    ----------
+    jobparam : list
+        OPM Flow PARAM parameter list
+    jobbase :str
+        The base part of the job file name
+    jobfile : str
+        The full job file name
+    jobmsg : str
+        Short message to be displayed after the file has been written, normally set to 'Created or 'Overwritten'
+    jobsys : dict
+        Contains a dictionary list of all OPMRUN System parameters
+
+    Returns
+    -------
+    None
+    """
+
+    file  = open(jobfile, 'w')
+    file.write('# \n')
+    file.write('# OPMRUN Parameter File \n')
+    file.write('# \n')
+    file.write('# File Name   : "' + str(jobfile) + '"\n')
+    file.write('# Created By  : '  + str(jobsys['opmuser']) + '\n')
+    file.write('# Date Created: '  + get_time() + '\n')
+    file.write('# \n')
+    for x in jobparam:
+        if 'EclDeckFileName' in x:
+            file.write('EclDeckFileName="' + jobbase + '"\n')
+        elif 'ecl-deck-file-name' in x:
+            file.write('ecl-deck-file-name="' + jobbase + '"\n')
+        else:
+            file.write(x + '\n')
+    file.write('# \n')
+    file.write('# End of Parameter File \n')
+    file.close()
+    sg.popup_ok('Base Simulation Parameter File ' + jobmsg + ':\n\n' + str(jobfile) + '\n',
+                title='OPMRUN Sensitivity', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+
+
+def sensitivity_check(basefile, header, factors, scenario):
     """ Checks Files and Data Prior to Generating Sensitivity Scenarios
 
     Parameters
@@ -162,45 +234,23 @@ def opmsens_check(basefile, header, factors, scenario):
         An error counter with zero being no errors found
     """
 
-    print('Checkerr: Start')
+    sg.cprint('Checkerr: Start')
     checkerr  = 0
     #
     # File Checks
     #
     if Path(basefile).is_file():
         parmfile = Path(basefile).with_suffix('.param')
-        #
-        # Check if PARAM File Has Template Variable, If Not Include It
-        #
+        # Check for PARAM File
         if Path(parmfile).is_file():
-            with open(parmfile, 'r') as file:
-                filedata = file.readlines()
-                i    = -1
-                ierr = True
-                for line in filedata:
-                    i = i + 1
-                    if 'ecl-deck-file-name=' in line:
-                        filedata[i] = 'ecl-deck-file-name=$jobfile \n'
-                        print('Checkerr: Param File Template Variable "ecl-deck-file-name=$jobfile" Set')
-                        ierr = False
-                        break
-            if ierr:
-                print('Checkerr: Param File Template Error Template Variable "ecl-deck-file-name" Not Found')
-                checkerr = checkerr + 1
-
-            with open(parmfile, 'w') as file:
-                file.writelines(filedata)
-        #
+            sg.cprint('Checkerr: Base File Parameter File Found:\n'  + str(parmfile.name))
         # PARAM File Missing
-        #
         else:
-            print('Checkerr: Base File Parameter File Does Not Exist')
+            sg.cprint('Checkerr: Base File Parameter File Does Not Exist\n' + 'Checkerr: ' + str(parmfile.name))
             checkerr = checkerr + 1
     else:
-        #
         # Base DATA File Missing
-        #
-        print('Checkerr: Base File Does Not Exist')
+        sg.cprint('Checkerr: Base File Does Not Exist')
         checkerr = checkerr + 1
     #
     # Factor Design Checks
@@ -216,38 +266,39 @@ def opmsens_check(basefile, header, factors, scenario):
 
     except Exception as error:
         checkerr = checkerr + 1
-        print('Checkerr: Found ' + str(checkerr) + ' Errors That Need to be Resolved')
-        print('Checkerr: End')
-        sg.PopupError('OPMSENS Error Checking Factors - Cannot Continue',
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        sg.cprint('Checkerr: Found ' + str(checkerr) + ' Errors That Need to be Resolved')
+        sg.cprint('Checkerr: End')
+        sg.popup_error('OPMSENS Error Checking Factors - Cannot Continue',
+                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         return checkerr
     #
     # Factorial and Non-Factorial Checks
     #
     if nrow == 0:
-        print('Checkerr: No Factor Values')
+        sg.cprint('Checkerr: No Factor Values')
         checkerr = checkerr + 1
 
     if scenario == 'Low and High - One Job per Factor' and low != high:
-        print('Checkerr: Low and High - One Job per Factor Error - Number of Factors for Low and High are Different')
+        sg.cprint('Checkerr: Low and High - One Job per Factor Error - ' +
+                  'Number of Factors for Low and High are Different')
         checkerr = checkerr + 1
 
     if scenario == 'Factorial Low, Best and High Full' and nrow >= 6:
-        print('Checkerr: Factorial Low, Best and High Full Error - Number of Factors is Greater Than ' + str(nrow))
+        sg.cprint('Checkerr: Factorial Low, Best and High Full Error - Number of Factors is Greater Than ' + str(nrow))
         checkerr = checkerr + 1
     #
     # Checkerr Message
     #
     if checkerr:
-        print('Checkerr: Found ' + str(checkerr) + ' Error(s) That Need(s) to be Resolved')
-        sg.PopupError('OPMSENS Sensitivity Generation Errors \n Unable to Generate Runs \n See Messages',
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        sg.cprint('Checkerr: Found ' + str(checkerr) + ' Error(s) That Need(s) to be Resolved')
+        sg.popup_error('OPMSENS Sensitivity Generation Errors \n Unable to Generate Runs \n See Messages',
+                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
-    print('Checkerr: End')
+    sg.cprint('Checkerr: End')
     return(checkerr)
 
 
-def opmsens_clean(basefile):
+def sensitivity_clean(basefile):
     """ Cleans Scenario Directory
 
     Clean (deletes) existing DATA, PARAM and all OPM Flow Output files
@@ -259,19 +310,19 @@ def opmsens_clean(basefile):
 
     Returns
     -------
-        None
+    None
     """
 
     jobdir  = Path(basefile).parent
     jobname = Path(basefile).stem + '-*'
     joblst  = list(jobdir.glob(jobname))
-    print('WriteClean: ' + str(jobdir))
+    sg.cprint('WriteClean: ' + str(jobdir))
     for job in joblst:
         Path(job).unlink()
-        print('WriteClean: Deleted ' + str(Path(job).name))
+        sg.cprint('WriteClean: Deleted ' + str(Path(job).name))
 
 
-def opmsens_edit_factor(header, nrow, factors):
+def sensitivity_edit_factor(header, nrow, factors):
     """ Edit Factor Table
 
     Enables editing of the factor table and allows for inserting "standard" factor descriptions
@@ -308,43 +359,42 @@ def opmsens_edit_factor(header, nrow, factors):
                 sg.Text(header[4], size=(10, 1))],
 
                [sg.Input(factors[nrow][0], size=(11, 1), disabled=True, key='_var01_'),
-                sg.Input(factors[nrow][1], size=(30, 1), right_click_menu=['Option', ['Factors']],
-                         key='_var02_'),
+                sg.Input(factors[nrow][1], size=(30, 1), right_click_menu=['Option', ['Factors']], key='_var02_'),
                 sg.Input(factors[nrow][2], size=(11, 1), key='_var03_'),
                 sg.Input(factors[nrow][3], size=(11, 1), key='_var04_'),
                 sg.Input(factors[nrow][4], size=(11, 1), key='_var05_')],
 
                [sg.Submit(), sg.Cancel()]]
+
     window2 = sg.Window('Factor Properties', layout=layout2, finalize=True,
-                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-
+                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
     while True:
-        (button, values) = window2.Read()
-
-        if button == 'Factors':
+        event2, values2 = window2.read()
+        if event2 == 'Factors':
             layout3 = [[sg.Text('Standard Factors')],
                        [sg.Listbox(values=factorlst, enable_events=True, size=(30, 15))],
                        [sg.Text('')]]
             window3 = sg.Window('Standard Factors', layout=layout3, finalize=True,
-                                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            (button3, values3) = window3.Read()
+                                no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+            (event3, values3) = window3.read()
+            if event3 != None:
+                window2['_var02_'].update(value=(values3[0][0]))
             window3.Close()
-
-            window2.Element('_var02_').update(value=(values3[0][0]))
             continue
 
-        elif button == 'Submit':
-            factors[nrow] = [values['_var01_'], values['_var02_'], values['_var03_'],
-                             values['_var04_'], values['_var05_']]
-            window2.Close()
-            return factors
+        elif event2 == 'Submit':
+            factors[nrow] = [values2['_var01_'], values2['_var02_'], values2['_var03_'],
+                             values2['_var04_'], values2['_var05_']]
+            break
 
         else:
-            window2.Close()
-            return factors
+            break
+
+    window2.Close()
+    return factors
 
 
-def opmsens_set_factors(header, nrow):
+def sensitivity_set_factors(header, nrow):
     """ Create Empty Factor Table
 
     Creates an empty factor table so clear the factor table
@@ -371,7 +421,7 @@ def opmsens_set_factors(header, nrow):
     return factors
 
 
-def opmsens_write_cases(basefile, header, factors, scenario):
+def sensitivity_write_cases(basefile, header, factors, scenario):
     """ Main Function for Writing out Scenario Cases
 
     This is the main function that controls the writing out of the various requested scenario cases (jobs). The
@@ -396,13 +446,13 @@ def opmsens_write_cases(basefile, header, factors, scenario):
     """
 
     # Check for Errors and Return if Errors Found
-    checkerr = opmsens_check(basefile, header, factors, scenario)
+    checkerr = sensitivity_check(basefile, header, factors, scenario)
     if checkerr:
         return()
     #
     # Cleanup Existing Files
     #
-    opmsens_clean(basefile)
+    sensitivity_clean(basefile)
     #
     # Define Factor and Job Data Frame
     #
@@ -425,17 +475,17 @@ def opmsens_write_cases(basefile, header, factors, scenario):
     jobdata  = Path(basefile)
     jobparam = Path(basefile).with_suffix('.param')
     jobque   = Path(basefile).with_suffix('.que')
-    print('Scenario:  ' + scenario + ' Start')
+    sg.cprint('Scenario:  ' + scenario + ' Start')
     #
     # Low, Best and High Scenario
     #
     if 'Scenario' in scenario:
         jobnum = 0
         for joblevel in range(1, nlevel):
-            (joberr, jobs) = opmsens_write_param(jobstart, jobnum, jobparam, jobdata, jobs)
+            (joberr, jobs) = sensitivity_write_param(jobstart, jobnum, jobparam, jobdata, jobs)
             if joberr:
                 break
-            joberr = opmsens_write_data(scenario, joblevel, nfactor, jobdf, jobstart, jobnum, jobdata)
+            joberr = sensitivity_write_data(scenario, joblevel, nfactor, jobdf, jobstart, jobnum, jobdata)
             if joberr:
                 break
             jobstart = jobstart + joblevel
@@ -445,10 +495,10 @@ def opmsens_write_cases(basefile, header, factors, scenario):
     elif 'One Job per Factor' in scenario:
         for joblevel in range(1, nlevel):
             for jobnum in range(0, nfactor):
-                (joberr, jobs) = opmsens_write_param(jobstart, jobnum, jobparam, jobdata, jobs)
+                (joberr, jobs) = sensitivity_write_param(jobstart, jobnum, jobparam, jobdata, jobs)
                 if joberr:
                     break
-                joberr = opmsens_write_data(scenario, joblevel, nfactor, jobdf, jobstart, jobnum, jobdata)
+                joberr = sensitivity_write_data(scenario, joblevel, nfactor, jobdf, jobstart, jobnum, jobdata)
                 if joberr:
                     break
             jobstart = jobstart + nfactor
@@ -472,8 +522,8 @@ def opmsens_write_cases(basefile, header, factors, scenario):
         if 'Factorial Low, Best and High Box-Behnken' in scenario:
             doedata = pyDOE2.bbdesign(nfactor)
 
-        doedf   = pd.DataFrame(data=doedata).transpose()
-        doedf   = doedf.rename(columns=lambda x: 'RUN' + str(x + 1).zfill(3), inplace=False)
+        doedf = pd.DataFrame(data=doedata).transpose()
+        doedf = doedf.rename(columns=lambda x: 'RUN' + str(x + 1).zfill(3), inplace=False)
         #
         # Set Factor Values
         #
@@ -490,23 +540,31 @@ def opmsens_write_cases(basefile, header, factors, scenario):
         jobstart         = 0
         for joblevel in range(1, nlevel):
             jobnum = joblevel
-            (joberr, jobs) = opmsens_write_param(jobstart, jobnum, jobparam, jobdata, jobs)
+            (joberr, jobs) = sensitivity_write_param(jobstart, jobnum, jobparam, jobdata, jobs)
             if joberr:
                 break
-            joberr = opmsens_write_data(scenario, joblevel, nfactor, jobdf, jobstart, jobnum, jobdata)
+            joberr = sensitivity_write_data(scenario, joblevel, nfactor, jobdf, jobstart, jobnum, jobdata)
             if joberr:
                 break
 
-    print('Scenario:  ' + scenario + ' End')
+    sg.cprint('Scenario:  ' + scenario + ' End')
     if not joberr:
-        print('WriteQueu: Start')
-        opmsens_write_queue(jobs)
-        print('WriteQueu: End')
+        text = sg.popup_yes_no('Scenario: ' + scenario + 'as Created ' + str(len(jobs)) + ' Jobs\n\n' +
+                               'Do You Wish to Continue and Generate the OPMRUN Queue File to Run the Jobs?',
+                               title='Scenario: ' + scenario, no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        if text == 'Yes':
+            sg.cprint('WriteQueu: Start')
+            sensitivity_write_queue(jobs)
+            sg.cprint('WriteQueu: End')
+        else:
+            sg.cprint('WriteQueu: Cancelled')
+            sg.popup_ok('OPMRUN Queue File Generation Cancelled', title='Scenario: ' + scenario,
+                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
     return()
 
 
-def opmsens_write_data(scenario, nlevel, nfactor, jobdf, jobstart, jobnum, jobbase):
+def sensitivity_write_data(scenario, nlevel, nfactor, jobdf, jobstart, jobnum, jobbase):
     """ Write Scenario DATA File
 
     This routine writes out the OPM Flow DATA file for one case with the factor values for the scenario replacing the
@@ -535,6 +593,7 @@ def opmsens_write_data(scenario, nlevel, nfactor, jobdf, jobstart, jobnum, jobba
     joberr :bool
         set to True if errors otherwise false
     """
+
     joberr   = False
     jobnum   = str(jobnum + jobstart).zfill(3)
     jobname  = Path(jobbase).stem + '-' + jobnum + str(Path(jobbase).suffix)
@@ -566,9 +625,9 @@ def opmsens_write_data(scenario, nlevel, nfactor, jobdf, jobstart, jobnum, jobba
         file.close()
 
     except Exception as error:
-        sg.PopupError('Error Writing: ' + '\n  \n' + str(jobfile),
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-        print('WriteParam: Error Writing - ' + str(jobname))
+        sg.popup_error('Error Writing: ' + '\n  \n' + str(jobfile), no_titlebar=False, grab_anywhere=False,
+                       keep_on_top=True)
+        sg.cprint('WriteParam: Error Writing - ' + str(jobname))
         return True
     #
     # DATA Template Processing
@@ -586,18 +645,18 @@ def opmsens_write_data(scenario, nlevel, nfactor, jobdf, jobstart, jobnum, jobba
         file = open(jobfile, 'w')
         file.write(data)
         file.close()
-        print('WriteData: Generated ' + str(jobname))
+        sg.cprint('WriteData: Generated ' + str(jobname))
 
     except Exception as error:
-        sg.PopupError('Error Processing Base Data File: ' + '\n  \n' + str(jobfile),
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-        print('WriteData: Error Processing Base Data File ' + str(jobname))
+        sg.popup_error('Error Processing Base Data File: ' + '\n  \n' + str(jobfile), title='OPMRUN Sensitivity',
+                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        sg.cprint('WriteData: Error Processing Base Data File ' + str(jobname))
         return True
 
     return joberr
 
 
-def opmsens_write_param(jobstart, jobnum, jobparm, jobdata, jobs):
+def sensitivity_write_param(jobstart, jobnum, jobparm, jobdata, jobs):
     """ Write Scenario PARAM File
 
     This routine writes out the OPM Flow PARAM file for one case and substitutes the 'ecl-deck-file-name' variable
@@ -626,18 +685,16 @@ def opmsens_write_param(jobstart, jobnum, jobparm, jobdata, jobs):
     jobnum  = str(jobnum + jobstart).zfill(3)
     jobname = Path(jobparm).stem + '-' + jobnum + str(Path(jobparm).suffix)
     jobfile = Path(jobparm).with_name(jobname)
-
-    job     = Path(jobdata).stem + '-' + jobnum + str(Path(jobdata).suffix)
-    jobdeck = Path(jobdata).with_name(job)
+    jobdeck = Path(jobdata).stem + '-' + jobnum + str(Path(jobdata).suffix)
     #
     # Create PARAM File
     #
     try:
         Path(jobfile).write_text(Path(jobparm).read_text())
     except Exception as error:
-        sg.PopupError('Error Writing: ' + '\n  \n' + str(jobfile),
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-        print('WriteParam: Error Writing - ' + str(jobname))
+        sg.popup_error('Error Writing Parameter File: ' + '\n\n' + str(jobfile), str(error) + ': ' + str(type(error)),
+                       title='OPMRUN Sensitivity', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        sg.cprint('WriteParam: Error Writing - ' + str(jobname))
         return True
     #
     # Edit PARAM File
@@ -655,18 +712,18 @@ def opmsens_write_param(jobstart, jobnum, jobparm, jobdata, jobs):
 
         file.close()
         jobs.append(jobfile)
-        print('WriteParm: Generated ' + str(jobname))
+        sg.cprint('WriteParm: Generated ' + str(jobname))
 
     except Exception as error:
-        sg.PopupError('Error Processing Template: ' + '\n  \n' + str(jobfile),
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-        print('WriteParam: Processing Template - ' + str(jobname))
+        sg.popup_error('Error Processing Parameter File ' + '\n\n' + str(jobfile), str(error) + ': ' + str(type(error)),
+                       title='OPMRUN Sensitivity', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        sg.cprint('WriteParam: Processing Error - ' + str(jobname))
         return True
 
     return joberr, jobs
 
 
-def opmsens_write_queue(jobs):
+def sensitivity_write_queue(jobs):
     """Write Out Jobs to a OPMRUN Job Queue File
 
     Requests the job run parameters for the jobs in the jobs list and writes out the required job and job parameters
@@ -683,61 +740,65 @@ def opmsens_write_queue(jobs):
     """
 
     if jobs == []:
-        sg.PopupOK('No Job Jobs to Process',
-                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        sg.popup_ok('No Job Jobs to Process', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         return ()
 
-    #   numcpus = cpu_count() + 1
-    ncpu    = 5
     layout2 = [[sg.Text('OPMRUN Queue File')],
                 [sg.InputText(key='_jobfile_', size=(80, None)),
                  sg.FileSaveAs(target='_jobfile_', initial_folder=Path(jobs[0]).parent,
-                                file_types=[('OPMRUN Queue File', ['*.que', '*.QUE']), ('All', '*.*')])],
+                               file_types=[('OPMRUN Queue File', ['*.que', '*.QUE']), ('All', '*.*')])],
                 [sg.Text('Run Parameters')],
                 [sg.Radio('Sequential Run', "bRadio", key='_jobseq_', default=True)],
                 [sg.Radio('Parallel Run  ', "bRadio", key='_jobpar_'),
                  sg.Text('No. of Nodes'),
-                 sg.Listbox(values=list(range(1, ncpu + 1)), default_values=[1], size=(5, 3), key='_jobnode_')],
+                 sg.Listbox(values=list(range(1, cpu_count() + 1)), default_values=[1], size=(5, 3), key='_jobnode_')],
                 [sg.Submit(), sg.Cancel()]]
 
-    window2 = sg.Window('Select OPM Flow Input File', layout=layout2, finalize=True,
-                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+    window2 = sg.Window('Select OPMRUN Queue File', layout=layout2, finalize=True,
+                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
-    (button, values) = window2.Read()
+    (event, values) = window2.read()
+    while True:
+        jobfile = values['_jobfile_']
+        jobseq  = values['_jobseq_']
+        jobpar  = values['_jobpar_']
+        jobnode = values['_jobnode_']
+        jobcmd  = 'flow --parameter-file='
+        if jobpar:
+            jobcmd = 'mpirun -np ' + str(jobnode).strip("[]") + ' flow --parameter-file='
+
+        if event == 'Submit':
+            if jobfile:
+                file = open(jobfile, 'w')
+                file.write('# \n')
+                file.write('# OPMRUN Queue File \n')
+                file.write('# \n')
+            #    file.write('# Created By  : ' + opmuser + '\n')
+                file.write('# Date Created: ' + get_time() + '\n')
+                file.write('# Queue Length: ' + str(len(jobs)) + '\n')
+                file.write('# \n')
+                for job in jobs:
+                    file.write(jobcmd + str(job) + '\n')
+
+                file.write('# \n')
+                file.write('# End of Queue \n')
+                file.close()
+
+                sg.popup_ok('OPMRUN Queue File Saved to: ' + jobfile,
+                            no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                break
+            else:
+                sg.popup_error('OPMRUN Queue File Invalid: ' + jobfile,
+                            no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                continue
+        else:
+            break
+
     window2.Close()
-
-    jobfile = values['_jobfile_']
-    jobseq  = values['_jobseq_']
-    jobpar  = values['_jobpar_']
-    jobnode = values['_jobnode_']
-    jobcmd  = 'flow --parameter-file='
-    if jobpar:
-        jobcmd = 'mpirun -np ' + str(jobnode).strip("[]") + ' flow --parameter-file='
-
-    if button == 'Submit':
-        if jobfile:
-            file = open(jobfile, 'w')
-            file.write('# \n')
-            file.write('# OPMRUN Queue File \n')
-            file.write('# \n')
-        #    file.write('# Created By  : ' + opmuser + '\n')
-        #    file.write('# Date Created: ' + get_time() + '\n')
-            file.write('# Queue Length: ' + str(len(jobs)) + '\n')
-            file.write('# \n')
-            for job in jobs:
-                file.write(jobcmd + str(job) + '\n')
-
-            file.write('# \n')
-            file.write('# End of Queue \n')
-            file.close()
-
-            sg.PopupOK('OPMRUN Queue File Saved to: ' + jobfile,
-                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-
     return()
 
 
-def opmsens_main(**opmoptn):
+def sensitivity_main(jobparam, opmoptn, opmsys):
     """OPMRUN Sensitivity Case Generator Utility Main Function
 
     OPM Flow  Sensitivity Case Generator Utility is a Graphical User Interface ("GUI") program for the Open Porous Media
@@ -765,7 +826,7 @@ def opmsens_main(**opmoptn):
     #
     # Initialize
     #
-    opm_initialize()
+    set_gui_options()
 
     helptext = ('OPMRUN Sensitivity Case Generator Utility \n' +
                 '\n'
@@ -783,10 +844,10 @@ def opmsens_main(**opmoptn):
                 'The factors (the statistical term for the variables being used) are defined as $X01 to $X20, as '    +
                 'presented on the "Factors" tab. These names are used in a "Base" template input deck to define the ' +
                 'location and values to be substituted by the factor values for a given sensitivity scenario. The '   +
-                'factor values can can have any value, including a string. For example, if one wanted to run '        +
-                'sensitivities with different relative permeability data sets, on could have the different data sets '+
-                'in different files (Low-RelPerm, High-RelPerm, for example) and set the factors to these strings. '  +
-                'In the "Base" template file one would have an INCLUDE keyword of the form INCLUDE $X01 /. \n'
+                'factor values can have any value, including a string. For example, if one wanted to run scenario'    +
+                'sensitivities with different relative permeability data sets, one could have the different data '    +
+                'sets in different files (Low-RelPerm, High-RelPerm, for example) and set the factors to these '      +
+                'strings. In the "Base" template file one would have an INCLUDE keyword of the form INCLUDE $X01 /. \n'
                 '\n'
                 'To enter the data for a factor click on the table row and a dialog box will popup allowing one to '  +
                 'enter the required data; factor description, and the factor low, Best and High values. Right '       +
@@ -797,16 +858,17 @@ def opmsens_main(**opmoptn):
                 'The buttons at the base of the screen perform the following actions: \n'
                 '\n'
                 '"Base" - Selects the "Base" template file and once loaded is displayed in the "Base" tab. \n'
+                '"Clean" - Cleans (deletes) all Cases based on the current "Base" file. \n'
                 '"Clear" - Clears the factor descriptions and values.\n'
                 '"Copy"  - Copies the displayed factor table to the clipboard. \n'
                 '"Generate - Generates the PARAM and DATA files based on the factors and the selected scenario.\n'
-                '"Load" - loads a factor table from a previously "Saved" CSV file.\n'
+                '"Load" - Loads a factor table from a previously "Saved" CSV file.\n'
                 '"Save" - Saves the factor table to a CSV file.\n'
-                '"Help" - Displays help informatiom.\n'
+                '"Help" - Displays help information.\n'
                 '"Exit" - Terminates the program.\n'
                 '\n'
                 'Note that the "Generate" option also generates an OPMRUN queue file that contains all the jobs in '  +
-                ' the scenarion. One can then load the queue file into OPMRUN and run all the jobs.\n'
+                'the scenario. One can then load the queue file into OPMRUN and run all the jobs.\n'
                 '\n'
                 'See the OPM Flow manual for further information. \n')
     #
@@ -818,6 +880,10 @@ def opmsens_main(**opmoptn):
     header    = ['Factor', 'Factor Description', 'Low', 'Best', 'High']
     nrow      = 20
     ncol      = 105
+
+    i         = 0
+    factors   =  sensitivity_set_factors(header, nrow)
+
     scenarios = ['Low Scenario', 'Best Scenario', 'High Scenario', 'Low and High Scenario',
                  'Low One Job per Factor', 'Best One Job per Factor', 'High One Job per Factor',
                  'Low and High One Job per Factor',
@@ -825,223 +891,228 @@ def opmsens_main(**opmoptn):
                  'Factorial Low and High Plackett-Burman',
                  'Factorial Low, Best and High Full',
                  'Factorial Low, Best and High Box-Behnken']
-    #
-    # Define Display Window
-    #
-    factors  =  opmsens_set_factors(header, nrow)
+    # ------------------------------------------------------------------------------------------------------------------
+    # Define Display Window col_widths=[12, 44, 12, 12, 12],
+    # ------------------------------------------------------------------------------------------------------------------
+    outlog     = '_outlog1_'+sg.WRITE_ONLY_KEY
+
     factlayout = [[sg.Text('Sensitivity Factor Parameters')],
-                  [sg.Table(values=factors, headings=header, display_row_numbers=False, col_widths=[6, 30, 12, 12, 12],
+                  [sg.Table(values=factors, headings=header, display_row_numbers=False, col_widths=[12, 55, 12, 12, 12],
                    num_rows=nrow, alternating_row_color='lightgreen', text_color='black', justification='left',
-                   auto_size_columns=False, enable_events=True, select_mode='browse',
-                   key='_factors_')]]
+                   font=(opmoptn['output-font'], int(opmoptn['output-font-size']) + 1),
+                   auto_size_columns=False, enable_events=True, select_mode='browse', key='_factors_')]]
 
     baselayout = [[sg.Text('Deck Sensitivity Base Template')],
                   [sg.Multiline(background_color='lightgreen', text_color='black', do_not_clear=True,
-                                font=('Courier', 8), key='_basedeck_', size=(132, 26))]]
+                                font=(opmoptn['output-font'], int(opmoptn['output-font-size']) - 1 ),
+                                key='_basedeck_', size=(ncol + 33, 23))]]
 
     mainwind  = [[sg.Text('OPMSENS Deck Sensitivity Generation')],
                  [sg.TabGroup([
-                    [sg.Tab('Factors', factlayout, key='_tab_factors_',
-                              title_color='black', background_color='white'),
-                     sg.Tab('Base', baselayout, key='_tab_base_',
-                            title_color='darkgreen', background_color='white', border_width=None)]],
+                    [sg.Tab('Factors', factlayout, key='_tab_factors_', title_color='black', background_color='white'),
+                     sg.Tab('Base', baselayout, key='_tab_base_', title_color='darkgreen', background_color='white',
+                            border_width=None)]],
                      title_color='black', background_color='white')],
 
                  [sg.Text('Sensitivity Base OPM Flow Input Deck Template')],
-                 [sg.InputText(basefile, size=(ncol + 15, 1),
-                               tooltip='Name of Simulation File with $X01 Factor Variables, ' +
-                               'all Cases Will be Generated in this Directory',
+                 [sg.InputText(basefile, size=(ncol + 15, 1), tooltip='Name of Simulation File with $X01 Factor ' +
+                               'Variables, all Cases Will be Generated in this Directory',
                                background_color='lightgreen', key='_basefile_')],
 
                  [sg.Text('Sensitivity Scenario Options')],
-                 [sg.Listbox(values=scenarios, default_values=scenarios[0], enable_events=True, size=(ncol + 13, 8),
-                             key='_scenarios_')],
+                 [sg.Listbox(values=scenarios, default_values=scenarios[0], size=(ncol + 14, 8), key='_scenarios_')],
 
                  [sg.Text('Messages')],
-                 [sg.Output(size=(ncol + 13, 5), font=('Courier', 9), key='_outlog_')],
+                 [sg.Multiline(key=outlog, size=(ncol +13, 5), text_color='blue', autoscroll=True,
+                               font=(opmoptn['output-font'], opmoptn['output-font-size']))],
+
                  [sg.Text('')],
 
-                 [sg.Button('Base'    , tooltip='Base Input and Parameter File'      , key='_base_'     ),
+                 [sg.Button('Base'    , tooltip='Base Input and Parameter File'      , key='_base_'    ),
+                  sg.Button('Clean'   , tooltip='Clean All Base Derived Runs'        , key='_clean_'   ),
                   sg.Button('Clear'   , tooltip='Clear All Factor Parameters'        , key='_clear_'   ),
                   sg.Button('Copy'    , tooltip='Copy Factor Parameters to Clipboard', key='_copy_'    ),
                   sg.Button('Generate', tooltip='Generate Sensitivity Cases'         , key='_generate_'),
                   sg.Button('Load'    , tooltip='Load Factor Parameters from File'   , key='_load_'    ),
                   sg.Button('Save'    , tooltip='Save Factor Parameters to File'     , key='_save_'    ),
                   sg.Button('Help'    , key='_help_'),
-                  sg.Button('Exit'    , key='_exit_')]]
+                  sg.Exit()]]
 
-    window1 = sg.Window('OPMSENS Deck Sensitivity Generation', no_titlebar=True, grab_anywhere=True,
+    window1 = sg.Window('OPMSENS Deck Sensitivity Generation', no_titlebar=False, grab_anywhere=False,
                         layout=mainwind, disable_close=False, finalize=True)
     #
-    #   Define GUI Event Loop, Read Buttons, and Make Callbacks etc. Section
+    #   Set Output Multiline Window for CPRINT
     #
+    sg.cprint_set_output_destination(window1, outlog)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    #   Define GUI Event Loop, Read Buttons, and Make Callbacks etc. Section
+    # ------------------------------------------------------------------------------------------------------------------
     while True:
         #
         # Read the Window and Process
         #
-        button, values = window1.Read()
-        debug = False
-        if debug:
-            sg.Print('Buttons')
-            sg.Print(button)
-            sg.Print('Values')
-            sg.Print(values)
-
-        debug = False
-        #
-        # Get Main Window Location and Set Default Location for other Windows
-        #
-#        x = int((window0.Size[0] / 2) + window0.CurrentLocation()[0])
-#        y = int((window0.Size[1] / 4) + window0.CurrentLocation()[1])
-#        sg.SetOptions(window_location=(x, y))
+        event, values = window1.read()
+        window_debug(event, 'values', values, False)
         #
         # Base (Input Deck Template)
         #
-        if button == '_base_':
-            basefile = sg.PopupGetFile('OPMSENS Set OPM Flow Input Deck Template', default_path=str(os.getcwd()),
-                                       initial_folder=str(os.getcwd()),
-                                       file_types=[('OPM', ['*.data', '*.DATA'])],
-                                       no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            if basefile is not None:
-                if Path(basefile).is_file():
-                    window1.Element('_basefile_').update(value=basefile)
-                    file = open(basefile, 'r')
-                    base = file.read()
-                    file.close()
-                    window1.Element('_basedeck_').update('')
-                    window1.Element('_basedeck_').update(value=base)
-                    window1.Element('_tab_base_').select()
+        if event == '_base_':
+            basefile = sensitivity_base_file(jobparam, opmsys, window1)
+            continue
+        #
+        # Clean
+        #
+        elif event == '_clean_':
+            if not Path(basefile).is_file():
+                sg.popup_ok('No BASE file selected, please select a BASE file first, before selecting this option.',
+                            no_titlebar = True, grab_anywhere = True, keep_on_top = True)
+                continue
 
-                else:
-                    sg.PopupError('File Does Not Exist: \n\n' + str(basefile) + '\n',
-                                  no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-                    basefile = ''
-                    window1.Element('_basefile_').update(value=basefile)
+            text = sg.popup_yes_no('Do You Wish to Clean, that is remove all sensitivity cases derived from the ' +
+                               'current BASE file? \n' 'Note that files are automatically removed when generating ' +
+                               'a new set of sensitivity cases.',
+                               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+            if text == 'Yes':
+                sensitivity_clean(basefile)
+                sg.popup_ok('All files from BASE all sensitivity cases have been deleted, see messages.',
+                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                continue
 
             continue
         #
         # Clear
         #
-        elif button == '_clear_':
-            window1.Element('_tab_factors_').select()
-            text = sg.PopupYesNo('Do You Wish to Clear All the Factor Properties?',
-                                 no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        elif event == '_clear_':
+            window1['_tab_factors_'].select()
+            text = sg.popup_yes_no('Do You Wish to Clear All the Factor Properties?',
+                                 no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             if text == 'Yes':
-                factors =  opmsens_set_factors(header, nrow)
-                window1.Element('_factors_').update(factors)
-                window1.Element('_tab_factors_').select()
+                factors =  sensitivity_set_factors(header, nrow)
+                window1['_factors_'].update(factors)
+                window1['_tab_factors_'].select()
 
             continue
         #
         # Copy
         #
-        elif button == '_copy_':
-            window1.Element('_tab_factors_').select()
-            dt = window1.Element('_factors_').get()
+        elif event == '_copy_':
+            window1['_tab_factors_'].select()
+            dt = window1['_factors_'].get()
             df = pd.DataFrame(dt, columns=header)
             try:
                 df.to_clipboard(sep=',', index=False)
             except Exception:
-                sg.PopupError('OPMSENS Factors Copied to Clipboard Error.\n \n' +
+                sg.popup_error('OPMSENS Factors Copied to Clipboard Error.\n \n' +
                               'Currently, this error only appears on Linux systems. \n'
                               'It can be fixed by installing one of the copy/paste mechanisms via:\n \n' +
                               'sudo apt-get install xclip python3-pyqt4 \n',
-                              no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                              no_titlebar=False, grab_anywhere=False, keep_on_top=True)
                 continue
 
-            sg.PopupTimed('OPMSENS Factors Copied to Clipboard', no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+            sg.popup_timed('OPMSENS Factors Copied to Clipboard', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             continue
         #
         # Exit
         #
-        elif button == '_exit_' or button is None:
-            ans = sg.PopupYesNo('Exit OPMSENS Sensitivity Generation?',
-                                no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            if ans == 'Yes':
+        elif event == 'Exit':
+            text = sg.popup_yes_no('Exit OPMSENS Sensitivity Generation?',
+                                    no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+            if text == 'Yes':
                 break
+            else:
+                continue
+        elif event == sg.WIN_CLOSED:
+            break
         #
         # Factors (Edit)
         #
-        elif button == '_factors_':
-            factors = opmsens_edit_factor(header, values['_factors_'][0], factors)
-            window1.Element('_factors_').update(factors)
+        elif event == '_factors_':
+            try:
+                edit_row = values['_factors_'][0]
+            except IndexError as e:
+                sg.popup_error('OPMSENS Bug in OPMSENS_MAIN: Failed to Get Factor Table Row\n ',
+                               'Event Value is: ' + str(event) ,
+                               'Row Value is: ' + str(edit_row) + '\n' ,
+                               'Program Will Continue \n',
+                                no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                continue
+
+            factors = sensitivity_edit_factor(header, edit_row, factors)
+            window1['_factors_'].update(factors)
+            # Need to Read Window Again to Clear Events and Values
+            window1.read()
             continue
         #
         # Generate
         #
-        elif button == '_generate_':
-            window1.Element('_outlog_').Update('')
-            basefile = window1.Element('_basefile_').get()
-            factors  = window1.Element('_factors_').get()
+        elif event == '_generate_':
+            window1[outlog].update('')
+            basefile = window1['_basefile_'].get()
+            factors  = window1['_factors_'].get()
             scenario = values['_scenarios_'][0]
-            opmsens_write_cases(basefile, header, factors, scenario)
+            sensitivity_write_cases(basefile, header, factors, scenario)
             continue
         #
         # Help
         #
-        elif button == '_help_':
-            opm_popup(opmvers, helptext, 22)
+        elif event == '_help_':
+            opm_popup('OPMRUN Sensitivity Case Generator Utility', helptext, 25)
             continue
         #
         # Load
         #
-        elif button == '_load_':
-            file = sg.PopupGetFile('Load OPMSENS Sensitivity Factor File', default_path=str(os.getcwd()),
+        elif event == '_load_':
+            file = sg.popup_get_file('Load OPMSENS Sensitivity Factor File', default_path=str(os.getcwd()),
                                    initial_folder=str(os.getcwd()), save_as=False,
-                                   file_types=[('OPMSENS Factors', '*.fac'), ('All', '*.*')],
-                                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                                   file_types=[('OPMSENS Factors', '*.fac'), ('All', '*.*')], size=(110,1),
+                                   no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             if file is not None:
                 if Path(file).is_file():
                     df      = pd.read_csv(file, keep_default_na=False)
                     factors = df.values.tolist()
-                    window1.Element('_tab_factors_').select()
-                    window1.Element('_factors_').update(values=factors)
+                    window1['_tab_factors_'].select()
+                    window1['_factors_'].update(values=factors)
                 else:
-                    sg.PopupError('File Does Not Exist: \n\n' + str(file) + '\n',
-                                  no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+                    sg.popup_error('File Does Not Exist: \n\n' + str(file) + '\n',
+                                  no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
             continue
         #
         # Save
         #
-        elif button == '_save_':
-            window1.Element('_tab_factors_').select()
-            file = sg.PopupGetFile('Save OMPSENS Sensitivity Factor File', default_path=str(os.getcwd()),
+        elif event == '_save_':
+            window1['_tab_factors_'].select()
+            file = sg.popup_get_file('Save OMPSENS Sensitivity Factor File', default_path=str(os.getcwd()),
                                    initial_folder=str(os.getcwd()), save_as=True,
                                    file_types=[('OPMSENS Factors', '*.fac'), ('All', '*.*')],
-                                   no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-            dt = window1.Element('_factors_').get()
+                                   no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+            dt = window1['_factors_'].get()
             df = pd.DataFrame(dt, columns=header)
             df.to_csv(file, sep=',', index=False)
-            sg.PopupTimed('OPMSENS Factors Saved to File',
-                          no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+            sg.popup_timed('OPMSENS Factors Saved to File',
+                          no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             continue
     #
     # Define Post Processing Section
     #
-    ans = sg.PopupYesNo('Do You Wish to Save the OPMSENS Sensitivity Factors to File?',
-                        no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+    ans = sg.popup_yes_no('Do You Wish to Save the OPMSENS Sensitivity Factors to File?',
+                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
     if ans == 'Yes':
-        file = sg.PopupGetFile('Save OMPSENS Sensitivity Factor File', default_path=str(os.getcwd()),
+        file = sg.popup_get_file('Save OMPSENS Sensitivity Factor File', default_path=str(os.getcwd()),
                                initial_folder=str(os.getcwd()), save_as=True,
                                file_types=[('OPMSENS Factors', '*.fac'), ('All', '*.*')],
-                               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
-        dt = window1.Element('_factors_').get()
+                               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        dt = window1['_factors_'].get()
         df = pd.DataFrame(dt, columns=header)
         df.to_csv(file, sep=',', index=False)
-        sg.PopupTimed('OPMSENS Factors Saved to File',
-                      no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+        sg.popup_timed('OPMSENS Factors Saved to File',
+                      no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
     window1.Close()
-    sg.PopupOK('OPMSENS Sensitivity Generation Processing Complete',
-               no_titlebar=True, grab_anywhere=True, keep_on_top=True)
+    sg.popup_ok('OPMSENS Sensitivity Generation Processing Complete',
+               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Execute Module
-# ----------------------------------------------------------------------------------------------------------------------
-if __name__ == '__main__':
-    opmsens_main(**opmoptn)
 
 # ======================================================================================================================
 # End of OPMSENS

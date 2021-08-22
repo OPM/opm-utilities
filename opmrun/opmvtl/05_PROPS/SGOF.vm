@@ -15,7 +15,7 @@
 ## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ## 
-## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Operating System  : Kubuntu 20.04
 ## Machine Type              : amd64                               
 ## File Name                 : SGOF.vm                                                         
 ## Author                    : David Baxendale
@@ -23,18 +23,20 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 11-May-2020
+## Date                      : 27-July-2021
 ##   
-##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+##                             Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
 --                                                                                     
 --       GAS-OIL RELATIVE PERMEABILITY TABLES (SGOF)                                                                  
---       COREY KRO = 1.000  COREY KRW = 1.000 
---       COREY SORG= 0.300  COREY SWC = 0.200
 SGOF
 --       SG         KRG       KROG      PCOG                                                     
 --       FRAC                           PSIA                                                  
+--       -------   --------  -------   -------                                                
+         0.00000   0.000000  0.90000    0.0000 
+         0.03000   0.000000  0.82500    0.0000 
+         0.80000   0.900000  0.00000    0.0000             / TABLE No. 01 
 --       -------   --------  -------   -------                                                
          0.00000   0.000000  0.90000    0.0000 
          0.03000   0.000000  0.82500    0.0000 
@@ -71,5 +73,5 @@ SGOF
          0.47150   0.751500  0.05000    0.0000
          0.48580   0.775800  0.02500    0.0000
          0.50000   0.800000  0.00000    0.0000
-         0.80000   0.900000  0.00000    0.0000             / TABLE No. 01 
+         0.80000   0.900000  0.00000    0.0000             / TABLE No. 02 
 ## =================================================================================================================================

@@ -1,0 +1,72 @@
+## =================================================================================================================================
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
+## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
+##
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2 of the License, or any later version.
+##
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+## 
+## Machine Operating System  : Kubuntu 20.04
+## Machine Type              : amd64                               
+## File Name                 : WSEGAICD.vm                                                       
+## Author                    : David Baxendale
+##                             Equinox International Petroleum Consultants Pte. Ltd
+##                             51 Goldhill Plaza, #07-10/11
+##                             Singapore, 308900
+##                             david.baxendale@eipc.co 
+## Date                      : 27-July-2021
+##   
+##                             Copyright (C) 2017 David Baxendale
+## 
+## =================================================================================================================================
+--
+--       MULTI-SEGMENT WELL ICD SEGMENT SPECIFICATION DATA                                                     
+--                                                                             
+-- WELL  SEG   SEG  ICD     ICD      CAL   CAL   EML   EML    EML  SCAL  CAL   RATE  VISC  OPEN   DENSITY EXP  VISCOSITY EXP
+-- NAME  ISTR  IEND STREN   LEN      DEN   VISC  CRIT  TRANS  MAX  FAC   RATE  EXP   EXP   CLOSE  A1  A2  A3   B1  B2  B3 
+WSEGAICD
+OP01     16    16   7.5e-5 -0.028975 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     17    17   7.5e-5 -0.023783 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     18    18   7.5e-5 -0.101240 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     19    19   7.5e-5 -0.015022 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     20    20   7.5e-5 -0.067205 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     21    21   7.5e-5 -0.155410 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     22    22   7.5e-5 -0.011141 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     23    23   7.5e-5 -0.026362 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     24    24   7.5e-5 -0.163410 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     25    25   7.5e-5 -0.160830 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     26    26   7.5e-5 -0.107180 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     27    27   7.5e-5 -0.049206 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     28    28   7.5e-5 -0.025824 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP01     29    29   7.5e-5 -0.064414 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+/
+--                                                                             
+-- WELL  SEG   SEG  ICD     ICD      CAL   CAL   EML   EML    EML  SCAL  CAL   RATE  VISC  OPEN   DENSITY EXP  VISCOSITY EXP
+-- NAME  ISTR  IEND STREN   LEN      DEN   VISC  CRIT  TRANS  MAX  FAC   RATE  EXP   EXP   CLOSE  A1  A2  A3   B1  B2  B3 
+WSEGAICD
+OP02     16    16   7.5e-5 -0.028975 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     17    17   7.5e-5 -0.023783 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     18    18   7.5e-5 -0.101240 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     19    19   7.5e-5 -0.015022 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     20    20   7.5e-5 -0.067205 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     21    21   7.5e-5 -0.155410 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     22    22   7.5e-5 -0.011141 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     23    23   7.5e-5 -0.026362 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     24    24   7.5e-5 -0.163410 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     25    25   7.5e-5 -0.160830 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     26    26   7.5e-5 -0.107180 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     27    27   7.5e-5 -0.049206 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     28    28   7.5e-5 -0.025824 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+OP02     29    29   7.5e-5 -0.064414 1020  0.48  0.7   1*     1*   1*    1*    2.2   0.5   1*     1*  1*  1*   1*  1*  1*  /
+/
+
+## =================================================================================================================================

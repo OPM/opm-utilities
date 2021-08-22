@@ -22,9 +22,9 @@
 ##                             51 Goldhill Plaza,  #07-10/11,
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co
-## Date                      : 11-May-2020
+## Date                      : 27-July-2021
 ##   
-##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd
+##                             Copyright (C) 2021 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
 -- =================================================================================================================================
@@ -34,7 +34,366 @@
 -- =================================================================================================================================
 SUMMARY
 
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- SUMMARY RSM FILE OPTIONS                                                        
+-- ---------------------------------------------------------------------------------------------------------------------------------
+RUNSUM                                                                          
+                                                                                
+RPTONLY                                                                         
+                                                                                
+SEPARATE      
+
+#if ($SumOpt01=="Yes")
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- TRACER VARIABLES (REPLACE xxx BY TRACER NAME)                                                        
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       TRACER VARIABLES (FIELD)
+--
+FTIRxxx 
+FTITxxx
+FTPRxxx
+FTPTxxx
+
+FTICxxx
+FTPCxxx
+
+FTIPTxxx  
+FTIPFxxx  
+FTIPSxxx  
+--
+--       TRACER VARIABLES (GROUP)
+--
+GTIRxxx 
+/                      
+GTITxxx
+/
+GTPRxxx
+/
+GTPTxxx
+/
+
+GTICxxx
+/
+GTPCxxx
+/
+--
+--       TRACER VARIABLES (REGION)
+--
+RTIPTxxx
+RTIPFxxx
+RTIPSxxx
+/
+--
+--       TRACER VARIABLES (WELL)
+--
+WTIRxxx
+/
+WTITxxx
+/
+WTPRxxx
+/
+WTPTxxx       
+/
+
+WTICxxx
+/
+WTPCxxx
+/
+#end
+#if ($SumOpt02=="Yes")
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- ANALYTICAL AQUIFER INFLUX VARIABLES                                                         
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       ANALYTICAL AQUIFERS(FIELD)
+--
+FAQR
+FAQT
+--
+--       ANALYTICAL AQUIFERS
+--
+AAQP
+/
+AAQR
+/
+AAQT
+/
+--
+--       ANALYTICAL AQUIFERS (CARTER-TRACY)
+--
+AAQTD
+/
+AAQPD
+/
+#end
+#if ($SumOpt03=="Yes")
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- NUMERICAL AQUIFER INFLUX VARIABLES                                                        
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       NUMERICAL AQUIFER (FIELD)
+--
+FNQR
+FNQT
+--
+--       NUMERICAL AQUIFER
+--
+ANQP
+/
+ANQR
+/
+ANQT
+/       
+#end
+#if ($SumOpt04=="Yes")
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- BRINE PHASE AND MODEL VARIABLES                                                        
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       BRINE VARIABLES (FIELD)
+--
+FSIR
+FSIT
+FSPR
+FSPT
+
+FSIC
+FSPC
+
+FSIP  
+--
+--       BRINE VARIABLES (GROUP)
+--
+GSIR 
+/                      
+GSIT
+/
+GSPR
+/
+GSPT
+/
+
+GSIC
+/
+GSPC
+/
+--
+--       BRINE VARIABLES (REGION)
+--
+RSIP
+/
+--
+--       BRINE VARIABLES (WELL)
+--
+WSIR
+/
+WSIT
+/
+WSPR
+/
+WSPT
+/
+
+WSIC
+/
+WSPC
+/
+#end
+#if ($SumOpt05=="Yes")
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- FOAM PHASE AND MODEL VARIABLES                                                         
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       FOAM VARIABLES (FIELD)
+--
+FTIRFOA
+FTITFOA
+FTPRFOA
+FTPTFOA
+FTADSFOA
+
+FTDCYFOA
+FTMOBFOA
+FTIPTFOA
+--
+--       FOAM VARIABLES (GROUP)
+--
+GTIRFOA
+/
+GTITFOA
+/
+GTPRFOA
+/
+GTPTFOA
+/
+--
+--       FOAM VARIABLES (REGION)
+--
+RTADSFOA
+/
+RTDCYFOA
+/
+RTIPTFOA
+/
+--
+--       FOAM VARIABLES (WELL)
+--
+WTIRFOA
+/
+WTITFOA
+/
+WTPRFOA
+/
+WTPTFOA
+/
+#end
+#if ($SumOpt06=="Yes")        
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- MULTI-SEGEMENT WELL VARIABLES                                                      
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- 
+--       WELL MULTI-SEGMENT FLOW VARIABLES 
+--
+SOFR
+/
+SOFRF
+/
+SOFRS
+/
+SWFR
+/
+SGFR
+/
+SGFRF
+/
+SGFRS
+/
+SWCT
+/
+SGOR
+/
+SOGR
+/
+-- 
+--       WELL MULTI-SEGMENT PRESSURE VARIABLES 
+--
+SPR
+/
+SPRD
+/
+#end
+#if ($SumOpt07=="Yes")        
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- POLYMER PHASE AND MODEL VARIABLES                                                      
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       POLYMER VARIABLES (FIELD)
+--
+FCIR
+FCIT
+FCPR
+FCPT
+
+FCAD
+
+FCIC
+FCPC
+FCIP
+--
+--       POLYMER VARIABLES (GROUP)
+--
+GCIR 
+/
+GCIT
+/
+GCPR
+/
+GCPT
+/
+
+GCIC
+/
+GCPC
+/
+--
+--       POLYMER VARIABLES (REGION)
+--
+RCAD
+/
+--
+--       POLYMER VARIABLES (WELL)
+--
+WCIR
+/
+WCIT
+/
+WCPR
+/
+WCPT
+/
+WCIC
+/
+WCPC
+/
+#end        
+#if ($SumOpt08=="Yes")
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- SIMULATOR PERFORMANCE VARIABLES                                                         
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--
+--       EXPORT NUMERICAL PERFORMANCE SUMMARY VARIABLES TO FILE
+--
+PERFORMA
+--
+--       EXPORT PERFORMANCE CUMULATIVE MESSAGE SUMMARY VARIABLES TO FILE
+--
+NMESSAGE
+
+#end
 #if ($SumOpt09=="Yes")
+-- ---------------------------------------------------------------------------------------------------------------------------------
+-- SOLVENT PHASE AND MODEL VARIABLES                                                         
+-- ---------------------------------------------------------------------------------------------------------------------------------
+--
+--       SOLVENT VARIABLES (FIELD)
+--
+FNIR
+FNIT
+FNPR
+FNPT
+
+FNIP
+--
+--       SOLVENT VARIABLES (GROUP)
+--
+GNIR 
+/                      
+GNIT
+/
+GNPR
+/
+GNPT
+/
+--
+--       SOLVENT VARIABLES (REGION)
+--
+RNIP
+/
+--
+--       SOLVENT VARIABLES (WELL)
+--
+WNIR
+/
+WNIT
+/
+WNPR
+/
+WNPT
+/
+#end
+#if ($SumOpt10=="Yes")
 -- ---------------------------------------------------------------------------------------------------------------------------------
 -- FIELD PRODUCTION DATA                                                        
 -- ---------------------------------------------------------------------------------------------------------------------------------
@@ -350,342 +709,7 @@ RWPT
 ROEW                                                                            
 /      
 #end
-#if ($SumOpt02=="Yes")
--- ---------------------------------------------------------------------------------------------------------------------------------
--- ANALYTICAL AQUIFER INFLUX VARIABLES                                                         
--- ---------------------------------------------------------------------------------------------------------------------------------
---
---       ANALYTICAL AQUIFERS(FIELD)
---
-FAQR
-FAQT
---
---       ANALYTICAL AQUIFERS
---
-AAQP
-/
-AAQR
-/
-AAQT
-/
---
---       ANALYTICAL AQUIFERS (CARTER-TRACY)
---
-AAQTD
-/
-AAQPD
-/
-#end
-#if ($SumOpt03=="Yes")
--- ---------------------------------------------------------------------------------------------------------------------------------
--- NUMERICAL AQUIFER INFLUX VARIABLES                                                        
--- ---------------------------------------------------------------------------------------------------------------------------------
---
---       NUMERICAL AQUIFER (FIELD)
---
-FNQR
-FNQT
---
---       NUMERICAL AQUIFER
---
-ANQP
-/
-ANQR
-/
-ANQT
-/       
-#end
-#if ($SumOpt01=="Yes")
--- ---------------------------------------------------------------------------------------------------------------------------------
--- TRACER VARIABLES (REPLACE xxx BY TRACER NAME)                                                        
--- ---------------------------------------------------------------------------------------------------------------------------------
---
---       TRACER VARIABLES (FIELD)
---
-FTIRxxx 
-FTITxxx
-FTPRxxx
-FTPTxxx
-
-FTICxxx
-FTPCxxx
-
-FTIPTxxx  
-FTIPFxxx  
-FTIPSxxx  
---
---       TRACER VARIABLES (GROUP)
---
-GTIRxxx 
-/                      
-GTITxxx
-/
-GTPRxxx
-/
-GTPTxxx
-/
-
-GTICxxx
-/
-GTPCxxx
-/
---
---       TRACER VARIABLES (REGION)
---
-RTIPTxxx
-RTIPFxxx
-RTIPSxxx
-/
---
---       TRACER VARIABLES (WELL)
---
-WTIRxxx
-/
-WTITxxx
-/
-WTPRxxx
-/
-WTPTxxx       
-/
-
-WTICxxx
-/
-WTPCxxx
-/
-#end
-#if ($SumOpt04=="Yes")
--- ---------------------------------------------------------------------------------------------------------------------------------
--- BRINE PHASE AND MODEL VARIABLES                                                        
--- ---------------------------------------------------------------------------------------------------------------------------------
---
---       BRINE VARIABLES (FIELD)
---
-FSIR
-FSIT
-FSPR
-FSPT
-
-FSIC
-FSPC
-
-FSIP  
---
---       BRINE VARIABLES (GROUP)
---
-GSIR 
-/                      
-GSIT
-/
-GSPR
-/
-GSPT
-/
-
-GSIC
-/
-GSPC
-/
---
---       BRINE VARIABLES (REGION)
---
-RSIP
-/
---
---       BRINE VARIABLES (WELL)
---
-WSIR
-/
-WSIT
-/
-WSPR
-/
-WSPT
-/
-
-WSIC
-/
-WSPC
-/
-#end
-#if ($SumOpt05=="Yes")
--- ---------------------------------------------------------------------------------------------------------------------------------
--- FOAM PHASE AND MODEL VARIABLES                                                         
--- ---------------------------------------------------------------------------------------------------------------------------------
---
---       FOAM VARIABLES (FIELD)
---
-FTIRFOA
-FTITFOA
-FTPRFOA
-FTPTFOA
-FTADSFOA
-
-FTDCYFOA
-FTMOBFOA
-FTIPTFOA
---
---       FOAM VARIABLES (GROUP)
---
-GTIRFOA
-/
-GTITFOA
-/
-GTPRFOA
-/
-GTPTFOA
-/
---
---       FOAM VARIABLES (REGION)
---
-RTADSFOA
-/
-RTDCYFOA
-/
-RTIPTFOA
-/
---
---       FOAM VARIABLES (WELL)
---
-WTIRFOA
-/
-WTITFOA
-/
-WTPRFOA
-/
-WTPTFOA
-/
-#end
-#if ($SumOpt06=="Yes")        
--- ---------------------------------------------------------------------------------------------------------------------------------
--- MULTI-SEGEMENT WELL VARIABLES                                                      
--- ---------------------------------------------------------------------------------------------------------------------------------
--- 
---       WELL MULTI-SEGMENT FLOW VARIABLES 
---
-SOFR
-/
-SOFRF
-/
-SOFRS
-/
-SWFR
-/
-SGFR
-/
-SGFRF
-/
-SGFRS
-/
-SWCT
-/
-SGOR
-/
-SOGR
-/
--- 
---       WELL MULTI-SEGMENT PRESSURE VARIABLES 
---
-SPR
-/
-SPRD
-/
-#end
-#if ($SumOpt07=="Yes")        
--- ---------------------------------------------------------------------------------------------------------------------------------
--- POLYMER PHASE AND MODEL VARIABLES                                                      
--- ---------------------------------------------------------------------------------------------------------------------------------
---
---       POLYMER VARIABLES (FIELD)
---
-FCIR
-FCIT
-FCPR
-FCPT
-
-FCAD
-
-FCIC
-FCPC
-FCIP
---
---       POLYMER VARIABLES (GROUP)
---
-GCIR 
-/
-GCIT
-/
-GCPR
-/
-GCPT
-/
-
-GCIC
-/
-GCPC
-/
---
---       POLYMER VARIABLES (REGION)
---
-RCAD
-/
---
---       POLYMER VARIABLES (WELL)
---
-WCIR
-/
-WCIT
-/
-WCPR
-/
-WCPT
-/
-WCIC
-/
-WCPC
-/
-#end        
-#if ($SumOpt08=="Yes")
--- ---------------------------------------------------------------------------------------------------------------------------------
--- SOLVENT PHASE AND MODEL VARIABLES                                                         
--- ---------------------------------------------------------------------------------------------------------------------------------
---
---       SOLVENT VARIABLES (FIELD)
---
-FNIR
-FNIT
-FNPR
-FNPT
-
-FNIP
---
---       SOLVENT VARIABLES (GROUP)
---
-GNIR 
-/                      
-GNIT
-/
-GNPR
-/
-GNPT
-/
---
---       SOLVENT VARIABLES (REGION)
---
-RNIP
-/
---
---       SOLVENT VARIABLES (WELL)
---
-WNIR
-/
-WNIT
-/
-WNPR
-/
-WNPT
-/
-#end
-#if ($SumOpt10=="Yes")
+#if ($SumOpt11=="Yes")
 -- ---------------------------------------------------------------------------------------------------------------------------------
 -- THERMAL MODEL DATA                                                         
 -- ---------------------------------------------------------------------------------------------------------------------------------
@@ -738,16 +762,5 @@ WTPCHEA
 /
 WTICHEA
 /
-#end
-#if ($SumOpt09=="Yes")
--- ---------------------------------------------------------------------------------------------------------------------------------
--- SUMMARY REPORT PRINT                                                         
--- ---------------------------------------------------------------------------------------------------------------------------------
-RUNSUM                                                                          
-                                                                                
-RPTONLY                                                                         
-                                                                                
-SEPARATE      
-        
 #end
 ## =================================================================================================================================

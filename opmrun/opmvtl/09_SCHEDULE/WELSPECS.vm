@@ -15,7 +15,7 @@
 ## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ## 
-## Machine Operating System  : Windows 7 - Service Pack 1                                 
+## Machine Operating System  : Kubuntu 20.04
 ## Machine Type              : amd64                               
 ## File Name                 : WELSPECS.vm                                                         
 ## Author                    : David Baxendale
@@ -23,19 +23,19 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 11-May-2020
+## Date                      : 27-July-2021
 ##   
-##                             Copyright (C) 2020 Equinox International Petroleum Consultants Pte. Ltd            
+##                             Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
 --
 --       WELL SPECIFICATION DATA                                                      
 --                                                                              
--- WELL  GROUP     LOCATION  BHP    PHASE  DRAIN  INFLOW  OPEN  CROSS  PVT         
--- NAME  NAME        I    J  DEPTH  FLUID  AREA   EQUANS  SHUT  FLOW   TABLE       
-WELSPECS                                                                                                                                                           
-GI01     PLATFORM   14   13   1*     GAS    1*     P-P    SHUT   NO     1*     /
-GP01     PLATFORM   64   80   1*     GAS    1*     GPP    SHUT   NO     1*     /
-OP01     PLATFORM   24  110   1*     OIL    1*     STD    SHUT   NO     1*     /
+-- WELL  GROUP    LOCATION  BHP    PHASE  DRAIN  INFLOW  OPEN  CROSS PVT   DEN  FIP       
+-- NAME  NAME       I    J  DEPTH  FLUID  AREA   EQUANS  SHUT  FLOW  TABLE CAL  NUM    
+WELSPECS                                                                                                                                                         
+GI01     PLATFORM  14   13   1*     GAS    1*     P-P    SHUT   NO   1*    1*   1* /
+GP01     PLATFORM  64   80   1*     GAS    1*     GPP    SHUT   NO   1*    1*   1* /
+OP01     PLATFORM  24  110   1*     OIL    1*     STD    SHUT   NO   1*    1*   1* /
 /   
 ## =================================================================================================================================

@@ -1718,8 +1718,8 @@ def opm_startup(opmvers, opmsys1, opmlog1):
         opmsys1['opmmode' ] = 'Exe'
     else:
         opmsys1['opmmode' ] = 'Script'
-    #
-    opmsys1['opmpath' ] = Path().absolute()
+    
+    opmsys1['opmpath' ] = Path(Path(__file__).parent.absolute())
     opmsys1['opmhome' ] = Path.home() / 'OPM'
     opmsys1['opmini'  ] = Path(opmsys1['opmhome'] / 'OPMRUN.ini'  )
     opmsys1['opmlog'  ] = Path(opmsys1['opmhome'] / 'OPMRUN.log'  )

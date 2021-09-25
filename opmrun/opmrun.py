@@ -1384,25 +1384,27 @@ def load_manual(opmsys1, filename):
     #
     if sg.running_linux():
         try:
-            subprocess.Popen(["xdg-open", filename])
-        except Exception:
-            sg.popup_error('OPM Flow Manual Error \n \n' + 'Cannot run: \n \n' +
-                          '"xdg-open ' + str(filename) + '" \n \n' +
-                          'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
-                          line_width=len(filename) + 12, no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+            subprocess.run(["xdg-open", filename], check=True, shell=True)
+        except (FileNotFoundError, subprocess.SubprocessError) as error:
+            sg.popup_error('OPM Flow Manual Error - Cannot Run: \n \n' +
+                           '"xdg-open ' + str(filename) + '" \n \n' + str(error) + ' ' + str(type(error)) + '\n \n' +
+                           'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
+                           title='OPM Flow Manual Error', line_width=len(filename) + 12, no_titlebar=False,
+                           grab_anywhere=False, keep_on_top=True)
     #
     # Windows System
     #
     else:
         try:
             os.startfile(filename)
-        except Exception:
-            sg.popup_error('OPM Flow Manual Error \n \n' + 'Cannot run: \n \n' +
-                          str(filename) + ' \n \n' +
-                          'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
-                          line_width=len(filename) + 12, no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        except FileNotFoundError as error:
+            sg.popup_error('OPM Flow Manual Error - Cannot Run: \n \n' +
+                           str(filename) + ' \n \n' + str(error) + ' ' + str(type(error)) + '\n \n' +
+                           'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
+                           title='OPM Flow Manual Error', line_width=len(filename) + 12, no_titlebar=False,
+                           grab_anywhere=False, keep_on_top=True)
 
-    return()
+        return ()
 
 
 def load_options(opmoptn1, opmsys1, opmlog1):

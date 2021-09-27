@@ -1404,7 +1404,7 @@ def load_manual(opmsys1, filename):
                            title='OPM Flow Manual Error', line_width=len(filename) + 12, no_titlebar=False,
                            grab_anywhere=False, keep_on_top=True)
 
-        return ()
+    return ()
 
 
 def load_options(opmoptn1, opmsys1, opmlog1):

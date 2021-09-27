@@ -426,7 +426,7 @@ def add_job(joblist, jobparam, jobsys):
         bcpu = True
 
     layout1 = [[sg.Text('File to Add to Queue')],
-               [sg.InputText(key='_jobdir_', size=(80, None)),
+               [sg.InputText(key='_jobdir_', size=(80, 1)),
                 sg.FilesBrowse(target='_jobdir_', initial_folder=Path().absolute(),
                                file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')])],
                [sg.Text('Run and Parameter File Options')],
@@ -435,7 +435,7 @@ def add_job(joblist, jobparam, jobsys):
                 sg.Listbox(values=list(range(1, ncpu + 1)), size=(10, 3), key='_jobnode_', default_values=[ncpu],
                            disabled=bcpu),
                 sg.Text('Overwrite Parameter\nFile Options'),
-                sg.Listbox(values=['Ask', 'Keep', 'Overwrite'], size=(10, 3), key='_jobopt_', default_values='Ask')],
+                sg.Listbox(values=['Ask', 'Keep', 'Overwrite'], size=(10, 3), key='_jobopt_', default_values=['Ask'])],
                [sg.Submit(), sg.Exit()]]
     window1 = sg.Window('Select OPM Flow Input File', layout=layout1)
 
@@ -455,7 +455,7 @@ def add_job(joblist, jobparam, jobsys):
 
         if event == 'Submit':
             if len(jobs) == 0:
-                sg.popup_ok('No Simulation Input Files Found', title='OPMRUN Directory Load',
+                sg.popup_ok('No Simulation Input Files Found', title='Select OPM Flow Input File',
                             no_titlebar=False, grab_anywhere=False, keep_on_top=True)
                 continue
 
@@ -476,13 +476,18 @@ def add_job(joblist, jobparam, jobsys):
                 if jobfile.is_file() and jobopt == 'Ask':
                     text = sg.popup('Parameter file:', str(jobfile),
                                     'Already exists; do you wish to overwrite it with the current defaults,'
-                                    ' or keep the existing parameter file?', custom_text=('Overwrite', 'Keep', None),
-                                    title='OPMRUN Directory Load', no_titlebar=False,
+                                    ' or keep the existing parameter file?', custom_text=('Overwrite', 'Keep'),
+                                    title='OPM Flow Parameter File Option', no_titlebar=False,
                                     grab_anywhere=False, keep_on_top=True)
                     if text == 'Overwrite':
                         save_parameters(job, jobparam, jobbase, jobfile, jobsys)
 
-                if jobfile.is_file() and jobopt == 'Overwrite':
+                elif jobfile.is_file() and jobopt == 'Overwrite':
+                    save_parameters(job, jobparam, jobbase, jobfile, jobsys)
+
+                elif jobfile.is_file() and jobopt == 'Keep':
+                    continue
+                else:
                     save_parameters(job, jobparam, jobbase, jobfile, jobsys)
 
             window1['_jobdir_'].update('')
@@ -540,7 +545,7 @@ def add_jobs_recursively(joblist, jobparam, jobsys):
     # Load Queue if Valid Entry
     #
     layout1 = [[sg.Text('Load all OPM Flow data files in a directory recursively to the job queue.')],
-               [sg.InputText(key='_jobdir_', size=(100, None)),
+               [sg.InputText(key='_jobdir_', size=(100, 1)),
                 sg.FolderBrowse(target='_jobdir_', initial_folder=Path().absolute())],
                [sg.Text('Run and Parameter File Options')],
                [sg.Radio('Sequential Run' , "bRadio", key='_jobseq_', default =True)],
@@ -548,7 +553,7 @@ def add_jobs_recursively(joblist, jobparam, jobsys):
                 sg.Listbox(values=list(range(1, ncpu + 1)), size=(10, 3), key='_jobnode_', default_values=[ncpu],
                            disabled=bcpu),
                 sg.Text('Overwrite Parameter\nFile Options'),
-                sg.Listbox(values=['Ask','Keep', 'Overwrite'], size=(10,3), key='_jobopt_', default_values='Ask')],
+                sg.Listbox(values=['Ask','Keep', 'Overwrite'], size=(10,3), key='_jobopt_', default_values=['Ask'])],
                [sg.Text('\nNote, if the parameter file does not exist for a given data file, then the current ' +
                         'default parameter set will be used\n')],
                [sg.Submit(), sg.Exit()]]
@@ -602,13 +607,18 @@ def add_jobs_recursively(joblist, jobparam, jobsys):
                 if jobfile.is_file() and jobopt == 'Ask':
                     text = sg.popup('Parameter file:', str(jobfile),
                                     'Already exists; do you wish to overwrite it with the current defaults,'
-                                    ' or keep the existing parameter file?', custom_text=('Overwrite', 'Keep', None),
-                                    title='OPMRUN Directory Load', no_titlebar=False,
+                                    ' or keep the existing parameter file?', custom_text=('Overwrite', 'Keep'),
+                                    title='OPMRUN Directory Load - Parameter File Options', no_titlebar=False,
                                     grab_anywhere=False, keep_on_top=True)
                     if text == 'Overwrite':
                         save_parameters(job, jobparam, jobbase, jobfile, jobsys)
 
-                if jobfile.is_file() and jobopt == 'Overwrite':
+                elif jobfile.is_file() and jobopt == 'Overwrite':
+                    save_parameters(job, jobparam, jobbase, jobfile, jobsys)
+
+                elif jobfile.is_file() and jobopt == 'Keep':
+                    continue
+                else:
                     save_parameters(job, jobparam, jobbase, jobfile, jobsys)
 
             window1['_jobdir_'].update('')
@@ -1374,25 +1384,27 @@ def load_manual(opmsys1, filename):
     #
     if sg.running_linux():
         try:
-            subprocess.Popen(["xdg-open", filename])
-        except Exception:
-            sg.popup_error('OPM Flow Manual Error \n \n' + 'Cannot run: \n \n' +
-                          '"xdg-open ' + str(filename) + '" \n \n' +
-                          'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
-                          line_width=len(filename) + 12, no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+            subprocess.run(["xdg-open", filename], check=True, shell=True)
+        except (FileNotFoundError, subprocess.SubprocessError) as error:
+            sg.popup_error('OPM Flow Manual Error - Cannot Run: \n \n' +
+                           '"xdg-open ' + str(filename) + '" \n \n' + str(error) + ' ' + str(type(error)) + '\n \n' +
+                           'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
+                           title='OPM Flow Manual Error', line_width=len(filename) + 12, no_titlebar=False,
+                           grab_anywhere=False, keep_on_top=True)
     #
     # Windows System
     #
     else:
         try:
             os.startfile(filename)
-        except Exception:
-            sg.popup_error('OPM Flow Manual Error \n \n' + 'Cannot run: \n \n' +
-                          str(filename) + ' \n \n' +
-                          'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
-                          line_width=len(filename) + 12, no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+        except FileNotFoundError as error:
+            sg.popup_error('OPM Flow Manual Error - Cannot Run: \n \n' +
+                           str(filename) + ' \n \n' + str(error) + ' ' + str(type(error)) + '\n \n' +
+                           'Either the default PDF viewer is not available, or the OPM Flow Manual cannot be found.',
+                           title='OPM Flow Manual Error', line_width=len(filename) + 12, no_titlebar=False,
+                           grab_anywhere=False, keep_on_top=True)
 
-    return()
+    return ()
 
 
 def load_options(opmoptn1, opmsys1, opmlog1):
@@ -1718,8 +1730,8 @@ def opm_startup(opmvers, opmsys1, opmlog1):
         opmsys1['opmmode' ] = 'Exe'
     else:
         opmsys1['opmmode' ] = 'Script'
-    #
-    opmsys1['opmpath' ] = Path().absolute()
+    
+    opmsys1['opmpath' ] = Path(Path(__file__).parent.absolute())
     opmsys1['opmhome' ] = Path.home() / 'OPM'
     opmsys1['opmini'  ] = Path(opmsys1['opmhome'] / 'OPMRUN.ini'  )
     opmsys1['opmlog'  ] = Path(opmsys1['opmhome'] / 'OPMRUN.log'  )
@@ -2092,7 +2104,8 @@ def run_jobs(joblist, jobsys, outlog):
     jobnum   = 0
     jobsfail = 0
     jobskill = 0
-    upper    = ['.DBG', '.EGRID', '.INIT', '.LOG', '.PRT', '.RSM', '.SMSPEC', '.UNRST', '.UNSMRY', '.INFOSTEP']
+    upper    = ['.DBG', '.DBPRTX', '.ECLEND', '.EGRID', '.ERROR', '.H5', '.INFOSTEP', '.INIT', '.INSPEC', '.LOG',
+                '.MSG', '.PRT', '.RSM', '.RSSPEC', '.SMSPEC', '.UNRST', '.UNSMRY']
     if sg.running_windows():
         jobext   = upper
         tail_len = 1

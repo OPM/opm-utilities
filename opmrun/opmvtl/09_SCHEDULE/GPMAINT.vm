@@ -17,7 +17,7 @@
 ## 
 ## Machine Operating System  : Kubuntu 20.04
 ## Machine Type              : amd64                               
-## File Name                 : HEADER-LICENSE.vm                                                         
+## File Name                 : GPMAINT.vm                                                         
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
@@ -28,11 +28,12 @@
 ##                             Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
--- This reservoir simulation deck is made available under the Open Database
--- License: http://opendatacommons.org/licenses/odbl/1.0/. Any rights in
--- individual contents of the database are licensed under the Database Contents
--- License: http://opendatacommons.org/licenses/dbcl/1.0/
-  
--- Copyright (C) 2021 Equinor
-                                                                           
+--
+--       GROUP PRESSURE MAINTENANCE TARGETS AND CONTROLS                                                     
+--                                                                              
+-- GRUP  CNTL   FIPNUM  FIP      PRESS   ALPHA  BETA 
+-- NAME  MODE   REGION  FIPNAME  TARGET  CONST  CONST       
+GPMAINT                                                   
+FIELD    GINS   0       1*       225     40.0   70.0       /
+/                                                                               
 ## =================================================================================================================================

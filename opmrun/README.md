@@ -61,77 +61,104 @@ In addition the OPMKEYW requires the following additional modules:
 1. PySimpleGUI
 2. airspeed
 
-
 # OPMRUN Functionality
 
 ## Simple and Clean Interface.
 
-![](.images/opmrun-01.png)
+![](.images/OPM-Manual-opmrun-02.png)
 
 ## Add Job and Select Run Type
 
-![](.images/opmrun-02.png)
-## Job Queue.
-
-![](.images/opmrun-03.png)
-
-## Set Parameter Default Options.
-
-![](.images/opmrun-04.png)
+![](.images/OPM-Manual-opmrun-03c.png)
 
 ## Edit Job Data and Parameter File.
 
-![](.images/opmrun-05.png)
+![](.images/OPM-Manual-opmrun-04c.png)
 
-## Edit Data File with Preferred Editor.
+## Job Load Previously Saved Queue.
 
-![](.images/opmrun-06.png)
+![](.images/OPM-Manual-opmrun-05c.png)
 
-## Edit Parameter File with Help.
+## Reset Job Queue Parameters
+Allows jobs run under Windows 10 WSL to be renamed for running under Linux, and changing jobs from serial to parallel and vice versa.
 
-![](.images/opmrun-07.png)
+![](.images/OPM-Manual-opmrun-06c.png)
 
 ## Run Jobs in Queue with Various Options.
+Notice the option to switch from NOSIM mode to RUN mode for all jobs in the queue.
 
-![](.images/opmrun-08.png)
+![](.images/OPM-Manual-opmrun-07c.png)
 
-## Run Jobs in Queue Creates Log File.
+Running a Job in the Queue Creates a Log File which is a copy of the terminal output.
 
-![](.images/opmrun-09.png)
+![](.images/OPM-Manual-opmrun-07e.png)
 
-## Schedule Log for Tracking Progress.
+as well as creating a Schedule Log for tracking progress.
 
-![](.images/opmrun-10.png)
+![](.images/OPM-Manual-opmrun-07g.png)
 
-## Manual Available.
+Can also **Kill** the current running job. If a job is killed then their is an additional option to kill all jobs in queue.
 
-![](.images/opmrun-11.png)
+The **Clear** button the output from the currently selected tab (Output or Log), and the **Copy** button will copy the output from the currently selected tab to the clipboard.
 
-## Job File Compression and Uncompression for Saving Space and Archiving.
+## File Menu Options
+Enables open and saving the job queue, switching projects and listing OPMRUN's user properties.
 
-![](.images/opmrun-12.png)
+![](.images/OPM-Manual-opmrun-08.png)
 
-## Project Directories
+## Edit Menu Options
 
-Projects to enable switching between various project directories, use the Edit/Projects menu item to set project names and the associated project directories
+![](.images/OPM-Manual-opmrun-09.png)
 
-![](.images/opmrun-13.png)
+Lets one add jobs, add jobs recursively (all jobs in the selected directory and below), edit the data file:
 
-## OPMRUN Options
+![](.images/OPM-Manual-opmrun-10c.png)
 
-Stored in user’s home directory in sub directory OPM. Options includes:
+Edit, list and set default OPM Flow job parameters
 
+![](.images/OPM-Manual-opmrun-11.png)
+
+![](.images/OPM-Manual-opmrun-12.png)
+
+Set OPMRUN Options including:
   * OPM Flow manual location.
   * OPMKEYW  “template directory”.
   * ResInsight location.
   * Setting the editor command.
+  * Terminal console for running jobs in background. If running jobs under the Windows Subsystem fo Linux then this should be set to **wsl**.
   * Author property fields used in some templates in OPMKEYW.
   * Defining OPMRUN output panel’s size, font and font size.
+  
+![](.images/OPM-Manual-opmrun-13.png)
 
-![](.images/opmrun-14.png)
+Define Projects for switching between different projects/directories. Stored in user’s home directory in sub-directory OPM. Options includes:
 
+![](.images/OPM-Manual-opmrun-14.png)
 
-Use the Edit/Options menu to edit options.
+## View Menu Options.
+Allows the user to view the results od an OPM Flow simulation run using the default editor.
+
+![](.images/OPM-Manual-opmrun-15.png)
+
+## Tools Menu Options
+Contains various tool that may be useful in building a simulation model.
+
+![](.images/OPM-Manual-opmrun-16a.png)
+
+![](.images/OPM-Manual-opmrun-16b.png)
+
+See the individual sections below for further details on the available tools.
+
+## Help Menu Options
+![](.images/OPM-Manual-opmrun-17.png)
+
+Use the Edit / Options menu option to select the ;ocation of the OPM Flow Manual.
+
+# OPMRUN TOOLS (STILL TO UPDATE)
+
+## Job File Compression and Uncompression for Saving Space and Archiving.
+
+![](.images/opmrun-12.png)
 
 # OPMRUN Keyword Generator: OPMKEYW
 
@@ -231,8 +258,15 @@ option.
 
 The Template Help option displays a brief introduction to VTL.
 
+## OPMRUN Tools: Production Schedule
 
+## OPMRUN Tools: Sensitivities
 
+## OPMRUN TOOLS: Well Specification
+
+## OPMRUN TOOLS: ResInSight
+
+## OPMRUN TOOLS: Well Trajectory Conversion
 
 
 

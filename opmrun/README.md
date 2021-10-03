@@ -33,7 +33,7 @@ comments should make this a straight forward process.
 
 OPMRUN is written in Python 3 and tested under various Unbuntu distrbutions.
 
-###Notes:
+**Notes:**
 1. Only Python 3 is supported and tested, Python2 support has been depreciated. 
 2. The following standard module Python libraries are required.
    * datetime, getpass, importlib, os, numpy, pkg_resources, pandas, pathlib, 
@@ -190,7 +190,9 @@ the **Deck Element Area** for additional editing.
 
 Note that the **HEADER** section is not an OPM Flow section, but various comment blocks
 to make the deck more readable.
-###Keywords: Menu Items
+
+**Keywords: Menu Items**
+
 The various menu options include the File Menu
 
 ![](.images/opmrun-tools-opmkeyw-03.png)
@@ -220,14 +222,16 @@ the templates can also be used directly with an editor provided the editor suppo
 VTL. The keyword templates are comparable to the examples depicted in the OPM 
 Flow Manual.
 
-###Keywords: File Imports
+**Keywords: File Imports**
+
 If a keyword requires a file, for example, the INCLUDE and LOAD keywords, then a 
 dialog box is presented to enable the file to be selected. The application will 
 also allow one to select the file name format, after the file has been selected.
 
 ![](.images/opmrun-tools-opmkeyw-09c.png)
 
-###Keywords: Section Standard Set of Keywords
+**Keywords: Section Standard Set of Keywords**
+
 Selecting a Generate Menu option or a Section keyword (RUNSPEC, GRID,  EDIT, PROPS,
 SOLUTION, SUMMARY, and SCHEDULE) in the **Keyword Element Area** will give an 
 option to generate a representative set of keywords for that section. One can 
@@ -238,7 +242,8 @@ example in the following figure.
 
 However, you still have to edit this with your actual data.
 
-###Keywords: SUMMARY Section Variables
+**Keywords: SUMMARY Section Variables**
+
 For the SUMMARY section keyword, one can also generate various sets of summary 
 variables based on the options being used in the model. Note that not all the 
 variables are currently available in OPM Flow, but additional varriables are added
@@ -249,7 +254,8 @@ at each release.
 For SUMMARY variables not recognized by OPM Flow, the simulator will issue a 
 warning message and ignore those variables not implemented.
 
-###Keywords: SCHEDULE Section Keywords and Date Schedule
+**Keywords: SCHEDULE Section Keywords and Date Schedule**
+
 For The SCHEDULE Section keyword, one can also generate a date schedule from  a 
 start year to and end year, using Annual, Quarterly, or Monthly time steps. A 
 standard report is written at the beginning of each year and is subsequently switch 
@@ -258,7 +264,8 @@ at the end of the run.
 
 ![](.images/opmrun-tools-opmkeyw-12.png)
 
-###Keywords: DATA (Sets) Option
+**Keywords: DATA (Sets) Option**
+
 There is also a DATA option which is not an OPM Flow section, but a series of data 
 sets. This is a collection of data sets that can be used as complete examples for a
 given data set, PVT for a Wet Gas Reservoir for example, or to build models for 
@@ -266,13 +273,15 @@ testing.
 
 ![](.images/opmrun-tools-opmkeyw-13.png)
 
-###Keywords: MODEL Option
+**Keywords: MODEL Option**
+
 Again, the MODEL option is not an OPM Flow section, but contains complete models that show how various options are 
 implemented in OPM Flow. 
 
 ![](.images/opmrun-tools-opmkeyw-14.png)
 
-###Keywords: USER Templates
+**Keywords: USER Templates**
+
 Finally, the **USER** option is where user can store their own templates. **USER** 
 templates with the “vm” extension will automatically be listed by the **USER** 
 button. To use this feature, after selecting a keyword, right clicking on the 

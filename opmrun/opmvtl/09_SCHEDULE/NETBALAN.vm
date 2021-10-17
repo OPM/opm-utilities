@@ -31,8 +31,8 @@
 --
 --       NETWORK BALANCE CONTROL OPTIONS
 --   
---       BAL   CONV  MAX   WHTP  WTHP  ERR   ERR
---       INTV  TOL   ITRS  TOL   ITS   TARG  MAX
+--       BAL   CONV  MAX   WTHP  WTHP  ERR   ERR  TSTEP
+--       INTV  TOL   ITRS  TOL   ITS   TARG  MAX  MIN
 NETBALAN
-         0.0   1.0   10    1*    1*    1*    1*                                /
+         0.0   1.0   10    1*    1*    1*    1*   1*       /
 ## =================================================================================================================================

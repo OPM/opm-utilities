@@ -28,13 +28,14 @@
 ##                             Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
--- WELL PRODUCTION TARGET/LIMIT MULTIPLER                                                      
+--
+-- WELL TARGET/LIMIT MULTIPLIER                                                      
 --                                                                              
---  WELL    WELL   TARGET                                                       
---  NAME    TARG   MULTIPLIER                                                        
+--  WELL    WELL   TARGET      REPORT                                                   
+--  NAME    TARG   MULTIPLIER  TIMES                                                      
 WTMULT                                                                   
-'OP01'      ORAT   0.90                                                        /
-'OP02'      BHP    0.95                                                        /
-'OP03'      LIFT   1.25                                                        /
+OP01        ORAT   0.90                /
+OP02        BHP    0.95                /
+OP03        LIFT   1.25                /
 /                                                                               
 ## =================================================================================================================================

@@ -1,9 +1,9 @@
 ## =================================================================================================================================
-##  
-##                                                    jEdit Velocity Template                              
-##                                                                                   
-## Template Description                                                         
-## --------------------                                                         
+##
+##                                                    jEdit Velocity Template
+##
+## Template Description
+## --------------------
 ## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
 ##
 ## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
@@ -14,25 +14,27 @@
 ##
 ## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-## 
+##
 ## Machine Operating System  : Kubuntu 20.04
-## Machine Type              : amd64                               
-## File Name                 : NETBALAN.vm                                                         
+## Machine Type              : amd64
+## File Name                 : GSATPROD.vm
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
-##                             david.baxendale@eipc.co 
+##                             david.baxendale@eipc.co
 ## Date                      : 27-July-2021
-##   
+##
 ##                             Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte. Ltd
-## 
+##
 ## =================================================================================================================================
 --
---       NETWORK BALANCE CONTROL OPTIONS
---   
---       BAL   CONV  MAX   WTHP  WTHP  ERR   ERR  TSTEP
---       INTV  TOL   ITRS  TOL   ITS   TARG  MAX  MIN
-NETBALAN
-         0.0   1.0   10    1*    1*    1*    1*   1*       /
+--       SATELLITE GROUP PRODUCTION CONTROLS
+--
+-- GRUP  OIL    WAT    GAS    RESV   GAS   CALORIFIC
+-- NAME  RATE   RATE   RATE   RATE   LIFT  RATE
+GSATPROD
+FLD-B    10.0   0.00   30E3   1*     1*                    /
+FLD-C    20.0   5.03   25E3   1*     1*                    /
+/
 ## =================================================================================================================================

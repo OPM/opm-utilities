@@ -1384,7 +1384,7 @@ def load_manual(opmsys1, filename):
     #
     if sg.running_linux():
         try:
-            subprocess.run(["xdg-open", filename], check=True, shell=True)
+            sg.execute_command_subprocess("xdg-open", filename, wait=False)
         except (FileNotFoundError, subprocess.SubprocessError) as error:
             sg.popup_error('OPM Flow Manual Error - Cannot Run: \n \n' +
                            '"xdg-open ' + str(filename) + '" \n \n' + str(error) + ' ' + str(type(error)) + '\n \n' +

@@ -17,7 +17,7 @@
 ## 
 ## Machine Operating System  : Kubuntu 20.04
 ## Machine Type              : amd64                               
-## File Name                 : NETBALAN.vm                                                         
+## File Name                 : WINJMULT.vm                                                       
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
@@ -25,14 +25,20 @@
 ##                             david.baxendale@eipc.co 
 ## Date                      : 27-July-2021
 ##   
-##                             Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte. Ltd
+##                             Copyright (C) 2017 David Baxendale
 ## 
 ## =================================================================================================================================
 --
---       NETWORK BALANCE CONTROL OPTIONS
---   
---       BAL   CONV  MAX   WTHP  WTHP  ERR   ERR  TSTEP
---       INTV  TOL   ITRS  TOL   ITS   TARG  MAX  MIN
-NETBALAN
-         0.0   1.0   10    1*    1*    1*    1*   1*       /
+--       DEFINE WELL CONNECTION MULTIPLIERS                                                  
+--                                                                              
+-- WELL  FRAC  MULT    FRAC  --LOCATION--                     
+-- NAME  PRES  VALUE   OPTN    I   J   K                     
+WINJMULT                                                
+WI01     4200  0.0250  1*      1*  1*  1*        /
+WI02     4250  0.0025  CIRR    1*  1* 145        /
+WI02     4250  0.0025  CIRR    1*  1* 146        /
+WI02     4250  0.0025  CIRR    1*  1* 147        /
+WI03     4400  0.0055  CREV    1*  1* 160        /
+WI03     4400  0.0055  CREV    1*  1* 165        /
+/                                                                               
 ## =================================================================================================================================

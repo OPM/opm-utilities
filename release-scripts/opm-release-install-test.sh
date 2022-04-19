@@ -1,5 +1,6 @@
 #!/bin/sh
 #
+set -e
 # A small script that builds and installs each module with the others
 # already installed (and not still lying around next to it) in favirious
 # flavors
@@ -46,6 +47,7 @@ done
 
 OPM_MODULES="opm-common opm-grid opm-material opm-models opm-simulators opm-upscaling"
 DIR=$HOME/opm-release-test/
+mkdir -p $DIR
 cd $DIR
 
 if ! test -e opts-parallel.cmake; then
@@ -91,4 +93,5 @@ for mod in $OPM_MODULES; do
 	cd $DIR
 	echo "finished building module $mod with $flavor."
     done
+    rm -rf $mod
 done

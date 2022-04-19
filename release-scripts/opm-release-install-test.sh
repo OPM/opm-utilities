@@ -4,8 +4,8 @@ set -e
 # A small script that builds and installs each module with the others
 # already installed (and not still lying around next to it) in favirious
 # flavors
-RELEASE=2019.10
-version=release/$RELEASE
+RELEASE=2022.04
+branch=release/$RELEASE
 BUILD_CONFIGS="opts-parallel.cmake opts-seq.cmake"
 
 
@@ -53,6 +53,8 @@ cd $DIR
 if ! test -e opts-parallel.cmake; then
     cat> "opts-parallel.cmake" <<EOF
 set(USE_MPI ON         CACHE STRING "Use mpi")
+set(USE_SUPERLU ON CACHE STRING "Use superlu")
+set(USE_QUADMATH ON CACHE STRING "Use quadmath")
 set(BUILD_TESTING ON CACHE BOOL "Build tests")
 set(CMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY 1 CACHE BOOL "" FORCE)
 set(BUILD_ECL_SUMMARY ON CACHE BOOL "Build summary.x")
@@ -64,6 +66,8 @@ fi
 if ! test -e opts-seq.cmake; then
     cat> "opts-seq.cmake" <<EOF
 set(USE_MPI OFF         CACHE STRING "Use mpi")
+set(USE_SUPERLU ON CACHE STRING "Use superlu")
+set(USE_QUADMATH ON CACHE STRING "Use quadmath")
 set(BUILD_TESTING ON CACHE BOOL "Build tests")
 set(CMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY 1 CACHE BOOL "" FORCE)
 set(BUILD_ECL_SUMMARY ON CACHE BOOL "Build summary.x")

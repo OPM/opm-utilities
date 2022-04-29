@@ -46,14 +46,21 @@ Revision History
 ----------------
 Only Python 3 is supported and tested Python2 support has been depreciated.
 
+**2022.04.01**
+
+Add compression option to add Ensemble directories recursively and updated help information.
+Added compression/uncompression option to add files recursively and also added help information.
+Fixed a bug with the View in ResInsight option not working due to the command line startdir parameter not working, by
+manually changing to the directory first before calling ResInsight.
+
 **2021.07-01**
 
 Implemented support for Windows 10 WSL. OPMRUN can now run under Windows 10 and run OPM Flow via WSL with the same
 functionality as that under Linux. For running under WSL the terminal type should be set to wsl under the
 Edit/Options menu item. The compression/uncompression tool has also been implemented under WSL using the same
-Edit/Options menu item. The compression/uncompression tool has also been implemented under WSL using the same linux
-commands, as the Windows 10 command line tools have limited functionality. A message is now written to the screen if
-the zip/unzip commands are not available. The WSL option has been tested via Unbuntu 20.04 LTS using OPM Flow 20.04.
+Edit/Options menu item using the same Linux commands, as the Windows 10 command line tools have limited functionality.
+A message is now written to the screen if the zip/unzip commands are not available. The WSL option has been tested via
+Unbuntu 20.04 LTS using OPM Flow 20.04.
 
 Added a "Reset Queue" option that  resets the the queue parameters by converting the file names to/from windows
 and Linux file names, as well well editing the run time options for all jobs. Thus one can easily switch from running
@@ -240,7 +247,7 @@ Date    : 30-July-2021
 #
 # Set OPMRUN Version Number
 #
-__version__ = '2021.07.1'
+__version__ = '2021.04.1'
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Import Modules and Start Up Section - All Modules Used by the OPMRUN Modules are Imported Upfront for Verification.
@@ -2346,25 +2353,23 @@ def run_resinsight(command, jobfile='None'):
         return()
 
     if not jobfile == 'None':
-        job = str(jobfile[0]).rstrip()
-        istart = job.find('=') + 1
-        file1 = Path(job[istart:]).with_suffix('.GRID')
-        file2 = Path(job[istart:]).with_suffix('.EGRID')
-        if file1.is_file():
-            file0 = file1
-        elif file2.is_file():
-            file0 = file2
+        job   = str(jobfile[0]).rstrip()
+        file0 = Path(job[job.find('=') + 1:])
+        file1 = Path(file0).with_suffix('.GRID')
+        file2 = Path(file0).with_suffix('.EGRID')
+        file3 = Path(file0).with_suffix('.SMSPEC')
+        if file1.is_file() or file2.is_file() or file3.is_file():
+            change_directory(Path(file0).parent, popup=False, outprt=False)
+            command = command + str(' --case ') + str(file0.stem)
         else:
-            sg.popup_error('Cannot Find GRID/EGRID File: ', str(file1),
-                           'or ', str(file2),
-                           no_titlebar=False, grab_anywhere=False, keep_on_top=True)
-            out_log('Cannot Find: ' + str(file1) + ' or ' + str(file2), True)
+            sg.popup_error('Cannot Find GRID, EGRID, or SMSPEC File:\n ', str(file1) + '\n' + str(file2) + '\n or \n' +
+                           str(file3) +'\n', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+            out_log('ResInsight Command: Failed', True)
+            out_log('Cannot Find: ' + str(file1) + ', ' + str(file2) + ', or ' + str(file3), True)
 
             return ()
-        command = command + str(' --startdir ') + str(file0.parent) + str(' --case ') + str(file0.name)
-
     try:
-        out_log('Executing ResInsight Command: ' + str(command) , True)
+        out_log('Executing ResInsight Command: ' + str(command), True)
         subprocess.Popen(command, shell=True)
 
     except Exception:

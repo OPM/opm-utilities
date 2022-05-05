@@ -334,8 +334,8 @@ def compress_help(opmoptn):
                 'OPMRun is a Graphical User Interface ("GUI") program for the Open Porous Media ("OPM") Flow ' +
                 'simulator. \n' +
                 '\n'
-                'The Compress and Uncompress utilities enable compress and uncompression to be performed on OPM Flow ' +
-                'datasets. Currently the following options are available:\n\n' +
+                'The Compress and Uncompress utilities enable compression and uncompression to be performed on ' +
+                'OPM Flow datasets. Currently the following options are available:\n\n' +
                 'Add             - Allows one to select the individual files, *.DATA for \n' +
                 '                  compression jobs and *.ZIP for uncompressing jobs.\n' +
                 'Add Recursively - Lets one select the main directory, and all files within and\n' +

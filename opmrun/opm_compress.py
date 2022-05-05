@@ -9,6 +9,9 @@ Program Documentation
 ---------------------
 Only Python 3 is supported and tested Python2 support has been depreciated.
 
+2022.04.01 - Add compression option to add Ensemble directories recursively and updated help information.
+2022.04.01 - Add compression/uncompression option to add files recursively and also added help information.
+2022.04.01 - Add compression option to add Ensemble directories recursively and updated help information.
 2021.07.01 - New module with code moved from main module to here for code maintainability reasons.
 2020.04.04 - Refactored code to be more compact as import checks are done in the main routine.
 2020.04.01 - Initial release
@@ -43,7 +46,7 @@ Date    : 14-Jul-2021
 import PySimpleGUI as sg
 from pathlib import Path
 
-from opm_common import (change_directory, run_command)
+from opm_common import (change_directory, copy_to_clipboard, opm_popup, run_command)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define OPM_COMPRESS Specific Modules
@@ -84,6 +87,7 @@ def compress_cmd(cmd):
     jobzip  = Path(jobbase).with_suffix('.zip')
     return job, jobcmd, jobpath, jobbase, jobroot, jobfile, jobzip
 
+
 def compress_chk(cmd, window):
     """Check that the Linux ZIP and UNZIP Packages Have Been Installed
 
@@ -113,11 +117,13 @@ def compress_chk(cmd, window):
         status = True
     return status
 
+
 def compress_files(opmoptn):
     """Compress All Jobs Input and Output into a Zip File Using the Base Name
 
     The function allows the use to select a group of DATA files for compression of all files associated with the case
-    name (*.DATA), using the standard zip utility on Linux systems
+    name (*.DATA), using the standard zip utility on Linux systems. In addition, files can be added recursively by
+    selecting the "top" directory.
 
     Parameters
     ----------
@@ -137,16 +143,19 @@ def compress_files(opmoptn):
 
     outlog   = '_outlog1_'+sg.WRITE_ONLY_KEY
     layout1  = [[sg.Text('Select Multiple Job Data Files to Compress'                             )],
-                [sg.Listbox(values='', size=(100, 10), key='_joblist1_',
+                [sg.Listbox(values='', size=(112, 10), key='_joblist1_',
                             font=(opmoptn['output-font'], opmoptn['output-font-size'])            )],
                 [sg.Text('Output'                                                                 )],
-                [sg.Multiline(key=outlog, size=(100, 15), text_color='blue', autoscroll=True,
+                [sg.Multiline(key=outlog, size=(112, 20), text_color='blue', autoscroll=True,
                               font=(opmoptn['output-font'], opmoptn['output-font-size'])          )],
                 [sg.Text('Compression Options'                                                    )],
                 [sg.Radio('Compress Job' , "bRadio", default=True                                 )],
                 [sg.Radio('Compress Job and then Remove Job Files', "bRadio"                      )],
-                [sg.Button('Add'), sg.Button('Clear',  tooltip='Clear Output'), sg.Button('List'),
-                                   sg.Button('Remove', tooltip='Remove Data Files'), sg.Submit(), sg.Exit()]]
+                [sg.Button('Add'), sg.Button('Add Recursively', tooltip='Add *.DATA Files Recursively'),
+                 sg.Button('Add Ensembles', tooltip='Add Ensemble Directories Recursively'),
+                 sg.Button('Clear', tooltip='Clear Output'),
+                 sg.Button('Copy', tooltip='Copy Output to Clipboard'), sg.Button('List'),
+                 sg.Button('Remove', tooltip='Remove Data Files'), sg.Submit(), sg.Button('Help'), sg.Exit()]]
     window1 = sg.Window('Compress Job Files', layout=layout1, finalize=True)
     #
     #   Set Output Multiline Window for CPRINT and Check If ZIP Package is Available
@@ -178,10 +187,58 @@ def compress_files(opmoptn):
                 window1['_joblist1_'].update(joblist1)
             continue
         #
+        # Add Files Recursively
+        #
+        if event == 'Add Recursively':
+            jobdir = sg.popup_get_folder('Select Job Directory for Data Files to Compress Recursively',
+                                         default_path=str(Path().absolute()), initial_folder=Path().absolute())
+            jobs   = [job for job in Path(jobdir).rglob('*') if job.suffix in ['.DATA', '.data']]
+            if len(jobs) == 0:
+                sg.popup_ok('No Simulation Input Files Found', title='OPMRUN Add Recursively',
+                            no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                continue
+            else:
+                text = sg.popup_yes_no('Found a Total of ' + str(len(jobs)) + ' Simulation Input Files.\n',
+                                       'Do you wish to add all this files to the job queue?',
+                                       title='OPMRUN Add Recursively',
+                                       no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                if text == 'Yes':
+                    joblist1 = jobs
+                    window1['_joblist1_'].update(joblist1)
+                continue
+        #
+        # Add Files Ensembles
+        #
+        if event == 'Add Ensembles':
+            jobdir = sg.popup_get_folder('Select Main Ensemble Directory for Directory Compression Recursively',
+                                         default_path=str(Path().absolute()), initial_folder=Path().absolute())
+            jobs   = [job for job in Path(jobdir).glob('**/')]
+            jobs   = jobs[1:]
+            if len(jobs) == 0:
+                sg.popup_ok('No Ensemble Directories Found', title='OPMRUN Add Ensembles',
+                            no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                continue
+            else:
+                text = sg.popup_yes_no('Found a Total of ' + str(len(jobs)) + ' Ensemble Directories.\n',
+                                       'Do you wish to add all this Ensemble Directories to the job queue?',
+                                       title='OPMRUN Add Ensembles',
+                                       no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                if text == 'Yes':
+                    joblist1 = jobs
+                    window1['_joblist1_'].update(joblist1)
+                continue
+        #
         # Clear Output
         #
         if event == 'Clear':
             window1[outlog].update('')
+            continue
+        #
+        # Copy Output to Clipboard
+        #
+        elif event == 'Copy':
+            copy_to_clipboard(window1[outlog].get())
+            sg.popup_timed('Output Copied to Clipboard', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             continue
         #
         # Exit
@@ -193,6 +250,11 @@ def compress_files(opmoptn):
                 break
             else:
                 continue
+        #
+        # Help
+        #
+        elif event == 'Help':
+            compress_help(opmoptn)
         #
         # Get Directory and List Files
         #
@@ -229,12 +291,18 @@ def compress_files(opmoptn):
             for cmd in joblist1:
                 jobnum = jobnum + 1
                 window1['_joblist1_'].update(set_to_index=jobnum, scroll_to_index=jobnum)
-                sg.cprint('Start Compression\n')
+                sg.cprint('\nStart Compression')
                 (job, jobcmd, jobpath, jobbase, jobroot, jobfile, jobzip) = compress_cmd(cmd)
-
-                error = change_directory(jobpath, popup=True, outprt=True)
-                if not error:
+                #
+                # File or Ensemble Compression
+                #
+                if Path(cmd).is_file():
+                    error  = change_directory(jobpath, popup=True, outprt=True)
                     jobcmd = wsl + zipcmd + str(jobzip) + ' ' + str(jobfile)
+                else:
+                    error  = change_directory(jobcmd, popup=True, outprt=True)
+                    jobcmd = wsl + zipcmd + str(jobzip) + ' ' + '*.*'
+                if not error:
                     sg.cprint('   ' + jobcmd)
                     run_command(jobcmd, timeout=None, window=window1)
                     sg.cprint('End Compression')
@@ -245,6 +313,54 @@ def compress_files(opmoptn):
 
     window1.Close()
     return()
+
+
+def compress_help(opmoptn):
+    """Compress and Uncompress Help
+
+    Display compress and uncompress help information.
+
+    Parameters
+    ----------
+    opmoptn; dict
+        A dictionary containing the OPMRUN default parameters
+
+    Returns
+    ------
+    None
+    """
+
+    helptext = (
+                'OPMRun is a Graphical User Interface ("GUI") program for the Open Porous Media ("OPM") Flow ' +
+                'simulator. \n' +
+                '\n'
+                'The Compress and Uncompress utilities enable compression and uncompression to be performed on ' +
+                'OPM Flow datasets. Currently the following options are available:\n\n' +
+                'Add             - Allows one to select the individual files, *.DATA for \n' +
+                '                  compression jobs and *.ZIP for uncompressing jobs.\n' +
+                'Add Recursively - Lets one select the main directory, and all files within and\n' +
+                '                  below the selected directory will be selected, based on \n' +
+                '                  the compression (*.DATA) and uncompression (*.ZIP) option.\n' +
+                'Add Ensembles   - Select the main Ensemble directory, and all directories \n' +
+                '                  within and below will be selected. All files within a \n' +
+                '                  a directory will be compressed into one zip file. Use the \n' +
+                '                  Add Recursively uncompression (*.ZIP) option to unzip the \n' +
+                '                  files.\n' +
+                'Clear           - Clears the Output window.\n' +
+                'List            - Allows one to select a directory and display all the *.DATA\n' +
+                '                  or *.ZIP files.\n' +
+                'Remove          - Remove all compression jobs from the queue.\n' +
+                'Submit          - Submit all compression jobs for processing.\n' +
+                'Exit            - Exit the utility.\n' +
+                '\n' +
+                'For the compression option one also has the option to remove the files once they have been ' +
+                'compressed in order to save space.\n\n' +
+                'The uncompressing options include being able or not able to over write existing files, as well as ' +
+                'the option to remove the zip files or to keep the zip files once all the files have been ' +
+                'uncompressed. \n\n' +
+                'See the OPM Flow manual for further information. \n')
+
+    opm_popup('Compression Utility Help', helptext, 25, font= (opmoptn['output-font'],opmoptn['output-font-size']))
 
 
 def uncompress_files(opmoptn):
@@ -270,22 +386,21 @@ def uncompress_files(opmoptn):
     joblist1 = []
 
     outlog   = '_outlog1_'+sg.WRITE_ONLY_KEY
-    layout1  = [[sg.Text('Select Multiple Archive Files to Uncompress'                           )],
+    layout1  = [[sg.Text('Select Multiple Archive Files to Uncompress')],
                 [sg.Listbox(values='', size=(100, 10), key='_joblist1_',
                             font=(opmoptn['output-font'], opmoptn['output-font-size']))],
                 [sg.Text('Output')],
-                [sg.Multiline(key=outlog, size=(100, 15), text_color='blue', autoscroll=True,
+                [sg.Multiline(key=outlog, size=(100, 20), text_color='blue', autoscroll=True,
                               font=(opmoptn['output-font'], opmoptn['output-font-size']))],
-                [sg.Text('Uncompress Options'                                                 )],
-                [sg.Radio('Uncompress and Keep Existing Files'        , "bRadio1", default=True,
-                          key='_bRadio1_'                                                        )],
-                [sg.Radio('Uncompress and Overwrite Existing Files'   , "bRadio1"                )],
-                [sg.Text('Compressed File Options'                                               )],
-                [sg.Radio('Keep Compressed File After Uncompressing'  , "bRadio2", default=True,
-                          key='_bRadio2_'                                                        )],
-                [sg.Radio('Delete Compressed File After Uncompressing', "bRadio2"                )],
-                [sg.Button('Add'), sg.Button('Clear',  tooltip='Clear Output'), sg.Button('List'),
-                                   sg.Button('Remove', tooltip='Remove Zip Files'), sg.Submit(), sg.Exit()]]
+                [sg.Text('Uncompress Options', size=(42,1)),sg.Text('Compressed File Options' )],
+                [sg.Radio('Uncompress and Keep Existing Files', "bRadio1", size=(40,1), default=True, key='_bRadio1_'),
+                 sg.Radio('Keep Compressed File After Uncompressing', "bRadio2", default=True, key='_bRadio2_')],
+                [sg.Radio('Uncompress and Overwrite Existing Files', "bRadio1", size=(40,1)),
+                 sg.Radio('Delete Compressed File After Uncompressing', "bRadio2")],
+                [sg.Button('Add'), sg.Button('Add Recursively'), sg.Button('Clear',  tooltip='Clear Output'),
+                 sg.Button('Copy', tooltip='Copy Output to Clipboard'), sg.Button('List'),
+                 sg.Button('Remove', tooltip='Remove Zip Files'), sg.Submit(), sg.Button('Help'),
+                 sg.Exit()]]
     window1 = sg.Window('Uncompress Job Files', layout=layout1, finalize=True)
     #
     #   Set Output Multiline Window for CPRINT and Check If ZIP Package is Available
@@ -300,7 +415,9 @@ def uncompress_files(opmoptn):
 
         if event == sg.WIN_CLOSED:
             break
-
+        #
+        # Add Files
+        #
         if event == 'Add':
             jobs = sg.popup_get_file('Select ZIP Files to Uncompress', no_window=False,
                                    default_path=str(Path().absolute()), initial_folder=str(Path().absolute()),
@@ -313,10 +430,37 @@ def uncompress_files(opmoptn):
                 window1['_joblist1_'].update(joblist1)
             continue
         #
+        # Add Files Recursively
+        #
+        if event == 'Add Recursively':
+            jobdir = sg.popup_get_folder('Select Job Directory for ZIP Files to Uncompress Recursively',
+                                         default_path=str(Path().absolute()), initial_folder=Path().absolute())
+            jobs   = [job for job in Path(jobdir).rglob('*') if job.suffix in ['.zip', '.ZIP']]
+            if len(jobs) == 0:
+                sg.popup_ok('No ZIP Files Found', title='OPMRUN Add Recursively',
+                            no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                continue
+            else:
+                text = sg.popup_yes_no('Found a Total of ' + str(len(jobs)) + ' ZIP Files.\n',
+                                       'Do you wish to add all these files to the job queue?',
+                                       title='OPMRUN Add Recursively',
+                                       no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                if text == 'Yes':
+                    joblist1 = jobs
+                    window1['_joblist1_'].update(joblist1)
+                continue
+        #
         # Clear Output
         #
         if event == 'Clear':
             window1[outlog].update('')
+            continue
+        #
+        # Copy Output to Clipboard
+        #
+        elif event == 'Copy':
+            copy_to_clipboard(window1[outlog].get())
+            sg.popup_timed('Output Copied to Clipboard', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             continue
         #
         # Exit
@@ -328,6 +472,11 @@ def uncompress_files(opmoptn):
                 break
             else:
                 continue
+        #
+        # Help
+        #
+        elif event == 'Help':
+            compress_help(opmoptn)
         #
         # Get Directory and List Files
         #

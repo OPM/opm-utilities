@@ -17,7 +17,7 @@
 ## 
 ## Machine Operating System  : Kubuntu 22.04
 ## Machine Type              : amd64                               
-## File Name                 : THPRESFT.vm                                                         
+## File Name                 : HZFIN.vm                                                         
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
@@ -28,15 +28,9 @@
 ##                             Copyright (C) 2018-2022 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
---                                                                                 
---       DEFINE FAULT THRESHOLD PRESSURES 
---                                                                                       
---       FAULT        THRESHOLD               
---       NAME         PRESSURE        
-THPRESFT                                         
-         "FAULT001"   1000.0                               /         
-         "FAULT002"   1200.0                               /         
-         "FAULT003"    900.0                               /         
-         "FAULT004"   1100.0                               /
-/  
+--                                                                              
+--       DEFINE GRID BLOCK LGR RATIOS IN THE Z-DIRECTION                        
+-- 
+HZFIN
+         50*2                                                                  / 
 ## =================================================================================================================================

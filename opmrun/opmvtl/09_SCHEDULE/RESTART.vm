@@ -17,7 +17,7 @@
 ## 
 ## Machine Operating System  : Kubuntu 22.04
 ## Machine Type              : amd64                               
-## File Name                 : GCONPRI.vm                                                         
+## File Name                 : RPTRST.vm                                                      
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
@@ -29,11 +29,10 @@
 ## 
 ## =================================================================================================================================
 --
---       GROUP PRIORITY PRODUCTION CONTROLS                                                    
---                                                                              
--- GRUP  ORAT   ORAT   WRAT   WRAT   GRAT   GRAT   LRAT   LRAT   RVOL   RVOL                     
--- NAME  LIMT   ACTN   LIMT   ACTN   LIMT   ACTN   LIMT   ACTN   LIMT   ACTN                      
-GCONPRI                                                                      
-FIELD    1*     1*     1*     1*     125E3  PR1    1*     1*     1*     1*     /
-/                                                                               
+--       FLEXIBLE RESTART FROM PREVIOUS SIMULATION RUN
+--
+--       FILE                   RESTART   RESTART   FILE
+--       NAME                   NUMBER    TYPE      FORMAT
+RESTART
+         'NOR-OPM-A01'          40        1*        1*     /
 ## =================================================================================================================================

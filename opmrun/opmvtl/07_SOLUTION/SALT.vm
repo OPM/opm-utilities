@@ -17,7 +17,7 @@
 ## 
 ## Machine Operating System  : Kubuntu 22.04
 ## Machine Type              : amd64                               
-## File Name                 : RVCONSTT.vm                                                         
+## File Name                 : SALT.vm                                                         
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
@@ -28,35 +28,10 @@
 ##                             Copyright (C) 2018-2022 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
---
--- SET A CONSTANT RV VALUE FOR EACH DRY GAS TABLE 
--- RUNSPEC KEYWORDS OIL AND VAPOIL SHOULD NOT BE PRESENT IN THE RUN
+--                                                                              
+--       DEFINE INITIAL EQUILIBRATION SALT CONCENTRATION FOR ALL CELLS
+--       BASED ON NX = 100, NY = 100 AND NZ = 3                             
 -- 
-RVCONSTT
---
--- CHANGE RV TO GET THE OIL RATE MATCH AT THE END OF THE HISTORY MATCH BUT DO NOT CHANGE Psat 
---
---    Rv        Psat      PVT     PVT
--- (STB/MSCF)  (PSIA)     TABLE   REGION
-    0.00155     14.7   /   1      SHALE
-    0.00155     14.7   /   2      SHALE
-    0.00155     14.7   /   3      A1
-    0.00155     14.7   /   4      A2
-    0.00155     14.7   /   5      A2B
-    0.00155     14.7   /   6      A3
-    0.00155     14.7   /   7      SHALE
-    0.00155     14.7   /   8      A4U
-    0.00155     14.7   /   9      A4L
-    0.00155     14.7   /  10      SHALE                            
-    0.00155     14.7   /  11      SHALE
-    0.00155     14.7   /  12      B1
-    0.00155     14.7   /  13      B2
-    0.00155     14.7   /  14      B3A
-    0.00155     14.7   /  15      B3B
-    0.00155     14.7   /  16      SHALE
-    0.00155     14.7   /  17      SHALE
-    0.00155     14.7   /  18      C1
-    0.00155     14.7   /  19      SHALE
-    0.00155     14.7   /  20      C2   
-    0.00155     14.7   /  21      C3???
+SALT
+         1000*0.0000    1000*0.0000    1000*15.000                             / 
 ## =================================================================================================================================

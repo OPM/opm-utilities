@@ -31,7 +31,7 @@
 --
 --       GAS VISCOSITY VERSUS TEMPERATURE TABLES (OPM FLOW EXTENSION KEYWORD)
 --
---       WATER      WATER                                                                        
+--       GAS        GAS                                                                        
 --       TEMP       VISC                                                                  
 --       --------   -------                                                             
 GASVISCT                                                                                  

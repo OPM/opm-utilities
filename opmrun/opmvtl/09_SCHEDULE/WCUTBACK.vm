@@ -15,7 +15,7 @@
 ## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ## 
-## Machine Operating System  : Kubuntu 20.04
+## Machine Operating System  : Kubuntu 22.04
 ## Machine Type              : amd64                               
 ## File Name                 : WCUTBACK.vm                                                         
 ## Author                    : David Baxendale
@@ -23,9 +23,9 @@
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
 ##                             david.baxendale@eipc.co 
-## Date                      : 27-July-2021
+## Version                   : 2022-10
 ##   
-##                             Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte. Ltd
+##                             Copyright (C) 2018-2022 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
 --

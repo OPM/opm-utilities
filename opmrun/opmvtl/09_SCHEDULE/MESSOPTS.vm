@@ -17,7 +17,7 @@
 ## 
 ## Machine Operating System  : Kubuntu 22.04
 ## Machine Type              : amd64                               
-## File Name                 : WELOPEN.vm                                                       
+## File Name                 : MESSOPTS.vm                                                         
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
@@ -29,16 +29,9 @@
 ## 
 ## =================================================================================================================================
 --
---       DEFINE WELL AND WELL CONNECTIONS FLOWING STATUS                                                
---                                                                              
---  WELL WELL   --LOCATION--  COMPLETION                                     
---  NAME STAT     I   J    K  FIRST LAST                    
-WELOPEN                                                     
-OP01     OPEN                                              /
-OP01     OPEN     0   0    0     1     5                   /
-OP02     OPEN                                              /
-OP02     OPEN     0   0    0     2     5                   /
-OP03     OPEN                                              /
-OP03     OPEN     0   0    0     7    10                   /
-/                                                             
+--       MESSOPTS   MESSAGE
+--       OPTION     TYPE
+--       --------   -------
+MESSOPTS
+         ACCPTIME   2                                      / 
 ## =================================================================================================================================

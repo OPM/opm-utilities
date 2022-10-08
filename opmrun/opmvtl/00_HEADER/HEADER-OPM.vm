@@ -32,7 +32,7 @@
 --                                                                              
 --                                              $FileType  
 --                                                                              
-#parse('HEADER-LICENSE.vm')
+#parse('Eclipse\00_HEADER\HEADER-LICENSE.vm')
 --
 -- COMMENTS                                                                    
 -- --------                                                                    

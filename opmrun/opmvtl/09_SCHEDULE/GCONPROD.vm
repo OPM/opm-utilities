@@ -34,6 +34,6 @@
 -- GRUP  CNTL  OIL    WAT    GAS    LIQ    CNTL  GRUP  GUIDE  GUIDE  CNTL                      
 -- NAME  MODE  RATE   RATE   RATE   RATE   OPT   CNTL  RATE   DEF    WAT                       
 GCONPROD                                                                        
-FIELD    ORAT  40E3   60E3   30E3   65E3   1*     1*    1*     1*     1*      /
+FIELD    ORAT  40E3   60E3   30E3   65E3   1*     1*    1*     1*     1*       /
 /                                                                               
 ## =================================================================================================================================

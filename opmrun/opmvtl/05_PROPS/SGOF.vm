@@ -29,9 +29,9 @@
 ## 
 ## =================================================================================================================================
 --                                                                                     
---       GAS-OIL RELATIVE PERMEABILITY TABLES (SLGOF)                                                                 
+--       GAS-OIL RELATIVE PERMEABILITY TABLES (SGOF)                                                                 
 SGOF
---       SLIQ       KRG       KROG      PCOG                                                     
+--       SG         KRG       KROG      PCOG                                                     
 --       FRAC                           PSIA                                                  
 --       -------   --------  -------   -------                                                
          0.30060    0.55000  0.0000     0.0000

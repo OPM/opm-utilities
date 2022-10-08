@@ -907,7 +907,7 @@ def prodsched_main(opmoptn, opmsys):
                 window1['_output_'].update(file_inc)
                 sg.cprint(file_inc)
 
-            error = prodsched_monthly(file_in, file_inc, *options, window1, opmsys)
+            error = prodsched_monthly(file_in, file_inc, options, window1, opmsys)
             if error !=0:
                 continue
             window1['_view_'].update(disabled=False)

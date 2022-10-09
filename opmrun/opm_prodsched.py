@@ -776,17 +776,13 @@ def prodsched_main(opmoptn, opmsys):
     # ------------------------------------------------------------------------------------------------------------------
     # Define GUI Section
     # ------------------------------------------------------------------------------------------------------------------
-    #
-    # Initialize GUI Setup and Define Main Window
-    #
-    outlog = '_outlog1_'+sg.WRITE_ONLY_KEY
-
+    outlog = '_outlog1_'
     layout1 = [
         [sg.Text('OPM_PROD_SCHED Option to Generate the OPM Flow WCONHIST Keywords from Exported Production Data')],
         [sg.Text('Exported Production Data File Type: '),
-         sg.Radio('Daily Production Data', "bRadio1",  key='_daily_', default= True),
-         sg.Radio('Monthly Average Rate Production Data',"bRadio1", key='_rate_'),
-         sg.Radio('Monthly Volume Production Data',"bRadio1", key='_volume_')],
+         sg.Radio('Daily Production Data', "bRadio1",  key='_daily_', enable_events = True, default= True),
+         sg.Radio('Monthly Average Rate Production Data',"bRadio1", key='_rate_', enable_events = True),
+         sg.Radio('Monthly Volume Production Data',"bRadio1", key='_volume_', enable_events = True)],
         [sg.Input(file_in, key='_input_', size=(130, None)),
          sg.FilesBrowse(target='_input_', initial_folder=str(Path().absolute()),
                         file_types=[('PROD', ['*.csv', '*.CSV']), ('All', '*.*')])],
@@ -796,7 +792,7 @@ def prodsched_main(opmoptn, opmsys):
                         file_types=[('Simulator Include File', ['*.inc', '*.INC']), ('All', '*.*')])],
         [sg.Text('Output Log')],
         [sg.Multiline(key=outlog, size=(137, 20), text_color='blue', autoscroll=True, auto_refresh=True,
-                      font=(opmoptn['output-font'], opmoptn['output-font-size']))],
+                      write_only = True, font=(opmoptn['output-font'], opmoptn['output-font-size']))],
         [sg.Text('\nOutput Options:')],
         [sg.Text('Well \nControl \nOptions'),
          sg.Listbox(controls, default_values='GRAT', key='_control_', size=(15, 7)),
@@ -808,11 +804,11 @@ def prodsched_main(opmoptn, opmsys):
         [sg.Text('')],
         [sg.Button('Clear', key='_clear_'), sg.Button('Help', key='_help_'),sg.Submit(),
          sg.Button('View', disabled=True, tooltip='View Results', key='_view_'), sg.Exit()]]
-    window1 = sg.Window('OPM_PROD_SCHED Production Schedule Utility', layout=layout1,
-                        no_titlebar=False, grab_anywhere=False)
-    #
+
+    window1 = sg.Window('OPM_PROD_SCHED Production Schedule Utility', layout=layout1, no_titlebar=False,
+                        grab_anywhere=False)
+
     #   Set Output Multiline Window for CPRINT
-    #
     sg.cprint_set_output_destination(window1, outlog)
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -847,6 +843,10 @@ def prodsched_main(opmoptn, opmsys):
         # --------------------------------------------------------------------------------------------------------------
         # Submit Daily Input File Processing
         # --------------------------------------------------------------------------------------------------------------
+        elif event == '_daily_':
+            window1['_schedule_'].update(values = schedule, set_to_index=0)
+            continue
+
         elif event == 'Submit' and values['_daily_']:
             options = []
             if 'Daily Production and Injection Schedule' in values['_schedule_']:
@@ -883,6 +883,10 @@ def prodsched_main(opmoptn, opmsys):
         # --------------------------------------------------------------------------------------------------------------
         # Submit Monthly Input Data Processing
         # --------------------------------------------------------------------------------------------------------------
+        elif event == '_rate_' or event == '_volume_':
+            window1['_schedule_'].update('')
+            continue
+
         elif event == 'Submit' and not values['_daily_'] :
             options = []
             if values['_rate_']:

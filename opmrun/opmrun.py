@@ -3028,6 +3028,7 @@ def opmrun():
         sg.cprint_set_output_destination(window0, '_outflow_' + sg.WRITE_ONLY_KEY)
         event, values = window0.read()
         window_debug(event, 'values', values, False)
+
         # Check if Window Has Been Closed
         if event in [None, sg.WIN_CLOSED]:
             break

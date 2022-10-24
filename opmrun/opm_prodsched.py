@@ -934,3 +934,58 @@ def prodsched_main(opmoptn, opmsys):
 # ======================================================================================================================
 # End of OPM_PRODSCHED.py
 # ======================================================================================================================
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       --------------------
+        # Submit Monthly Input Data Processing
+        # --------------------------------------------------------------------------------------------------------------
+        elif event == '_rate_' or event == '_volume_':
+            window1['_schedule_'].update('')
+            continue
+
+        elif event == 'Submit' and not values['_daily_'] :
+            options = []
+            if values['_rate_']:
+                options.append('rate')
+            else:
+                options.append('volume')
+
+            n = pressure.index(values['_pressure_'][0])
+            options.append(constant[n])
+            options.append(scale[n])
+            options.append(values['_control_'][0])
+            #
+            # Check for Valid Input File and Process
+            #
+            file_in = values['_input_']
+            file_inc = values['_output_']
+            if not Path(file_in).is_file():
+                sg.popup_error('Cannot Find Input File: ', str(file_in),
+                               no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+                continue
+            if not Path(file_inc).is_file():
+                file_inc = Path(file_in).with_suffix('.inc')  # Include File
+                window1['_output_'].update(file_inc)
+                sg.cprint(file_inc)
+
+            error = prodsched_monthly(file_in, file_inc, options, window1, opmsys)
+            if error !=0:
+                continue
+            window1['_view_'].update(disabled=False)
+            sg.popup_ok('OPM_PROD_SCHED Process Complete Data Written to: ' + '\n  \n' + str(file_inc),
+                        no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+            continue
+        #
+        # View
+        #
+        elif event == '_view_':
+            opm_view(values['_output_'], opmoptn)
+            continue
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Post Processing Section - Close Main Window
+    # ------------------------------------------------------------------------------------------------------------------
+    window1.close()
+    return ()
+
+# ======================================================================================================================
+# End of OPM_PRODSCHED.py
+# ======================================================================================================================

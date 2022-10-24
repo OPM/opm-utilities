@@ -1,9 +1,9 @@
 ## =================================================================================================================================
-##
-##                                                    jEdit Velocity Template
-##
-## Template Description
-## --------------------
+##  
+##                                                    jEdit Velocity Template                              
+##                                                                                   
+## Template Description                                                         
+## --------------------                                                         
 ## This is a standard jEdit Velocity Template script that generates a standard template header for this file type.
 ##
 ## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
@@ -14,24 +14,23 @@
 ##
 ## You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
 ## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-##
+## 
 ## Machine Operating System  : Kubuntu 22.04
-## Machine Type              : amd64
-## File Name                 : GRIDOPTS.vm
+## Machine Type              : amd64                               
+## File Name                 : GRIDOPTS.vm                                                         
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
 ##                             Singapore, 308900
-##                             david.baxendale@eipc.co
+##                             david.baxendale@eipc.co 
 ## Version                   : 2022-10
-##
+##   
 ##                             Copyright (C) 2018-2022 Equinox International Petroleum Consultants Pte. Ltd
-##
+## 
 ## =================================================================================================================================
 --
---       GRID FILE OUTPUT OPTIONS
---       MULT    MAX      MAX
---       DIRECT  MULTNUM  PINCHNUM
-GRIDOPTS
-         NO      1*       1*                                                   /
+--       NEG      MAX     MAX                                                    
+--       MULTS    MULTNUM PINCHNUM                                               
+GRIDOPTS                                                                        
+         YES      9       1*                                                   /
 ## =================================================================================================================================

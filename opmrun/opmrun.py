@@ -1476,6 +1476,7 @@ def load_options(opmoptn1, opmsys1, opmlog1):
         term = 'wsl'
     else:
         font = 'Liberation Mono'
+
         term = 'xterm'
     opmdef                     = dict()
     opmdef['input-width'     ] = 164

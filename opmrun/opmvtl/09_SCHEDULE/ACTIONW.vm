@@ -29,14 +29,14 @@
 ## 
 ## =================================================================================================================================
 --
---       WELL ACTION COMMANDS
+--       ACTIONW WELL COMMANDS
 --
 ACTIONW
---       ACTION     WELL     TRIGGER     TRIGGER    TRIGGER   TRIGGER   TRIGGER
---       NAME       NAME     CONDITION   OPERATOR   VALUE     MAX       COUNTER
-         ACTW-1     GI01       WBHP         >       6800.0                     /
+--       ACTION     WELL     ACTION   ACTION  ACTION  MAX      ICREMENT
+--       NAME       NAME     LHS      TEST    RHS     ACTIONS  RHS     
+         ACTW-1     GI01     WBHP      >      6800.0                            /
 --
---       TRIGGER COMMANDS TO BE EXECUTED BELOW THIS COMMENT
+--       ACTION COMMANDS TO BE EXECUTED
 --   
 --       NEXT   ALL
 --       STEP   TIME
@@ -55,4 +55,5 @@ GI01     OPEN     0   0    0     1     1                                       /
 /                                                                               
 
 ENDACTIO
+
 ## =================================================================================================================================

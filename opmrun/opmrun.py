@@ -2361,7 +2361,11 @@ def run_resinsight(command, jobfile='None'):
         file3 = Path(file0).with_suffix('.SMSPEC')
         if file1.is_file() or file2.is_file() or file3.is_file():
             change_directory(Path(file0).parent, popup=False, outprt=False)
-            command = command + str(' --case ') + str(file0.stem)
+
+            # Make Sure File is Upper Case for OPM ResInsight
+            file = str(file0.stem)
+            file = file.upper()
+            command = command + str(' --case ') + str(file)
         else:
             sg.popup_error('Cannot Find GRID, EGRID, or SMSPEC File:\n ', str(file1) + '\n' + str(file2) + '\n or \n' +
                            str(file3) +'\n', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
@@ -2840,7 +2844,7 @@ def opmrun():
     The software enables submitting OPM Flow simulation input decks together with editing of the associated PARAM file,
     as well as being able to compress and uncompress OPM Flow's output files in order to save disk space.
 
-    In addition there is an OPM Flow Keyword Generation Utility module that generates input decks based of the keywords
+    In addition, there is an OPM Flow Keyword Generation Utility module that generates input decks based of the keywords
     available for the simulator which users the Apache Velocity Template Language ("VTL") for the templates.
 
     Parameters
@@ -3024,6 +3028,7 @@ def opmrun():
         sg.cprint_set_output_destination(window0, '_outflow_' + sg.WRITE_ONLY_KEY)
         event, values = window0.read()
         window_debug(event, 'values', values, False)
+
         # Check if Window Has Been Closed
         if event in [None, sg.WIN_CLOSED]:
             break

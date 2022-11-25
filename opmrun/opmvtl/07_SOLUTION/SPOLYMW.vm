@@ -17,7 +17,7 @@
 ## 
 ## Machine Operating System  : Kubuntu 22.04
 ## Machine Type              : amd64                               
-## File Name                 : PLYDHFLF.vm                                                         
+## File Name                 : SPOLYMW.vm                                                         
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
@@ -28,24 +28,14 @@
 ##                             Copyright (C) 2018-2022 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
---                                                                                      
---       POLYMER THERMAL DEGRADATION HALF-LIFE TABLE                                                                        
---                                                                                      
-PLYDHFLF
---       POLYMER    POLYMER                                                            
---       TEMP       HALF-LIFE                                                           
---       -------    ---------                                                   
-             0.0     365.000   
-            40.0     200.000    
-            80.0     150.000    
-           120.0     100.000                               / TABLE NO. 01
---       POLYMER    POLYMER                                                            
---       TEMP       HALF-LIFE                                                           
---       -------    --------                                                    
-             0.0     365.000   
-            50.0     175.000    
-            75.0     140.000    
-           100.0     120.000    
-           125.0      90.000                            
-           150.0      85.000                               / TABLE NO. 02
+--
+--       INITIAL EQUILIBRATION POLYMER MOLECULAR WEIGHTS FOR ALL CELLS (OPM FLOW SOLUTION KEYWORD)
+--
+--       ARRAY       CONSTANT     ---------- BOX ---------                 
+--                                I1  I2   J1  J2   K1  K2                
+EQUALS                                                  
+         SPOLYMW     0.0000       1*  1*   1*  1*    1   5 / POLYMER MW LAYERS 1 TO 5
+         SPOLYMW     5.0000       1*  1*   1*  1*    6   7 / POLYMER MW LAYERS 6 TO 7
+         SPOLYMW     0.0000       1*  1*   1*  1*    8  20 / POLYMER MW LAYERS 8 TO 20
+/                                                                                   
 ## =================================================================================================================================

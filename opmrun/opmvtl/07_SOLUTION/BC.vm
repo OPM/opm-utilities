@@ -17,7 +17,7 @@
 ## 
 ## Machine Operating System  : Kubuntu 22.04
 ## Machine Type              : amd64                               
-## File Name                 : PLYDHFLF.vm                                                         
+## File Name                 : BC.vm                                                         
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
@@ -28,24 +28,13 @@
 ##                             Copyright (C) 2018-2022 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
---                                                                                      
---       POLYMER THERMAL DEGRADATION HALF-LIFE TABLE                                                                        
---                                                                                      
-PLYDHFLF
---       POLYMER    POLYMER                                                            
---       TEMP       HALF-LIFE                                                           
---       -------    ---------                                                   
-             0.0     365.000   
-            40.0     200.000    
-            80.0     150.000    
-           120.0     100.000                               / TABLE NO. 01
---       POLYMER    POLYMER                                                            
---       TEMP       HALF-LIFE                                                           
---       -------    --------                                                    
-             0.0     365.000   
-            50.0     175.000    
-            75.0     140.000    
-           100.0     120.000    
-           125.0      90.000                            
-           150.0      85.000                               / TABLE NO. 02
+--
+--       DEFINE MODEL BOUNDARY CONDITIONS (OPM FLOW SOLUTION KEYWORD)
+--       
+--       ---------- BOX ---------   BC    BC         BC     BC    BC     BC 
+--       I1  I2   J1  J2   K1  K2   DIRC  TYPE       PHASE  RATE  PRESS  TEMP
+BC                                                          
+         1   1    1   1*   1   1*   X-    DIRICHLET  WAT    1*    256.0  100.0 / 
+         1   1*   1   1    1   1*   Y     DIRICHLET  WAT    1*    1*     100.0 /
+/        
 ## =================================================================================================================================

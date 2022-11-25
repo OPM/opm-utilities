@@ -17,7 +17,7 @@
 ## 
 ## Machine Operating System  : Kubuntu 22.04
 ## Machine Type              : amd64                               
-## File Name                 : PLYDHFLF.vm                                                         
+## File Name                 : WSKPTAB.vm                                                    
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
@@ -25,27 +25,17 @@
 ##                             david.baxendale@eipc.co 
 ## Version                   : 2022-10
 ##   
-##                             Copyright (C) 2018-2022 Equinox International Petroleum Consultants Pte. Ltd
+##                             Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
---                                                                                      
---       POLYMER THERMAL DEGRADATION HALF-LIFE TABLE                                                                        
---                                                                                      
-PLYDHFLF
---       POLYMER    POLYMER                                                            
---       TEMP       HALF-LIFE                                                           
---       -------    ---------                                                   
-             0.0     365.000   
-            40.0     200.000    
-            80.0     150.000    
-           120.0     100.000                               / TABLE NO. 01
---       POLYMER    POLYMER                                                            
---       TEMP       HALF-LIFE                                                           
---       -------    --------                                                    
-             0.0     365.000   
-            50.0     175.000    
-            75.0     140.000    
-           100.0     120.000    
-           125.0      90.000                            
-           150.0      85.000                               / TABLE NO. 02
+--
+--       ASSIGN WELL POLYMER MOLECULAR MODEL SKIN TABLES (OPM FLOW SCHEDULE KEYWORD)                                                  
+--                                                                              
+-- WELL  SKPRWAT   SKPRPOLY      
+-- NAME  TABLE     TABLE   
+WSKPTAB                                                                         
+WI01     1         1                                              /
+WI02     1         3                                              /
+WI03     2         2                                              /
+/  
 ## =================================================================================================================================

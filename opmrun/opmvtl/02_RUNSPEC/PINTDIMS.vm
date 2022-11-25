@@ -17,7 +17,7 @@
 ## 
 ## Machine Operating System  : Kubuntu 22.04
 ## Machine Type              : amd64                               
-## File Name                 : SWATINIT.vm                                                         
+## File Name                 : PINTDIMS.vm                                                         
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
@@ -28,9 +28,11 @@
 ##                             Copyright (C) 2018-2022 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
---                                                                              
---       DEFINE GRID BLOCK INITIAL SW DATA FOR ALL CELLS (BASED ON NX x NY x NZ = 300)                            
--- 
-SWATINIT
-  300*0.300                                                                    /                                                                                 
+--
+--       POLYMER MOLECULAR WEIGHT TRANSPORT TABLES (OPM FLOW RUNSPEC KEYWORD)
+--
+--       NO.      NO.       NO.       NO.                          
+--       NTSKWAT  NTSKPOLY  NTPMWINJ  NPLYVMH                    
+PINTDIMS                                                                         
+         2        2         2         1                                        /
 ## =================================================================================================================================

@@ -17,7 +17,7 @@
 ## 
 ## Machine Operating System  : Kubuntu 22.04
 ## Machine Type              : amd64                               
-## File Name                 : PLYDHFLF.vm                                                         
+## File Name                 : SKPRPOLY.vm                                                         
 ## Author                    : David Baxendale
 ##                             Equinox International Petroleum Consultants Pte. Ltd
 ##                             51 Goldhill Plaza, #07-10/11
@@ -28,24 +28,46 @@
 ##                             Copyright (C) 2018-2022 Equinox International Petroleum Consultants Pte. Ltd
 ## 
 ## =================================================================================================================================
---                                                                                      
---       POLYMER THERMAL DEGRADATION HALF-LIFE TABLE                                                                        
---                                                                                      
-PLYDHFLF
---       POLYMER    POLYMER                                                            
---       TEMP       HALF-LIFE                                                           
---       -------    ---------                                                   
-             0.0     365.000   
-            40.0     200.000    
-            80.0     150.000    
-           120.0     100.000                               / TABLE NO. 01
---       POLYMER    POLYMER                                                            
---       TEMP       HALF-LIFE                                                           
---       -------    --------                                                    
-             0.0     365.000   
-            50.0     175.000    
-            75.0     140.000    
-           100.0     120.000    
-           125.0      90.000                            
-           150.0      85.000                               / TABLE NO. 02
+--
+--       POLYMER MOLECULAR WEIGHT MODEL POLYMER INJECTION SKIN TABLE 
+--       (OPM FLOW PROPS KEYWORD)
+--
+SKPRPOLY 
+--       TABLE   POLYMER REF
+--       NO.     CONCENTRATION 
+         1       2.00                  /
+--  
+--       OUTPUT THROUGHPUT VALUES                                
+--
+         0.0     200.0   400.0         / 
+--
+--       VELOCITY VALUES                                  
+--
+         0.0     50.0    80.0    100.0 / 
+--
+--       PRESS SKIN VALUES
+--
+         0.0     10.0    20.0    40.0  / PRESS(OUTPUT=1, VELOCITY=1 TO N)
+         0.0     50.0    100.0   200.0 / PRESS(OUTPUT=2, VELOCITY=1 TO N)
+         0.0     100.0   200.0   400.0 / PRESS(OUTPUT=3, VELOCITY=1 TO N)
+/
+SKPRPOLY
+--       TABLE   POLYMER REF
+--       NO.     CONCENTRATION 
+         2       2.0                   / 
+--  
+--       OUTPUT THROUGHPUT VALUES
+--
+         0.0     200.0   400.0         / 
+--
+--       VELOCITY VALUES
+--
+         0.0     30.0    50.0    100.0 / 
+--
+--       PRESS SKIN VALUES
+--
+         0.0     10.0    20.0    40.0  / PRESS(OUTPUT=1, VELOCITY=1 TO N)
+         0.0     50.0    100.0   200.0 / PRESS(OUTPUT=2, VELOCITY=1 TO N)
+         0.0     100.0   200.0   400.0 / PRESS(OUTPUT=3, VELOCITY=1 TO N)
+/         
 ## =================================================================================================================================

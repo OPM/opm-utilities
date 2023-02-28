@@ -92,7 +92,7 @@ import pyDOE2
 #
 # Import OPM Common Modules
 #
-from opm_common import get_time, opm_popup, set_gui_options, window_debug
+from opmrun.opm_common import get_time, opm_popup, set_gui_options, window_debug
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section

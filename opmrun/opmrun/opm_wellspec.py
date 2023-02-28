@@ -49,7 +49,7 @@ import PySimpleGUI as sg
 #
 # Import OPM Common Modules
 #
-from opm_common import file_lstrip, opm_header_file, opm_popup, opm_view, window_debug
+from opmrun.opm_common import file_lstrip, opm_header_file, opm_popup, opm_view, window_debug
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section

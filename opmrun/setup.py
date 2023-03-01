@@ -29,7 +29,11 @@ setuptools.setup(
     # Package Data and Requirements
     #
     python_requires='>=3.6',
-    package_data={'opmrun': ['opmvtl/*.*']},
     install_requires=['airspeed', 'numpy', 'pandas', 'psutil', 'pyDOE2', 'PySimpleGUI'],
-    packages=setuptools.find_packages()
+    entry_points={
+        'gui_scripts': [
+            'opmrun=opmrun.opmrun:main'
+        ],
+    },
+    packages=setuptools.find_packages(),
 )

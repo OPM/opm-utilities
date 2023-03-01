@@ -46,7 +46,7 @@ Date    : 14-Jul-2021
 import PySimpleGUI as sg
 from pathlib import Path
 
-from opm_common import (change_directory, copy_to_clipboard, opm_popup, run_command)
+from opmrun.opm_common import (change_directory, copy_to_clipboard, opm_popup, run_command)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define OPM_COMPRESS Specific Modules

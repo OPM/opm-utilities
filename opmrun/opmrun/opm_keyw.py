@@ -76,7 +76,7 @@ import PySimpleGUI as sg
 #
 # Import OPM Common Modules
 #
-from opm_common import copy_to_clipboard, opm_popup, print_dict, set_gui_options, window_debug
+from opmrun.opm_common import copy_to_clipboard, opm_popup, print_dict, set_gui_options, window_debug
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define OPMKEYW Specific Modules

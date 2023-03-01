@@ -352,14 +352,8 @@ print('OPMRUN Startup: Importing Non-Standard Modules Complete')
 #
 # Import OPMRUN Modules
 #
-from opm_common import (copy_to_clipboard, convert_string, get_time, kill_job, set_gui_options, opm_popup, print_dict,
-                        remove_ansii_escape_codes, run_command, tail, wsl_path)
-from opm_compress import (change_directory, compress_cmd, compress_files, uncompress_files)
-from opm_keyw import keyw_main
-from opm_sensitivity import *
-from opm_prodsched import *
-from opm_wellspec import wellspec_main
-from opm_welltraj import welltraj_main
+from opmrun import *
+
 #
 # Check for Python 2 Version
 #
@@ -2836,7 +2830,7 @@ def set_window_status(status):
         # window0.disable  # Not Working Causes Display to Freeze Linux Systems
 
 
-def opmrun():
+def main():
     """OPMRUN Main Program
 
     The program allows the user to select files to be submitted to OPM Flow and has a variety of features.
@@ -3323,7 +3317,7 @@ def opmrun():
 # Execute Module
 # ----------------------------------------------------------------------------------------------------------------------
 if __name__ == '__main__':
-    opmrun()
+    main()
 
 # ======================================================================================================================
 # End of OPMRUN.py

@@ -10,7 +10,7 @@ set -x
 sudo apt-get update -y
 
 # Packages needed for add-apt-repository
-sudo apt-get install -y python-software-properties software-properties-common
+sudo apt-get install -y python3-software-properties software-properties-common
 
 # Add PPA for the OPM packages
 sudo add-apt-repository -y ppa:opm/ppa

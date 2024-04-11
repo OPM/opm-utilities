@@ -8,11 +8,11 @@
 # Run the script from the local repository of the module you are backporting in.
 set -e
 set -x
-PR=4249 # the PR number
-RELEASE=2022.10
+PR=$1 # the PR number
+RELEASE=2024.04
 UPSTREAM=upstream #The remote name of the repo https://github.com/OPM/<opm-module>
 git checkout release/$RELEASE
-git pull $UPSTREAM release/$RELEASE
+git pull --ff-only $UPSTREAM release/$RELEASE
 SHA="$(git log --oneline upstream/master | grep "Merge pull request #$PR"| head -n 1 | cut -d \  -f 1)"
 FSHA="$(git show --pretty="format:%h" $SHA~)"
 echo "backporting PR $PR from $FSHA to $SHA"

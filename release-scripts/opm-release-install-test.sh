@@ -4,7 +4,7 @@ set -e
 # A small script that builds and installs each module with the others
 # already installed (and not still lying around next to it) in favirious
 # flavors
-RELEASE=2022.04
+RELEASE=2024.04
 branch=release/$RELEASE
 BUILD_CONFIGS="opts-parallel.cmake opts-seq.cmake"
 
@@ -45,7 +45,7 @@ while test $# -gt 0; do
     shift
 done
 
-OPM_MODULES="opm-common opm-grid opm-material opm-models opm-simulators opm-upscaling"
+OPM_MODULES="opm-common opm-grid opm-models opm-simulators opm-upscaling"
 DIR=$HOME/opm-release-test/
 mkdir -p $DIR
 cd $DIR
@@ -61,6 +61,9 @@ set(BUILD_ECL_SUMMARY ON CACHE BOOL "Build summary.x")
 set(BUILD_APPLICATIONS ON CACHE BOOL "Build applications")
 set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type to use")
 set(CMAKE_INSTALL_PREFIX "$HOME/opt/opm/" CACHE PATH "installation directory")
+set(OPM_ENABLE_EMBEDDED_PYTHON ON CACHE BOOL "Build embedded python")
+set(OPM_ENABLE_PYTHON ON CACHE BOOL "Enable python bindings")
+set(OPM_INSTALL_PYTHON ON CACHE BOOL "Install python")
 EOF
 fi
 if ! test -e opts-seq.cmake; then
@@ -75,6 +78,10 @@ set(BUILD_APPLICATIONS ON CACHE BOOL "Build applications")
 set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type to use")
 set(CMAKE_INSTALL_PREFIX "$HOME/opt/opm-seq/" CACHE PATH "installation directory")
 set(CMAKE_DISABLE_FIND_PACKAGE_MPI ON CACHE BOOL "Turn off MPI")
+set(OPM_ENABLE_EMBEDDED_PYTHON ON CACHE BOOL "Build embedded python")
+set(OPM_ENABLE_PYTHON ON CACHE BOOL "Enable python bindings")
+set(OPM_INSTALL_PYTHON ON CACHE BOOL "Install python")
+
 EOF
 fi
 

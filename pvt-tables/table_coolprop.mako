@@ -20,7 +20,7 @@
 *   Enthalpy = 200 kJ/kg (and entropy = 1 kJ/kg/K) at 0C saturated liquid
 % endif
 *
-* Generated using:
+* Generated using opm_tables_coolprop.py in opm-utilities like this:
 *
 % if refP is None and refT is None:
 * >> python3 opm_tables_coolprop.py -t1 ${minTemp} -t2 ${maxTemp} -nt ${nTemp} -p1 ${minPress} -p2 ${maxPress} -np ${nPress} -c ${comp}
@@ -39,7 +39,7 @@ struct TabulatedDensityTraits {
     static const Scalar yMin;
     static const Scalar yMax;
 
-    static const std::vector<std::vector<Scalar>> vals;
+    static const Scalar vals[${nTemp}][${nPress}];
 };
 
 inline const double TabulatedDensityTraits::xMin = ${'{0:.15e}'.format(minTemp)};
@@ -48,7 +48,7 @@ inline const double TabulatedDensityTraits::yMin = ${'{0:.15e}'.format(minPress)
 inline const double TabulatedDensityTraits::yMax = ${'{0:.15e}'.format(maxPress)};
 inline const char  *TabulatedDensityTraits::name = "density";
 
-inline const std::vector<std::vector<double>> TabulatedDensityTraits::vals =
+inline const TabulatedDensityTraits::Scalar TabulatedDensityTraits::vals[${nTemp}][${nPress}] =
 {
 % for i in range(nTemp):
 ${'\t{'}
@@ -72,7 +72,7 @@ struct TabulatedEnthalpyTraits {
     static const int    numY = ${nPress};
     static const Scalar yMin;
     static const Scalar yMax;
-    static const std::vector<std::vector<Scalar>> vals;
+    static const Scalar vals[${nTemp}][${nPress}];
 };
 
 inline const double TabulatedEnthalpyTraits::xMin = ${'{0:.15e}'.format(minTemp)};
@@ -81,7 +81,7 @@ inline const double TabulatedEnthalpyTraits::yMin = ${'{0:.15e}'.format(minPress
 inline const double TabulatedEnthalpyTraits::yMax = ${'{0:.15e}'.format(maxPress)};
 inline const char  *TabulatedEnthalpyTraits::name = "enthalpy";
 
-inline const std::vector<std::vector<double>> TabulatedEnthalpyTraits::vals =
+inline const TabulatedEnthalpyTraits::Scalar TabulatedEnthalpyTraits::vals[${nTemp}][${nPress}] =
 {
 % for i in range(nTemp):
 ${'\t{'}

@@ -29,7 +29,7 @@
 % endif
 * 
 */
-struct TabulatedDensityTraits {
+struct ${comp}TabulatedDensityTraits {
     typedef double Scalar;
     static const char  *name;
     static const int    numX = ${nTemp};
@@ -42,13 +42,13 @@ struct TabulatedDensityTraits {
     static const Scalar vals[${nTemp}][${nPress}];
 };
 
-inline const double TabulatedDensityTraits::xMin = ${'{0:.15e}'.format(minTemp)};
-inline const double TabulatedDensityTraits::xMax = ${'{0:.15e}'.format(maxTemp)};
-inline const double TabulatedDensityTraits::yMin = ${'{0:.15e}'.format(minPress)};
-inline const double TabulatedDensityTraits::yMax = ${'{0:.15e}'.format(maxPress)};
-inline const char  *TabulatedDensityTraits::name = "density";
+inline const double ${comp}TabulatedDensityTraits::xMin = ${'{0:.15e}'.format(minTemp)};
+inline const double ${comp}TabulatedDensityTraits::xMax = ${'{0:.15e}'.format(maxTemp)};
+inline const double ${comp}TabulatedDensityTraits::yMin = ${'{0:.15e}'.format(minPress)};
+inline const double ${comp}TabulatedDensityTraits::yMax = ${'{0:.15e}'.format(maxPress)};
+inline const char  *${comp}TabulatedDensityTraits::name = "density";
 
-inline const TabulatedDensityTraits::Scalar TabulatedDensityTraits::vals[${nTemp}][${nPress}] =
+inline const ${comp}TabulatedDensityTraits::Scalar ${comp}TabulatedDensityTraits::vals[${nTemp}][${nPress}] =
 {
 % for i in range(nTemp):
 ${'\t{'}
@@ -63,7 +63,7 @@ ${'\t}' if loop.last else '\t},'}
 % endfor
 };
 
-struct TabulatedEnthalpyTraits {
+struct ${comp}TabulatedEnthalpyTraits {
     typedef double Scalar;
     static const char  *name;
     static const int    numX = ${nTemp};
@@ -75,13 +75,13 @@ struct TabulatedEnthalpyTraits {
     static const Scalar vals[${nTemp}][${nPress}];
 };
 
-inline const double TabulatedEnthalpyTraits::xMin = ${'{0:.15e}'.format(minTemp)};
-inline const double TabulatedEnthalpyTraits::xMax = ${'{0:.15e}'.format(maxTemp)};
-inline const double TabulatedEnthalpyTraits::yMin = ${'{0:.15e}'.format(minPress)};
-inline const double TabulatedEnthalpyTraits::yMax = ${'{0:.15e}'.format(maxPress)};
-inline const char  *TabulatedEnthalpyTraits::name = "enthalpy";
+inline const double ${comp}TabulatedEnthalpyTraits::xMin = ${'{0:.15e}'.format(minTemp)};
+inline const double ${comp}TabulatedEnthalpyTraits::xMax = ${'{0:.15e}'.format(maxTemp)};
+inline const double ${comp}TabulatedEnthalpyTraits::yMin = ${'{0:.15e}'.format(minPress)};
+inline const double ${comp}TabulatedEnthalpyTraits::yMax = ${'{0:.15e}'.format(maxPress)};
+inline const char  *${comp}TabulatedEnthalpyTraits::name = "enthalpy";
 
-inline const TabulatedEnthalpyTraits::Scalar TabulatedEnthalpyTraits::vals[${nTemp}][${nPress}] =
+inline const ${comp}TabulatedEnthalpyTraits::Scalar ${comp}TabulatedEnthalpyTraits::vals[${nTemp}][${nPress}] =
 {
 % for i in range(nTemp):
 ${'\t{'}
@@ -98,7 +98,7 @@ ${'\t}' if loop.last else '\t},'}
 
 typedef Opm::UniformTabulated2DFunction< double > TabulatedFunction;
 
-// this class collects all the tabulated quantities in one convenient place
+// this class collects all the ${comp}tabulated quantities in one convenient place
 struct ${comp.upper()}Tables {
    static const TabulatedFunction   tabulatedEnthalpy;
    static const TabulatedFunction   tabulatedDensity;
@@ -106,22 +106,22 @@ struct ${comp.upper()}Tables {
 };
 
 inline const TabulatedFunction ${comp.upper()}Tables::tabulatedEnthalpy
-    {TabulatedEnthalpyTraits::xMin,
-     TabulatedEnthalpyTraits::xMax,
-     TabulatedEnthalpyTraits::numX,
-     TabulatedEnthalpyTraits::yMin,
-     TabulatedEnthalpyTraits::yMax,
-     TabulatedEnthalpyTraits::numY,
-     TabulatedEnthalpyTraits::vals};
+    {${comp}TabulatedEnthalpyTraits::xMin,
+     ${comp}TabulatedEnthalpyTraits::xMax,
+     ${comp}TabulatedEnthalpyTraits::numX,
+     ${comp}TabulatedEnthalpyTraits::yMin,
+     ${comp}TabulatedEnthalpyTraits::yMax,
+     ${comp}TabulatedEnthalpyTraits::numY,
+     ${comp}TabulatedEnthalpyTraits::vals};
 
 inline const TabulatedFunction ${comp.upper()}Tables::tabulatedDensity
-    {TabulatedDensityTraits::xMin,
-     TabulatedDensityTraits::xMax,
-     TabulatedDensityTraits::numX,
-     TabulatedDensityTraits::yMin,
-     TabulatedDensityTraits::yMax,
-     TabulatedDensityTraits::numY,
-     TabulatedDensityTraits::vals};
+    {${comp}TabulatedDensityTraits::xMin,
+     ${comp}TabulatedDensityTraits::xMax,
+     ${comp}TabulatedDensityTraits::numX,
+     ${comp}TabulatedDensityTraits::yMin,
+     ${comp}TabulatedDensityTraits::yMax,
+     ${comp}TabulatedDensityTraits::numY,
+     ${comp}TabulatedDensityTraits::vals};
 
 
 #endif /* ${comp.upper()}TABLES_INC */

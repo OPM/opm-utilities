@@ -29,26 +29,26 @@
 % endif
 * 
 */
-struct ${comp}TabulatedDensityTraits {
-    typedef double Scalar;
-    static const char  *name;
-    static const int    numX = ${nTemp};
-    static const Scalar xMin;
-    static const Scalar xMax;
-    static const int    numY = ${nPress};
-    static const Scalar yMin;
-    static const Scalar yMax;
+// Fill in the data for a struct like this (intended to work together with brine salinity 0.1)
+//struct Opm::${comp}TabulatedDensityTraits {
+//    typedef double Scalar;
+//    static const char  *name;
+//    static const int    numX = ${nTemp};
+//    static const Scalar xMin;
+//    static const Scalar xMax;
+//    static const int    numY = ${nPress};
+//    static const Scalar yMin;
+//    static const Scalar yMax;
+//    static const Scalar vals[${nTemp}][${nPress}];
+//};
 
-    static const Scalar vals[${nTemp}][${nPress}];
-};
+inline const double Opm::${comp}TabulatedDensityTraits::xMin = ${'{0:.15e}'.format(minTemp)};
+inline const double Opm::${comp}TabulatedDensityTraits::xMax = ${'{0:.15e}'.format(maxTemp)};
+inline const double Opm::${comp}TabulatedDensityTraits::yMin = ${'{0:.15e}'.format(minPress)};
+inline const double Opm::${comp}TabulatedDensityTraits::yMax = ${'{0:.15e}'.format(maxPress)};
+inline const char  *Opm::${comp}TabulatedDensityTraits::name = "density";
 
-inline const double ${comp}TabulatedDensityTraits::xMin = ${'{0:.15e}'.format(minTemp)};
-inline const double ${comp}TabulatedDensityTraits::xMax = ${'{0:.15e}'.format(maxTemp)};
-inline const double ${comp}TabulatedDensityTraits::yMin = ${'{0:.15e}'.format(minPress)};
-inline const double ${comp}TabulatedDensityTraits::yMax = ${'{0:.15e}'.format(maxPress)};
-inline const char  *${comp}TabulatedDensityTraits::name = "density";
-
-inline const ${comp}TabulatedDensityTraits::Scalar ${comp}TabulatedDensityTraits::vals[${nTemp}][${nPress}] =
+inline const Opm::${comp}TabulatedDensityTraits::Scalar Opm::${comp}TabulatedDensityTraits::vals[${nTemp}][${nPress}] =
 {
 % for i in range(nTemp):
 ${'\t{'}
@@ -63,25 +63,26 @@ ${'\t}' if loop.last else '\t},'}
 % endfor
 };
 
-struct ${comp}TabulatedEnthalpyTraits {
-    typedef double Scalar;
-    static const char  *name;
-    static const int    numX = ${nTemp};
-    static const Scalar xMin;
-    static const Scalar xMax;
-    static const int    numY = ${nPress};
-    static const Scalar yMin;
-    static const Scalar yMax;
-    static const Scalar vals[${nTemp}][${nPress}];
-};
+// Fill in the data for a struct like this (intended to work together with brine salinity 0.1)
+//struct Opm::${comp}TabulatedEnthalpyTraits {
+//    typedef double Scalar;
+//    static const char  *name;
+//    static const int    numX = ${nTemp};
+//    static const Scalar xMin;
+//    static const Scalar xMax;
+//    static const int    numY = ${nPress};
+//    static const Scalar yMin;
+//    static const Scalar yMax;
+//    static const Scalar vals[${nTemp}][${nPress}];
+//};
 
-inline const double ${comp}TabulatedEnthalpyTraits::xMin = ${'{0:.15e}'.format(minTemp)};
-inline const double ${comp}TabulatedEnthalpyTraits::xMax = ${'{0:.15e}'.format(maxTemp)};
-inline const double ${comp}TabulatedEnthalpyTraits::yMin = ${'{0:.15e}'.format(minPress)};
-inline const double ${comp}TabulatedEnthalpyTraits::yMax = ${'{0:.15e}'.format(maxPress)};
-inline const char  *${comp}TabulatedEnthalpyTraits::name = "enthalpy";
+inline const double Opm::${comp}TabulatedEnthalpyTraits::xMin = ${'{0:.15e}'.format(minTemp)};
+inline const double Opm::${comp}TabulatedEnthalpyTraits::xMax = ${'{0:.15e}'.format(maxTemp)};
+inline const double Opm::${comp}TabulatedEnthalpyTraits::yMin = ${'{0:.15e}'.format(minPress)};
+inline const double Opm::${comp}TabulatedEnthalpyTraits::yMax = ${'{0:.15e}'.format(maxPress)};
+inline const char  *Opm::${comp}TabulatedEnthalpyTraits::name = "enthalpy";
 
-inline const ${comp}TabulatedEnthalpyTraits::Scalar ${comp}TabulatedEnthalpyTraits::vals[${nTemp}][${nPress}] =
+inline const Opm::${comp}TabulatedEnthalpyTraits::Scalar Opm::${comp}TabulatedEnthalpyTraits::vals[${nTemp}][${nPress}] =
 {
 % for i in range(nTemp):
 ${'\t{'}
@@ -95,33 +96,5 @@ ${'\t\t{0:.15e}'.format(enthalpy[i][j])}${'\n' if loop.last else ','}\
 ${'\t}' if loop.last else '\t},'}
 % endfor
 };
-
-typedef Opm::UniformTabulated2DFunction< double > TabulatedFunction;
-
-// this class collects all the ${comp}tabulated quantities in one convenient place
-struct ${comp.upper()}Tables {
-   static const TabulatedFunction   tabulatedEnthalpy;
-   static const TabulatedFunction   tabulatedDensity;
-   static constexpr double brineSalinity = 1.000000000000000e-01;
-};
-
-inline const TabulatedFunction ${comp.upper()}Tables::tabulatedEnthalpy
-    {${comp}TabulatedEnthalpyTraits::xMin,
-     ${comp}TabulatedEnthalpyTraits::xMax,
-     ${comp}TabulatedEnthalpyTraits::numX,
-     ${comp}TabulatedEnthalpyTraits::yMin,
-     ${comp}TabulatedEnthalpyTraits::yMax,
-     ${comp}TabulatedEnthalpyTraits::numY,
-     ${comp}TabulatedEnthalpyTraits::vals};
-
-inline const TabulatedFunction ${comp.upper()}Tables::tabulatedDensity
-    {${comp}TabulatedDensityTraits::xMin,
-     ${comp}TabulatedDensityTraits::xMax,
-     ${comp}TabulatedDensityTraits::numX,
-     ${comp}TabulatedDensityTraits::yMin,
-     ${comp}TabulatedDensityTraits::yMax,
-     ${comp}TabulatedDensityTraits::numY,
-     ${comp}TabulatedDensityTraits::vals};
-
 
 #endif /* ${comp.upper()}TABLES_INC */

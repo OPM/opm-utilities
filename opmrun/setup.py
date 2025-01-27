@@ -36,4 +36,11 @@ setuptools.setup(
         ],
     },
     packages=setuptools.find_packages(),
+    package_data={
+        # Specify non-Python files to include in the package
+        'opmrun': [
+            '*.png',  # Include all PNG files
+            '*.ico',  # Include all ICO files
+        ],
+    },
 )

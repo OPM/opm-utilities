@@ -1,16 +1,16 @@
 # OPMRUN
 OPMRUN is graphical user interface to Flow that has similar functionality to the 
-commercial simulator’s ECLRUN program. Target audience are Reservoir Engineers in a 
+commercial simulator's ECLRUN program. Target audience are Reservoir Engineers in a
 production environment. Developers and experienced Linux users will already have 
 compatible work flows.
 
-  * Allows editing and management of OPM Flow’s run time parameters. Default 
+  * Allows editing and management of OPM Flow's run time parameters. Default
 parameters are automatically loaded from OPM Flow, and the user can reset the 
-default parameter set either from a parameter or PRT file. Editing of a job’s 
+default parameter set either from a parameter or PRT file. Editing of a job's
 parameter file is also available.
 
   * Runs under Linux and Windows 10. When running under Windows 10, OPMRUN runs OPM Flow  via the Windows Subsystem 
-for Linux (“WSL”).
+for Linux ("WSL").
 
   * Allows simulation jobs to be queued and run in either foreground (under OPMRUN),
 or in background in a xterm terminal session in Linux, or WSL under Windows 10. Jobs 
@@ -25,7 +25,7 @@ Various additional simulation input generation and conversion utilities are avai
    * Compressing a job to save space (DATA, and all OPM Flow output files) and 
 uncompressing previously compressed jobs. 
    * Keywords, a keyword generator application based on the Apache Velocity Template Language 
-(“VTL”). The templates can therefore also be used with any editor that supports 
+("VTL"). The templates can therefore also be used with any editor that supports
 VTL, jEdit for example. There is one template per keyword, with the formatting the 
 same as the OPM Flow manual. Over 450 templates are currently implemented. One can
 also customize the existing templates as well as creating User defined templates. 
@@ -160,7 +160,7 @@ properties.
 Lets one add jobs, add jobs recursively (all jobs in the selected directory and 
 below), edit the data and the parameter file for the selected job, edit, list and 
 set the default parameters for running jobs that will be added to the queue, 
-set OPMRUN options, and set the project’s project directories.
+set OPMRUN options, and set the project's project directories.
 
 ![](.images/opmrun-09.png)
 
@@ -184,15 +184,15 @@ options including setting:
 simulation run for viewing.
    * The editor command to used to edit the input deck and view the resulting 
 simulator output files.
-   * The terminal console to be used for background jobs. WSL (“Windows Subsystem 
-for Linux) should be selected if OPMRUN is running under Windows 10 to enable jobs
+   * The terminal console to be used for background jobs. WSL ("Windows Subsystem
+for Linux") should be selected if OPMRUN is running under Windows 10 to enable jobs
 to be submitted to the installed Linux distribution. 
    * The User Information series of fields are used by various supplied tools and 
 in some templates used by the Keyword Generator application. Note if a User 
-Information” field is not defined then the template variable will be output 
-instead – this can easily be deleted in the application. 
+Information field is not defined then the template variable will be output 
+instead  this can easily be deleted in the application. 
    * One can also define the main OPMRUN windows configuration parameters define:
-input (**Job List Element**) and output panel’s (**OPM Flow Output Element**) size, 
+input (**Job List Element**) and output panel's (**OPM Flow Output Element**) size,
 font and font size.
   
 ![](.images/opmrun-13.png)
@@ -362,7 +362,7 @@ implemented in OPM Flow.
 **Keywords: USER Templates Option**
 
 Finally, the **USER** option is where users can store their own templates. **USER** 
-templates with the “vm” extension will automatically be listed by the **USER** 
+templates with the "vm" extension will automatically be listed by the **USER**
 button. To use this feature, after selecting a keyword, right-clicking on the 
 keyword allows one to load the actual template for the keyword. One can then edit 
 the template and save the changes back to the same template or another template 

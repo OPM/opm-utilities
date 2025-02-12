@@ -952,7 +952,7 @@ def edit_param(job, jobsys, **jobhelp):
     fileparam  = ''
     if fileparam1.is_file():
         fileparam = fileparam1
-    if not fileparam2.is_file():
+    if fileparam2.is_file():
         fileparam = fileparam2
     if fileparam == '':
         sg.popup_error('Cannot Find Parameter File: ',  str(fileparam1),

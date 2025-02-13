@@ -51,7 +51,8 @@ ResInsight for viewing.
 exported well trajectory file into an OPM ResInsight file, containing all the wells.
 
 **Notes:**
-1. Only Python 3 is supported and tested, Python2 support has been depreciated. 
+1. Only Python 3.11 is supported and tested, Python2 and also newer Python versions
+   are not supported.
 2. The following standard module Python libraries are required.
    * datetime, getpass, importlib, os, numpy, pkg_resources, pandas, pathlib, 
 platform, psutil, sys, re, subprocess, and tkinter as tk.
@@ -60,6 +61,13 @@ platform, psutil, sys, re, subprocess, and tkinter as tk.
 4. For some Linux systems the relevant package manager may have to be used to
 install tkinter as tk; whereas,for Windows 10 users the tkinter package is 
 pre-installed with Python.
+
+**How to install and run:**
+1. Install Python 3.11, ensure it is in your system's PATH.
+2. Run "python setup.py build" and "python setup.py install" in the folder
+   "opmrun" of this repository.
+3. Start opmrun by running "opmrun" in the "opmrun/opmrun" folder of this
+   repository.
 
 # OPMRUN Functionality
 

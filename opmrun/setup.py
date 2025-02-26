@@ -1,7 +1,7 @@
 import setuptools
 from opmrun import __version__
 
-with open("DESCRIPTION.md", "r") as fh:
+with open("DESCRIPTION.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(

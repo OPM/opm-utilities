@@ -27,16 +27,9 @@ Then create a JSON file describing the linear solver on the GPU
 
 ```JSON
 {
-    "tol": "0.01",
-    "maxiter": "200",
-    "verbosity": "0",
     "solver": "gpubicgstab",
     "preconditioner": {
-        "type": "GPUDILU",
-        "verbosity" : 0,
-        "split_matrix": "true",
-        "tune_gpu_kernels": "true",
-        "mixed_precision_scheme": 1
+        "type": "GPUDILU"
     }
 }
 ```
@@ -106,16 +99,9 @@ Where one assumes that `norne/NORNE_ATW2013.DATA` is accessible from the current
 
 ```json
 {
-    "tol": "0.01",
-    "maxiter": "200",
-    "verbosity": "0",
     "solver": "gpubicgstab",
     "preconditioner": {
-        "type": "GPUDILU",
-        "verbosity" : 0,
-        "split_matrix": "true",
-        "tune_gpu_kernels": "true",
-        "mixed_precision_scheme": 1
+        "type": "GPUDILU"
     }
 }
 ```
@@ -137,16 +123,9 @@ Then create a JSON file describing the linear solver on the GPU
 
 ```JSON
 {
-    "tol": "0.01",
-    "maxiter": "200",
-    "verbosity": "0",
     "solver": "gpubicgstab",
     "preconditioner": {
-        "type": "GPUDILU",
-        "verbosity" : 0,
-        "split_matrix": "true",
-        "tune_gpu_kernels": "true",
-        "mixed_precision_scheme": 1
+        "type": "GPUDILU"
     }
 }
 ```
@@ -275,16 +254,9 @@ Where one assumes that `norne/NORNE_ATW2013.DATA` is accessible from the current
 
 ```json
 {
-    "tol": "0.01",
-    "maxiter": "200",
-    "verbosity": "0",
     "solver": "gpubicgstab",
     "preconditioner": {
-        "type": "GPUDILU",
-        "verbosity" : 0,
-        "split_matrix": "true",
-        "tune_gpu_kernels": "true",
-        "mixed_precision_scheme": 1
+        "type": "GPUDILU"
     }
 }
 ```

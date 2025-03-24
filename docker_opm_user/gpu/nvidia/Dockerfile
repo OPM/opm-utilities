@@ -52,6 +52,7 @@ RUN mkdir /sources; cd /sources && \
         -DCMAKE_BUILD_TYPE=${build_type} \
         -DWITH_NATIVE=OFF \
         -DWITH_NDEBUG=ON \
+        -DCMAKE_CUDA_ARCHITECTURES="90;80;86;61;60;70;75" \
         ..\
     && make -j${build_threads} flow &&\
     mv opm-simulators/bin/flow /usr/local/bin/flow && \

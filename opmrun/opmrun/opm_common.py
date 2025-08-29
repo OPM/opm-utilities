@@ -14,6 +14,7 @@ Program Documentation
 ---------------------
 Only Python 3 is supported and tested Python2 support has been depreciated.
 
+2025.09.19 - Switch from PySimpleGUI to FreeSimpleGUI package
 2021.07.01 - Minor re-factoring and additional routines moved from other modules to here.
 2020.04.04 - Refactored code to be more compact as import checks are done in the main routine.
 2020.04.01 - Initial release
@@ -54,7 +55,7 @@ from pathlib import Path, PureWindowsPath
 import pandas as pd
 import psutil
 
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Define Modules Section
@@ -71,7 +72,7 @@ def change_directory(jobpath, popup=False, outprt=False):
     popup : bool
         Boolean Popup display option (True to display Popup, False no display)
     outprt : bool
-         Boolean print option (True to print to display, False not to print) to the PySimpleGUI window using cprint
+         Boolean print option (True to print to display, False not to print) to the FreeSimpleGUI window using cprint
 
     Returns
     -------
@@ -539,8 +540,8 @@ def run_command(command, timeout=None, window=None):
         The command to execute
     timeout : real
         Timeout for command execution
-    window : PySimpleGUI window
-        The PySimpleGUI window that the output is going to (needed to do refresh on)
+    window : FreeSimpleGUI window
+        The FreeSimpleGUI window that the output is going to (needed to do refresh on)
 
     Returns
     -------
@@ -661,7 +662,7 @@ def set_gui_options():
                       no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         opmicon = None
     #
-    # Set PySimpleGUI Defaults
+    # Set FreeSimpleGUI Defaults
     #
     sg.SetOptions(icon=opmicon,
                   button_color=('green', 'white'),

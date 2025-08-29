@@ -10,8 +10,8 @@ enables submitting OPM Flow simulation input decks together with editing of the 
 compressing and uncompress OPM Flow's input and output files in order to save disk space. This is the main code based
 which allows for incorporating additional tools via the Tool menu. See the OPMRUN function for further details.
 
-PySimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated for fixes and
-new features. Each release of OPMRUN will update to the latest release of PySimpleGUI.
+FreeSimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated for fixes and
+new features. Each release of OPMRUN will update to the latest release of FreeSimpleGUI.
 
 Running OPMRUN
 --------------
@@ -28,8 +28,8 @@ It's possible to create a single executable binary file that can be distributed 
 requirement to install the Python interpreter on the PC you wish to run it on. Everything it needs is in the one
 binary executable file, assuming you are running a somewhat up to date version of Linux.
 
-Installation of the packages, you'll need to install PySimpleGUI and all the othe packages listed in
-requirements.txt, as well as PyInstaller that generates the executable (you only need to install the packages only once)
+Installation of the packages, you'll need to install FreeSimpleGUI and all the othe packages listed in
+requirements.txt, as well as PyInstaller that generates the executable (you need to install the packages only once)
 
 *pyinstaller --clean --onefile opmrun.py*
 
@@ -318,10 +318,10 @@ except ImportError:
           '   Note the package name for the install')
     starterr = True
 # Import for Other Non-Standard Modules
-for package in  {'airspeed', 'pyDOE2', 'PySimpleGUI'}:
+for package in  {'airspeed', 'pyDOE3', 'FreeSimpleGUI'}:
     try:
         dist = pkg_resources.get_distribution(package)
-        if package == 'PySimpleGUI':
+        if package == 'FreeSimpleGUI':
             sg = importlib.import_module(package)
         else:
             importlib.import_module(package)
@@ -370,29 +370,29 @@ print('OPMRUN Startup: Python Version Check Complete')
 #                   '\n' +
 #                   'The version of tkinter that is being supplied with the 3.7.3 and later versions of Python is \n' +
 #                   'known to have a problem with table colors, basically they do not work. As a result, if you wish \n'
-#                   'to use the plain PySimpleGUI running on tkinter, you should be using 3.7.2 or less. \n' +
+#                   'to use the plain FreeSimpleGUI running on tkinter, you should be using 3.7.2 or less. \n' +
 #                   '\n' +
-#                   'Note that PySimpleGUI version 3.6 is the recommended version for most users. \n'
+#                   'Note that FreeSimpleGUI version 3.6 is the recommended version for most users. \n'
 #                   '\n' +
 #                   'Program will continue', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
 #
-# Check for Suitable Version of PySimpleGUI
+# Check for Suitable Version of FreeSimpleGUI
 #
 try:
     version = sg.__version__
 except Exception:
-    text = ('PySimpleGUI Version Not Found and is therefore invalid, OPMRUN requires version 4.44.0 or higher.' +
-            'To upgrade use:\n\n"pip install --user --upgrade PySimpleGUI"\n\nProgram Will Exit')
-    sg.popup_error(text, title='PySimpleGUI Version Check', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+    text = ('FreeSimpleGUI Version Not Found and is therefore invalid, OPMRUN requires version 4.44.0 or higher.' +
+            'To upgrade use:\n\n"pip install --user --upgrade FreeSimpleGUI"\n\nProgram Will Exit')
+    sg.popup_error(text, title='FreeSimpleGUI Version Check', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
     raise SystemExit(text)
 if pkg_resources.parse_version(sg.__version__) < pkg_resources.parse_version('4.44.0'):
-    text = ('PySimpleGUI Version ' + str(sg.version) + ' is invalid, OPMRUN requires version 4.44 or higher.' +
-            'To upgrade use:\n\n"pip install --user --upgrade PySimpleGUI"\n\nProgram Will Exit')
-    sg.popup_error(text, title='PySimpleGUI Version Check', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
+    text = ('FreeSimpleGUI Version ' + str(sg.version) + ' is invalid, OPMRUN requires version 4.44 or higher.' +
+            'To upgrade use:\n\n"pip install --user --upgrade FreeSimpleGUI"\n\nProgram Will Exit')
+    sg.popup_error(text, title='FreeSimpleGUI Version Check', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
     raise SystemExit(text)
 
 # ----------------------------------------------------------------------------------------------------------------------
-# Define Modules Section 
+# Define Modules Section
 # ----------------------------------------------------------------------------------------------------------------------
 def add_job(joblist, jobparam, jobsys):
     """Add a OPM Flow Simulation job to the Job List Queue
@@ -429,7 +429,7 @@ def add_job(joblist, jobparam, jobsys):
     layout1 = [[sg.Text('File to Add to Queue')],
                [sg.InputText(key='_jobdir_', size=(80, 1)),
                 sg.FilesBrowse(target='_jobdir_', initial_folder=Path().absolute(),
-                               file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')])],
+                               file_types=(('OPM', '*.data *.DATA'), ('All', '*.*')))],
                [sg.Text('Run and Parameter File Options')],
                [sg.Radio('Sequential Run' , "bRadio", key='_jobseq_', default =True)],
                [sg.Radio('Parallel Run Number of Nodes' , "bRadio", key='_jobpar_', disabled=bcpu),
@@ -706,7 +706,7 @@ def default_parameters(jobparam, opmsys1):
 
             elif values[1]:
                 filename = sg.popup_get_file('OPM Flow Parameter File Name', default_extension='param', save_as=False,
-                                           file_types=[('Parameter File', ['*.param', '*.PARAM']), ('All', '*.*')],
+                                           file_types=(('Parameter File', '*.param'), ('All', '*.*')),
                                            keep_on_top=False)
                 if filename:
                     file  = open(filename, 'r')
@@ -720,7 +720,7 @@ def default_parameters(jobparam, opmsys1):
 
             elif values[2]:
                 filename = sg.popup_get_file('OPM Flow PRT File Name', default_extension='prt', save_as=False,
-                                           file_types=[('Print File', ['*.prt', '*.PRT']), ('All', '*.*')],
+                                           file_types=(('Print File', '*.prt *.PRT'), ('All', '*.*')),
                                            keep_on_top=False)
                 if filename:
                     file  = open(filename, 'r')
@@ -1048,7 +1048,7 @@ def edit_options(opmsys1, opmoptn1):
                  [sg.Text('OPM Flow Manual Location'                                                  )],
                  [sg.InputText(opmoptn1['opm-flow-manual'], key='_opm-flow-manual_', size=(80, None))   ,
                   sg.FileBrowse(target='_opm-flow-manual_',
-                                file_types=(('Manual Files', '*.pdf'),), initial_folder=defmanual)     ],
+                                file_types=(('Manual Files', '*.pdf *.PDF'),), initial_folder=defmanual)     ],
 
                  [sg.Text('OPM Keyword Generator Template Directory'                                  )],
                  [sg.InputText(opmoptn1['opm-keywdir'    ], key='_opm-keywdir_'       , size=(80, None)),
@@ -1254,7 +1254,7 @@ def edit_projects(opmoptn1, opmsys1):
     set_window_status(False)
 
     opmoptn0  =  opmoptn1
-    column1   = [[sg.Text('No.'              , justification='center', size=( 3, 1)), 
+    column1   = [[sg.Text('No.'              , justification='center', size=( 3, 1)),
                   sg.Text('Project Name'     , justification='center', size=(20, 1)),
                   sg.Text('Project Directory', justification='center', size=(80, 1))],
                  [sg.Text('1. '),
@@ -1639,7 +1639,7 @@ def load_queue(joblist, jobparam):
     #
     filename = sg.popup_get_file('OPMRUN Queue File Name', default_extension='que', save_as=False,
                                default_path=str(Path().absolute()), initial_folder=str(Path().absolute()),
-                               file_types=[('OPM Queues', '*.que'), ('All', '*.*')], keep_on_top=False)
+                               file_types=(('OPM Queues', '*.que *.QUE'), ('All', '*.*')), keep_on_top=False)
     if filename is None:
         sg.popup_ok('OPMRUN Queue: Loading of Queue Cancelled', no_titlebar=False, grab_anywhere=False,
                     keep_on_top=True)
@@ -1691,7 +1691,7 @@ def opm_startup(opmvers, opmsys1, opmlog1):
     opmsys1['python'       ] = Path(python).name
     opmsys1['pythondir'    ] = Path(python)
     opmsys1['pythonvers'   ] = platform.python_version()
-    opmsys1['opmgui'       ] = 'PySimpleGUI - ' + str(sg.version)
+    opmsys1['opmgui'       ] = 'FreeSimpleGUI - ' + str(sg.version)
     opmsys1['airspeed'     ] = 'airspeed - ' + str(pkg_resources.get_distribution('airspeed').version)
     opmsys1['datetime'     ] = 'datetime - ' + opmsys1['pythonvers']
     opmsys1['getpass'      ] = 'getpass - ' + str(pd.__version__)
@@ -1702,7 +1702,7 @@ def opm_startup(opmvers, opmsys1, opmlog1):
     opmsys1['pkg_resources'] = 'pkg_resources - ' + opmsys1['pythonvers']
     opmsys1['platform'     ] = 'platform - ' + opmsys1['pythonvers']
     opmsys1['psutil'       ] = 'psutil - ' + str(psutil.__version__)
-    opmsys1['pyDOE2'       ] = 'pyDOE2 - ' + str(pkg_resources.get_distribution('pyDOE2').version)
+    opmsys1['pyDOE3'       ] = 'pyDOE3 - ' + str(pkg_resources.get_distribution('pyDOE3').version)
     opmsys1['re'           ] = 're - ' + opmsys1['pythonvers']
     opmsys1['subprocess'   ] = 'subprocess - ' + opmsys1['pythonvers']
     opmsys1['sys'          ] = 'sys - ' + opmsys1['pythonvers']
@@ -1732,7 +1732,7 @@ def opm_startup(opmvers, opmsys1, opmlog1):
         opmsys1['opmmode' ] = 'Exe'
     else:
         opmsys1['opmmode' ] = 'Script'
-    
+
     opmsys1['opmpath' ] = Path(Path(__file__).parent.absolute())
     opmsys1['opmhome' ] = Path.home() / 'OPM'
     opmsys1['opmini'  ] = Path(opmsys1['opmhome'] / 'OPMRUN.ini'  )
@@ -1786,8 +1786,8 @@ def out_log(text, outlog, outprt=False, window=None, colors=(None,None)):
         Boolean log file output (True to write to log file, False not to write).
     outprt : bool
         Boolean log file output (True to print, False not to print).
-    window : PySimpleGUI window
-        The PySimpleGUI window that the output is going to (needed to do refresh on).
+    window : FreeSimpleGUI window
+        The FreeSimpleGUI window that the output is going to (needed to do refresh on).
     colors : str
         String or Tuple[text, background] the text and background colors for the sg.print command.
 
@@ -2192,7 +2192,7 @@ def run_jobs(joblist, jobsys, outlog):
 
         if event == 'Submit':
             #
-            # Disable Buttons 
+            # Disable Buttons
             #
             set_button_status(True)
             out_log('Run Job ' + str(jobnum) + ' of ' + str(len(joblist)), outlog)
@@ -2593,7 +2593,7 @@ def save_queue(joblist, opmuser):
     else:
         filename = sg.popup_get_file('OPMRUN Queue File Name', default_extension='.que', save_as=True,
                                    default_path=str(Path().absolute()), keep_on_top=False,
-                                   file_types=(('OPM Queues', '*.que'), ('All', '*.*')))
+                                   file_types=(('OPM Queues', '*.que *.QUE'), ('All', '*.*')))
         if filename:
             file       = open(filename, 'w')
             file.write('# \n')
@@ -2662,8 +2662,8 @@ def set_directory(jobpath, outlog=True, outpop=False, outprt=True, window=None):
         Boolean Popup display option (True to display Popup, False no display)
     outprt : bool
          Boolean print option (True to print to display, False not to print)
-    window : PySimpleGUI window
-        The PySimpleGUI window that the output is going to (needed to do refresh on)
+    window : FreeSimpleGUI window
+        The FreeSimpleGUI window that the output is going to (needed to do refresh on)
 
     Returns
     -------

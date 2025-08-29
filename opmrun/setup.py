@@ -29,7 +29,7 @@ setuptools.setup(
     # Package Data and Requirements
     #
     python_requires='>=3.6',
-    install_requires=['airspeed', 'numpy', 'pandas', 'psutil', 'pyDOE2', 'PySimpleGUI'],
+    install_requires=['airspeed', 'numpy', 'pandas', 'psutil', 'pyDOE3', 'FreeSimpleGUI'],
     entry_points={
         'gui_scripts': [
             'opmrun=opmrun.opmrun:main'

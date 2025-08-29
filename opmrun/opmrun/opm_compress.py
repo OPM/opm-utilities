@@ -9,6 +9,7 @@ Program Documentation
 ---------------------
 Only Python 3 is supported and tested Python2 support has been depreciated.
 
+2025.09.19 - Switch from PySimpleGUI to FreeSimpleGUI package
 2022.04.01 - Add compression option to add Ensemble directories recursively and updated help information.
 2022.04.01 - Add compression/uncompression option to add files recursively and also added help information.
 2022.04.01 - Add compression option to add Ensemble directories recursively and updated help information.
@@ -43,7 +44,7 @@ Date    : 14-Jul-2021
 # ----------------------------------------------------------------------------------------------------------------------
 # Import Modules Section
 # ----------------------------------------------------------------------------------------------------------------------
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 from pathlib import Path
 
 from opmrun.opm_common import (change_directory, copy_to_clipboard, opm_popup, run_command)
@@ -178,7 +179,7 @@ def compress_files(opmoptn):
         if event == 'Add':
             jobs = sg.popup_get_file('Select Job Data Files to Compress', no_window=False,
                                    default_path=str(Path().absolute()), initial_folder=str(Path().absolute()),
-                                   multiple_files=True, file_types=[('OPM', ['*.data', '*.DATA'])])
+                                   multiple_files=True, file_types=(('OPM', '*.data *.DATA'),))
             if jobs is not None:
                 jobs = jobs.split(';')
                 for job in jobs:
@@ -421,7 +422,7 @@ def uncompress_files(opmoptn):
         if event == 'Add':
             jobs = sg.popup_get_file('Select ZIP Files to Uncompress', no_window=False,
                                    default_path=str(Path().absolute()), initial_folder=str(Path().absolute()),
-                                   multiple_files=True, file_types=[('zip', ['*.zip', '*.ZIP'])])
+                                   multiple_files=True, file_types=(('zip', '*.zip *.ZIP'),))
             if jobs is not None:
                 jobs = jobs.split(';')
                 for job in jobs:

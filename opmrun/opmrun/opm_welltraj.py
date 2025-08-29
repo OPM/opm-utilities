@@ -9,6 +9,7 @@ Program Documentation
 --------------------
 Only Python 3 is supported and tested Python2 support has been depreciated.
 
+2025.09.19 - Switch from PySimpleGUI to FreeSimpleGUI package
 2021.07.01 - New module initial release.
 
 Copyright Notice
@@ -42,7 +43,7 @@ import pandas as pd
 #
 # Import Required Non-Standard Modules
 #
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 #
 # Import OPM Common Modules
 #
@@ -288,7 +289,7 @@ def welltraj_main(opmoptn, opmsys):
         if event == 'Add':
             files = sg.popup_get_file('Select Petrel Trajectory Files to Convert', no_window=False, size=(100,5),
                                    default_path=str(Path().absolute()), initial_folder=str(Path().absolute()),
-                                   multiple_files=True, file_types=[('OPM', ['*.*'])],
+                                   multiple_files=True, file_types=(('OPM', '*.*')),
                                    no_titlebar = False, grab_anywhere = False, keep_on_top = True)
             if files is not None:
                 files = files.split(';')
@@ -350,7 +351,7 @@ def welltraj_main(opmoptn, opmsys):
                                              save_as=True, default_path=str(file_out),
                                              initial_folder=str(Path().absolute()),
                                              multiple_files=False,
-                                             file_types=[('OPM ResInsight Trajectory', ['*.asci'])])
+                                             file_types=(('OPM ResInsight Trajectory', '*.asci *.ASCI')))
                 if file_out is None:
                     sg.popup_error('No Output File Selected',
                                    no_titlebar=False, grab_anywhere=False, keep_on_top=False)

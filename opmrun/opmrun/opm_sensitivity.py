@@ -10,7 +10,7 @@ with Low, Best and High estimates. The utility generates both the required OPM F
 various sensitivity scenarios. A sensitivity scenario is a combination of the the various sensitivity factors, for
 example one can run all the Low factors as one sensitivity case, or a full factorial scenario on the Low and High
 sensitivity factors. Various Experimental Designs scenarios are included in the package, including full factorial,
-two-level full factorial, Plackett-Burman and Box-Behnken designs based on the pyDOE2 package.
+two-level full factorial, Plackett-Burman and Box-Behnken designs based on the pyDOE3 package.
 
 The factors (the statistical term for the variables being used) are defined as $X01 to $X20, as presented on the
 "Factors" tab. These names are used in a "Base" template input deck to define the location and values to be substituted
@@ -45,6 +45,8 @@ Program Documentation
 ---------------------
 Only Python 3 is supported and tested Python2 support has been depreciated.
 
+2025.09.19 - Switch from PySimpleGUI to FreeSimpleGUI package
+           - Switch from pyDOE2 to pyDOE3 package
 2021.07-01 - Major re-factoring and function re-naming for consistency with other modules, together with minor bug
              fixes.
 2020.04.01 - Initial release of OPMSENS
@@ -87,8 +89,8 @@ from psutil import cpu_count
 # Import Required Non-Standard Modules
 #
 import pandas as pd
-import PySimpleGUI as sg
-import pyDOE2
+import FreeSimpleGUI as sg
+import pyDOE3
 #
 # Import OPM Common Modules
 #
@@ -109,8 +111,8 @@ def sensitivity_base_file(jobparam, jobsys, window1):
         OPM Flow PARAM file data set
     jobsys : dict
         Contains a dictionary list of all OPMRUN System parameters
-    window : PySimpleGUI window
-        The PySimpleGUI window that the output is going to (needed to do refresh on).
+    window : FreeSimpleGUI window
+        The FreeSimpleGUI window that the output is going to (needed to do refresh on).
 
     Returns
     -------
@@ -127,7 +129,7 @@ def sensitivity_base_file(jobparam, jobsys, window1):
     layout1 = [[sg.Text('Base and Sensitivity Cases File Options')],
                [sg.InputText(key='_jobfile_', size=(80, None)),
                 sg.FilesBrowse(target='_jobfile_', initial_folder=Path().absolute(),
-                               file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')])],
+                               file_types=(('OPM', '*.data *.DATA'), ('All', '*.*')))],
                [sg.Text('Parameter File Options')],
                [sg.Radio('Keep Existing Parameter File'    , "bRadio", key='_keep_', default =True)],
                [sg.Radio('Overwrite Existing Paramter File', "bRadio", key='_write_')],
@@ -511,16 +513,16 @@ def sensitivity_write_cases(basefile, header, factors, scenario):
         #
         doedata = pd.DataFrame()
         if 'Factorial Low and High Full' in scenario:
-            doedata = pyDOE2.ff2n(nfactor) + 2
+            doedata = pyDOE3.ff2n(nfactor) + 2
 
         if 'Factorial Low and High Plackett-Burman' in scenario:
-            doedata = pyDOE2.pbdesign(nfactor) + 2
+            doedata = pyDOE3.pbdesign(nfactor) + 2
 
         if 'Factorial Low, Best and High Full' in scenario:
-            doedata = (pyDOE2.fullfact([nlevel - 1]*nfactor)) - 1
+            doedata = (pyDOE3.fullfact([nlevel - 1]*nfactor)) - 1
 
         if 'Factorial Low, Best and High Box-Behnken' in scenario:
-            doedata = pyDOE2.bbdesign(nfactor)
+            doedata = pyDOE3.bbdesign(nfactor)
 
         doedf = pd.DataFrame(data=doedata).transpose()
         doedf = doedf.rename(columns=lambda x: 'RUN' + str(x + 1).zfill(3), inplace=False)
@@ -746,7 +748,7 @@ def sensitivity_write_queue(jobs):
     layout2 = [[sg.Text('OPMRUN Queue File')],
                 [sg.InputText(key='_jobfile_', size=(80, None)),
                  sg.FileSaveAs(target='_jobfile_', initial_folder=Path(jobs[0]).parent,
-                               file_types=[('OPMRUN Queue File', ['*.que', '*.QUE']), ('All', '*.*')])],
+                               file_types=(('OPMRUN Queue File', '*.que *.QUE'), ('All', '*.*')))],
                 [sg.Text('Run Parameters')],
                 [sg.Radio('Sequential Run', "bRadio", key='_jobseq_', default=True)],
                 [sg.Radio('Parallel Run  ', "bRadio", key='_jobpar_'),
@@ -853,7 +855,7 @@ def sensitivity_main(jobparam, opmoptn, opmsys):
                 'enter the required data; factor description, and the factor low, Best and High values. Right '       +
                 'clicking on the factor description will present a list of standard factor descriptions. Note it is ' +
                 'only necessary to enter the data required to define the selected scenario, so for example, if only ' +
-                'Low and High cases are going to be run then one does not have to enter values for the Best case. \n'   
+                'Low and High cases are going to be run then one does not have to enter values for the Best case. \n'
                 '\n'
                 'The buttons at the base of the screen perform the following actions: \n'
                 '\n'
@@ -1065,7 +1067,7 @@ def sensitivity_main(jobparam, opmoptn, opmsys):
         elif event == '_load_':
             file = sg.popup_get_file('Load OPMSENS Sensitivity Factor File', default_path=str(os.getcwd()),
                                    initial_folder=str(os.getcwd()), save_as=False,
-                                   file_types=[('OPMSENS Factors', '*.fac'), ('All', '*.*')], size=(110,1),
+                                   file_types=(('OPMSENS Factors', '*.fac *.FAC'), ('All', '*.*')), size=(110,1),
                                    no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             if file is not None:
                 if Path(file).is_file():
@@ -1085,7 +1087,7 @@ def sensitivity_main(jobparam, opmoptn, opmsys):
             window1['_tab_factors_'].select()
             file = sg.popup_get_file('Save OMPSENS Sensitivity Factor File', default_path=str(os.getcwd()),
                                    initial_folder=str(os.getcwd()), save_as=True,
-                                   file_types=[('OPMSENS Factors', '*.fac'), ('All', '*.*')],
+                                   file_types=(('OPMSENS Factors', '*.fac *.FAC'), ('All', '*.*')),
                                    no_titlebar=False, grab_anywhere=False, keep_on_top=True)
             dt = window1['_factors_'].get()
             df = pd.DataFrame(dt, columns=header)
@@ -1101,7 +1103,7 @@ def sensitivity_main(jobparam, opmoptn, opmsys):
     if ans == 'Yes':
         file = sg.popup_get_file('Save OMPSENS Sensitivity Factor File', default_path=str(os.getcwd()),
                                initial_folder=str(os.getcwd()), save_as=True,
-                               file_types=[('OPMSENS Factors', '*.fac'), ('All', '*.*')],
+                               file_types=(('OPMSENS Factors', '*.fac *.FAC'), ('All', '*.*')),
                                no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         dt = window1['_factors_'].get()
         df = pd.DataFrame(dt, columns=header)

@@ -25,6 +25,7 @@ Program Documentation
 ---------------------
 Only Python 3 is supported and tested Python2 support has been depreciated.
 
+2025.09.19 - Switch from PySimpleGUI to FreeSimpleGUI package
 2021.07.01 - Major re-factoring of code to implement loading of an input file and basic editing.
 2020.04.03 - Removed the option for stand alone running to simplify code base.
 2020.04.02 - Added a DATA (Set) option for data sets and added various data set templates.
@@ -72,7 +73,7 @@ from pathlib import Path
 # Import Required Non-Standard Modules
 #
 import airspeed
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 #
 # Import OPM Common Modules
 #
@@ -301,7 +302,7 @@ def keyw_get_items(key):
     if key in keyheadr:
         filename = sg.popup_get_file('Save ' + key + ' to File', save_as=True, initial_folder=str(Path().absolute()),
                                    default_path=str(Path().absolute()),
-                                   file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')],
+                                   file_types=[('OPM', '*.data *.DATA'), ('All', '*.*')],
                                    no_titlebar=False, grab_anywhere=False, keep_on_top=True)
         try:
             keyitems['filename'] = Path(filename).name
@@ -472,8 +473,8 @@ def keyw_load_file(window1):
 
     Parameters
     ----------
-    window1 : PySimpleGUI window
-        The PySimpleGUI window multiline element that the file is going to be displayed on for editing.
+    window1 : FreeSimpleGUI window
+        The FreeSimpleGUI window multiline element that the file is going to be displayed on for editing.
 
     Returns
     -------
@@ -482,8 +483,8 @@ def keyw_load_file(window1):
 
     filename = sg.popup_get_file('OPM Flow DATA or INC File Name', title='OPMRUN Keyword Generation Utility',
                                  default_extension='DATA', save_as=False,
-                                 file_types=[['Data File', ['*.data', '*.DATA']], ['Include File', ['*.inc', '*.INC']],
-                                             ['All', '*.*']],
+                                 file_types=(('Data File', '*.data *.DATA'), ('Include File', '*.inc *.INC'),
+                                             ('All', '*.*'), ),
                                  no_titlebar=False, grab_anywhere=False, keep_on_top=False)
     if filename == sg.WIN_CLOSED:
         return()
@@ -518,7 +519,7 @@ def keyw_save_keywords(text):
 
     filename = sg.popup_get_file('Save Keywords to File', save_as=True, default_path=str(Path().absolute()),
                                no_titlebar=False, grab_anywhere=False, keep_on_top=True,
-                               file_types=[('OPM', ['*.data', '*.DATA']), ('All', '*.*')])
+                               file_types=[('OPM', '*.data *.DATA'), ('All', '*.*')])
     if filename is None:
         sg.popup_ok('Save Keywords to File Cancelled',
                    no_titlebar=False, grab_anywhere=False, keep_on_top=True)
@@ -773,7 +774,7 @@ def keyw_main(opmoptn, opmsys):
     # Set Initial Keyword List to Display
     #
     keylist = 'GLOBAL'
-    
+
     # ------------------------------------------------------------------------------------------------------------------
     # Define Display Window
     # ------------------------------------------------------------------------------------------------------------------

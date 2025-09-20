@@ -1,5 +1,7 @@
 Release Notes
 ------------
+2025.09.19 - Switch from PySimpleGUI to FreeSimpleGUI package
+           - Switch from pyDOE2 to pyDOE3 package
 2020-04.02 - Fix a bug with Compress/Uncompress windows preventing printing to the main Out element. This was because
              these two windows used an an Out element as well, and there can be only one Out element in the application.
              The fix was to use the Multiline element for the Compress/Uncompress windows, this resulted in various
@@ -37,14 +39,14 @@ Release Notes
            - Updated program code documentation and included the same in Release-Notes.txt.
            - Updated README.md to be similar to the PDF documentation.
            - Deleted binary from repository.
-             
+
 2019-04.03 - Added OPM Flow icon to all Windows via Base64 Encoded PNG File and added OPMRUN.svg icon to release.
            - Changed all Popup messages to have no title bar, grab anywhere, and keep on top options.
            - Moved job parameter manipulation into a separate function get__job function to reduce code duplication,
              as well as to have most of the path manipulation in the one routine.
            - Modified documentation.
            - Re-compiled binary generated tested on Unbuntu-Mate 18-04 and 19-04.
-           
+
 2019-04.02 - Fixed menu layout bug.
            - Fixed Project Directory bug for when the default OPMRUN.ini file is created.
            - Fixed Edit Parameters bug for when OPM Flow has not been installed.
@@ -70,15 +72,15 @@ Release Notes
              computationally more efficient).
            - Major re-factoring of code and code clean up.
            - Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04).
-                    
+
 2018-10.02 - Fix printing bug associated with listing of jobparm.
              Create stand alone executable for Linux systems (works on Unbuntu-Mate 18-04)
-             
+
 2018-10.01 - Initial release.
 
 Notes:
 ------
-Only Python 3 is currently supported and tested Python2 support has been depreciated. The following standard module
+Only Python 3 is currently supported and tested Python2 support has been deprecated. The following standard module
 libraries are used in this version.
 
 (1) datetime
@@ -92,7 +94,7 @@ libraries are used in this version.
 
 In addition the following Python modules are required:
 
-(1) PySimpleGUI
+(1) FreeSimpleGUI
 
 For OPMKEYW the integrated OPM Flow Keyword Generator the following additional modules are required:
 
@@ -100,5 +102,5 @@ For OPMKEYW the integrated OPM Flow Keyword Generator the following additional m
 (2) tkinter as tk
 (3) airspeed
 
-PySimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated
-for fixes and new features. Each release of OPMRUN will update to the latest release of PySimpleGUI.
+FreeSimpleGUI is the GUI tool used to build OPMRUN. It is in active development and is frequently updated
+for fixes and new features. Each release of OPMRUN will update to the latest release of FreeSimpleGUI.

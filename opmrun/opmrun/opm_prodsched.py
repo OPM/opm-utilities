@@ -11,6 +11,7 @@ Program Documentation
 --------------------
 Only Python 3 is supported and tested Python2 support has been depreciated.
 
+2025.09.19 - Switch from PySimpleGUI to FreeSimpleGUI package
 2021.07.01 - New module initial release.
 
 Copyright Notice
@@ -46,7 +47,7 @@ import numpy as np
 #
 # Import Required Non-Standard Modules
 #
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 #
 # Import OPM Common Modules
 #
@@ -784,8 +785,8 @@ def prodsched_main(opmoptn, opmsys):
         'GP-P1-01, 03/01/2020, 24, 25, 16, 10528, 551, 133\n'
         'GP-P1-01, 03/02/2020, 24, 25, 16, 10507, 551, 133\n'
         'GP-P1-01, 03/03/2020, 24, 25, 16, 10513, 550, 133\n' +
-        '\n' 
-        
+        '\n'
+
         'Various column headers have been accounted for and software will list out the options as it processing ' +
         'the input file\n' +
         '\n' +
@@ -829,11 +830,11 @@ def prodsched_main(opmoptn, opmsys):
          sg.Radio('Monthly Volume Production Data',"bRadio1", key='_volume_', enable_events = True)],
         [sg.Input(file_in, key='_input_', size=(130, None)),
          sg.FilesBrowse(target='_input_', initial_folder=str(Path().absolute()),
-                        file_types=[('PROD', ['*.csv', '*.CSV']), ('All', '*.*')])],
+                        file_types=(('PROD', '*.csv *.CSV'), ('All', '*.*')))],
         [sg.Text('OPM Flow Schedule Section Output Include File (Leave Blank for Default)')],
         [sg.InputText(file_inc, key='_output_', size=(130, None)),
          sg.FilesBrowse(target='_output_', initial_folder=Path().absolute(),
-                        file_types=[('Simulator Include File', ['*.inc', '*.INC']), ('All', '*.*')])],
+                        file_types=(('Simulator Include File', '*.inc *.INC'), ('All', '*.*')))],
         [sg.Text('Output Log')],
         [sg.Multiline(key=outlog, size=(137, 20), text_color='blue', autoscroll=True, auto_refresh=True,
                       write_only = True, font=(opmoptn['output-font'], opmoptn['output-font-size']))],

@@ -13,6 +13,7 @@ Program Documentation
 --------------------
 Only Python 3 is supported and tested Python2 support has been depreciated.
 
+2025.09.19 - Switch from PySimpleGUI to FreeSimpleGUI package
 2021.07.01 - New module initial release.
 
 Copyright Notice
@@ -45,7 +46,7 @@ import pandas as pd
 #
 # Import Required Non-Standard Modules
 #
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 #
 # Import OPM Common Modules
 #
@@ -621,15 +622,15 @@ def wellspec_main(opmoptn, opmsys):
                [sg.Text('OPM ResInsight Exported Well Specification File')],
                [sg.Input(file_in, key='_input_', size=(125, None)),
                 sg.FilesBrowse(target='_input_', initial_folder=Path(file_in).absolute(),
-                               file_types=[('OPM ResInsight', ['*.exp', '*.EXP']), ('All', '*.*')])],
+                               file_types=(('OPM ResInsight', '*.exp *.EXP'), ('All', '*.*')))],
                [sg.Text('OPM ResInSight Perforation Output File (Leave Blank for Default)')],
                [sg.InputText(file_ev, key='_output1_', size=(125, None)),
                 sg.FilesBrowse(target='_output1_', initial_folder=Path(file_in).absolute(),
-                               file_types=[('OPM ResInsight Perforation File', ['*.ev', '*.EV']), ('All', '*.*')])],
+                               file_types=(('OPM ResInsight Perforation File', '*.ev *.EV'), ('All', '*.*')))],
                [sg.Text('OPM Flow Well Specification Output Include File (Leave Blank for Default)')],
                [sg.InputText(file_inc, key='_output2_', size=(125, None)),
                 sg.FilesBrowse(target='_output2_', initial_folder=Path(file_in).absolute(),
-                               file_types=[('Simulator Include File', ['*.inc', '*.INC']), ('All', '*.*')])],
+                               file_types=(('Simulator Include File', '*.inc *.INC'), ('All', '*.*')))],
                [sg.Text('Output')],
                [sg.Multiline(key=outlog, size=(125, 20), text_color='blue', autoscroll=True,
                              font=(opmoptn['output-font'], opmoptn['output-font-size']))],
@@ -692,7 +693,7 @@ def wellspec_main(opmoptn, opmsys):
         elif event == '_loadnames_':
             file_lyr = sg.popup_get_file('Selected OPM ResInsight Layer File', 'OPM ResInsight Layer File',
                                          size=(125, None),
-                                         file_types=[('OPM ResInsight Layer File', ['*.Lyr', '*.LYR']), ('All', '*.*')])
+                                         file_types=(('OPM ResInsight Layer File', '*.Lyr *.LYR'), ('All', '*.*')))
             if file_lyr is None:
                 sg.popup_ok('OPM ResInsight Layer File Cancelled', no_titlebar=False, grab_anywhere=False,
                                keep_on_top=False)

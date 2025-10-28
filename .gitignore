@@ -9,3 +9,6 @@ opmrun/__init__.py
 opmrun/opmrun.spec
 *.xml
 *.iml
+*.DS_Store
+.vs
+.vscode

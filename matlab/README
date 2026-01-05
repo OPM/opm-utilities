@@ -1,0 +1,13 @@
+Various MATLAB utilities useful to analyse OPM results.
+
+Uses spider_plot obtained from MATLAB Central. This has been included in this
+directory for convenience, spider_plot license is in LICENCE_spider_plot.txt
+You can obtain spider_plot separately from:
+ - FileExchange at mathworks.com: https://www.mathworks.com/matlabcentral/fileexchange/59561-spider_plot
+ - GitHub Repository: https://github.com/NewGuy012/spider_plot
+
+License for the other files:
+analyseOpmNonlinConv.m
+readInfoIter.m
+visualiseOpmNonlinConv.m
+is the GPLv3, in the file LICENSE.

@@ -73,8 +73,10 @@ echo "Configuring Dune version ${version}"
 sleep 1
 if [ "$use_mpi" == "yes" ]; then
     disable_mpi="OFF"
+    ug_enable_parallel="ON"
 else
     disable_mpi="ON"
+    ug_enable_parallel="OFF"
 fi
 if [ "$build_type" == "debug" ]; then
     build_type="Debug"
@@ -85,7 +87,7 @@ dune-common-"$version"/bin/dunecontrol cmake \
    -DCMAKE_INSTALL_PREFIX=$prefix \
    -DCMAKE_BUILD_TYPE=$build_type \
    -DCMAKE_DISABLE_FIND_PACKAGE_MPI=$disable_mpi \
-   -DUG_ENABLE_PARALLEL=$use_mpi
+   -DUG_ENABLE_PARALLEL=$ug_enable_parallel
 echo
 echo "Building Dune version ${version}"
 sleep 1

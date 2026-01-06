@@ -1,0 +1,10 @@
+--- include/dune/fem/space/basisfunctionset/default.hh.orig	2025-11-05 09:36:26.173599549 +0000
++++ include/dune/fem/space/basisfunctionset/default.hh	2025-11-05 09:36:40.772709926 +0000
+@@ -5,6 +5,7 @@
+ #include <cassert>
+ #include <cstddef>
+ #include <memory>
++#include <optional>
+ #include <type_traits>
+ #include <utility>
+ 

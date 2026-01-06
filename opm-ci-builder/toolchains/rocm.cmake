@@ -1,0 +1,40 @@
+# Compiler
+set(CMAKE_C_COMPILER /usr/lib/ccache/gcc)
+set(CMAKE_CXX_COMPILER /usr/lib/ccache/g++)
+set(CMAKE_Fortran_COMPILER /usr/bin/gfortran)
+set(CMAKE_CXX_FLAGS_INIT "-fuse-ld=mold")
+
+# CMake settings
+set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY ON)
+
+# Hypre settings
+list(APPEND CMAKE_PREFIX_PATH /hypre/cpu)
+
+# OPM settings
+set(USE_MPI ON CACHE BOOL "" FORCE)
+set(INSTALL_BENCHMARKS ON CACHE BOOL "" FORCE)
+set(BUILD_FLOW_FLOAT_VARIANTS ON CACHE BOOL "" FORCE)
+set(OPM_ENABLE_PYTHON OFF CACHE BOOL "" FORCE)
+set(OPM_ENABLE_EMBEDDED_PYTHON OFF CACHE BOOL "" FORCE)
+set(OPM_USE_BUILD_TIMESTAMP OFF CACHE BOOL "" FORCE)
+set(SIBLING_SEARCH OFF CACHE BOOL "" FORCE)
+set(WITH_NDEBUG OFF CACHE BOOL "" FORCE)
+set(USE_HYPRE ON CACHE BOOL "" FORCE)
+
+# ROCM stuff
+list(APPEND CMAKE_PREFIX_PATH /opt/rocm)
+set(GPU_TARGETS gfx942)
+
+# Disable packages
+set(CMAKE_DISABLE_FIND_PACKAGE_CUDA ON)
+set(CMAKE_DISABLE_FIND_PACKAGE_CUDAToolkit ON)
+set(CMAKE_DISABLE_FIND_PACKAGE_Doxygen ON)
+set(CMAKE_DISABLE_FIND_PACKAGE_dune-polygongrid ON)
+set(CMAKE_DISABLE_FIND_PACKAGE_Tracy ON)
+set(CMAKE_DISABLE_FIND_PACKAGE_dune-fem ON)
+set(CMAKE_DISABLE_FIND_PACKAGE_Valgrind ON)
+
+# Disable opm-tests as regression tests add nothing in this configuration
+set(OPM_TESTS_ROOT /nonexistent)

@@ -1,0 +1,25 @@
+From 4809f251230e2a2cd5dfabd9c0d81e129b57b5ce Mon Sep 17 00:00:00 2001
+From: Arne Morten Kvarving <arne.morten.kvarving@sintef.no>
+Date: Tue, 9 Dec 2025 13:27:09 +0100
+Subject: [PATCH] force failure
+
+---
+ spe1/SPE1CASE2.DATA | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/spe1/SPE1CASE2.DATA b/spe1/SPE1CASE2.DATA
+index 953fc4b4..27d0c5e4 100644
+--- a/spe1/SPE1CASE2.DATA
++++ b/spe1/SPE1CASE2.DATA
+@@ -429,7 +429,7 @@ TSTEP
+ 31 28 31 30 31 30 31 31 30 31 30 31 
+ 31 28 31 30 31 30 31 31 30 31 30 31 
+ 31 28 31 30 31 30 31 31 30 31 30 31 
+-31 28 31 30 31 30 31 31 30 31 30 31 /
++31 28 31 30 31 30 31 31 30 31 30 30 /
+ 
+ --Advance the simulator once a year for TEN years:
+ --10*365 /
+-- 
+2.43.0
+

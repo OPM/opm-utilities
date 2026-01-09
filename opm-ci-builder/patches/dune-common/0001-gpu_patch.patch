@@ -1,0 +1,42 @@
+--- include/dune/common/parallel/indexset.hh.orig	2025-11-05 09:35:19.613036301 +0100
++++ include/dune/common/parallel/indexset.hh	2025-11-05 09:36:05.032982996 +0100
+@@ -83,7 +83,7 @@
+   template<class TG, class TL>
+   class IndexPair
+   {
+-    friend std::ostream& operator<<<>(std::ostream&, const IndexPair<TG,TL>&);
++    friend std::ostream& operator<< <>(std::ostream&, const IndexPair<TG,TL>&);
+     friend bool operator==<>(const IndexPair<TG,TL>&, const IndexPair<TG,TL>&);
+     friend bool operator!=<>(const IndexPair<TG,TL>&, const IndexPair<TG,TL>&);
+     friend bool operator< <>(const IndexPair<TG,TL>&, const IndexPair<TG,TL>&);
+--- include/dune/common/parallel/plocalindex.hh.orig	2025-11-05 09:32:41.883770763 +0100
++++ include/dune/common/parallel/plocalindex.hh	2025-11-05 09:34:08.126558618 +0100
+@@ -51,7 +51,7 @@
+     // friend declaration needed for MPITraits
+     friend struct MPITraits<ParallelLocalIndex<T> >;
+ #endif
+-    friend std::ostream& operator<<<>(std::ostream& os, const ParallelLocalIndex<T>& index);
++    friend std::ostream& operator<< <>(std::ostream& os, const ParallelLocalIndex<T>& index);
+ 
+   public:
+     /**
+--- include/dune/common/parallel/remoteindices.hh.orig	2025-11-05 09:34:46.764552299 +0100
++++ include/dune/common/parallel/remoteindices.hh	2025-11-05 09:35:47.236617409 +0100
+@@ -196,7 +196,7 @@
+ 
+     template<class G, class T1, class T2>
+     friend void fillIndexSetHoles(const G& graph, Dune::OwnerOverlapCopyCommunication<T1,T2>& oocomm);
+-    friend std::ostream& operator<<<>(std::ostream&, const RemoteIndices<T>&);
++    friend std::ostream& operator<< <>(std::ostream&, const RemoteIndices<T>&);
+ 
+   public:
+ 
+@@ -933,7 +933,7 @@
+   template<typename T1, typename T2>
+   inline bool RemoteIndex<T1,T2>::operator==(const RemoteIndex& ri) const
+   {
+-    return localIndex_==ri.localIndex_ && attribute_==ri.attribute;
++    return localIndex_==ri.localIndex_ && attribute_==ri.attribute();
+   }
+ 
+   template<typename T1, typename T2>

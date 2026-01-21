@@ -1,0 +1,266 @@
+diff --git a/src/IJ_mv/IJMatrix_parcsr_device.c b/src/IJ_mv/IJMatrix_parcsr_device.c
+index 44283b69a..839d551fc 100644
+--- a/src/IJ_mv/IJMatrix_parcsr_device.c
++++ b/src/IJ_mv/IJMatrix_parcsr_device.c
+@@ -402,7 +402,7 @@ hypre_IJMatrixAssembleSortAndReduce1(HYPRE_Int      *Nptr,
+       thrust::equal_to< thrust::tuple<HYPRE_BigInt, HYPRE_BigInt> >(),
+       thrust::maximum<char>() );
+ 
+-   HYPRE_THRUST_CALL(replace_if, A0, A0 + N0, X, HYPRE_THRUST_IDENTITY(char), 0.0);
++   HYPRE_THRUST_CALL(replace_if, A0, A0 + N0, X, thrust::identity<char>(), 0.0);
+ 
+    auto new_end = HYPRE_THRUST_CALL(
+                      reduce_by_key,
+@@ -589,7 +589,7 @@ hypre_IJMatrixAssembleSortAndReduce3(HYPRE_Int       N0,
+       thrust::equal_to< thrust::tuple<HYPRE_BigInt, HYPRE_BigInt> >(),
+       thrust::maximum<char>() );
+ 
+-   HYPRE_THRUST_CALL(replace_if, A0, A0 + N0, X0, HYPRE_THRUST_IDENTITY(char), 0.0);
++   HYPRE_THRUST_CALL(replace_if, A0, A0 + N0, X0, thrust::identity<char>(), 0.0);
+ 
+    auto new_end = HYPRE_THRUST_CALL(
+                      reduce_by_key,
+@@ -620,7 +620,7 @@ hypre_IJMatrixAssembleSortAndReduce3(HYPRE_Int       N0,
+                                       thrust::make_zip_iterator(thrust::make_tuple(I + Nt, J + Nt, A + Nt)),
+                                       A,
+                                       thrust::make_zip_iterator(thrust::make_tuple(I0, J0, A0)),
+-                                      HYPRE_THRUST_IDENTITY(HYPRE_Complex) );
++                                      thrust::identity<HYPRE_Complex>() );
+ 
+    *N1 = thrust::get<0>(new_end2.get_iterator_tuple()) - I0;
+ #endif
+@@ -709,7 +709,7 @@ hypre_IJMatrixAssembleCommunicate(hypre_IJMatrix *matrix)
+                             is_on_proc,                                                         /* stencil */
+                             thrust::make_zip_iterator(thrust::make_tuple(off_proc_i,      off_proc_j,      off_proc_data,
+                                                                          off_proc_sora)),       /* result */
+-                            HYPRE_THRUST_NOT(HYPRE_THRUST_IDENTITY(char)) );
++                            HYPRE_THRUST_NOT(thrust::identity<char>()) );
+ 
+          hypre_assert(thrust::get<0>(new_end1.get_iterator_tuple()) - off_proc_i == nelms_off);
+ 
+@@ -721,7 +721,7 @@ hypre_IJMatrixAssembleCommunicate(hypre_IJMatrix *matrix)
+                             thrust::make_zip_iterator(thrust::make_tuple(stack_i + nelms, stack_j + nelms, stack_data + nelms,
+                                                                          stack_sora + nelms)),  /* last */
+                             is_on_proc,                                                         /* stencil */
+-                            HYPRE_THRUST_NOT(HYPRE_THRUST_IDENTITY(char)) );
++                            HYPRE_THRUST_NOT(thrust::identity<char>()) );
+ 
+          hypre_assert(thrust::get<0>(new_end2.get_iterator_tuple()) - stack_i == nelms_on);
+ #endif
+diff --git a/src/IJ_mv/IJVector_parcsr_device.c b/src/IJ_mv/IJVector_parcsr_device.c
+index 274cfedda..331ca4e63 100644
+--- a/src/IJ_mv/IJVector_parcsr_device.c
++++ b/src/IJ_mv/IJVector_parcsr_device.c
+@@ -120,7 +120,7 @@ hypre_IJVectorAssembleSortAndReduce1( HYPRE_Int       N0,
+       thrust::equal_to<HYPRE_BigInt>(),
+       thrust::maximum<char>() );
+ 
+-   HYPRE_THRUST_CALL(replace_if, A0, A0 + N0, X, HYPRE_THRUST_IDENTITY(char), 0.0);
++   HYPRE_THRUST_CALL(replace_if, A0, A0 + N0, X, thrust::identity<char>(), 0.0);
+ 
+    auto new_end = HYPRE_THRUST_CALL(
+                      reduce_by_key,
+@@ -202,7 +202,7 @@ hypre_IJVectorAssembleSortAndReduce3( HYPRE_Int      N0,
+       thrust::equal_to<HYPRE_BigInt>(),
+       thrust::maximum<char>() );
+ 
+-   HYPRE_THRUST_CALL(replace_if, A0, A0 + N0, X0, HYPRE_THRUST_IDENTITY(char), 0.0);
++   HYPRE_THRUST_CALL(replace_if, A0, A0 + N0, X0, thrust::identity<char>(), 0.0);
+ 
+    auto new_end = HYPRE_THRUST_CALL(
+                      reduce_by_key,
+@@ -232,7 +232,7 @@ hypre_IJVectorAssembleSortAndReduce3( HYPRE_Int      N0,
+                                       thrust::make_zip_iterator(thrust::make_tuple(I, A)) + Nt,
+                                       A,
+                                       thrust::make_zip_iterator(thrust::make_tuple(I0, A0)),
+-                                      HYPRE_THRUST_IDENTITY(HYPRE_Complex) );
++                                      thrust::identity<HYPRE_Complex>() );
+ 
+    *N1 = thrust::get<0>(new_end2.get_iterator_tuple()) - I0;
+ #endif
+@@ -488,7 +488,7 @@ hypre_IJVectorAssembleParDevice(hypre_IJVector *vector)
+                             is_on_proc,                                                         /* stencil */
+                             thrust::make_zip_iterator(thrust::make_tuple(off_proc_i,      off_proc_data,
+                                                                          off_proc_sora)),       /* result */
+-                            HYPRE_THRUST_NOT(HYPRE_THRUST_IDENTITY(char)) );
++                            HYPRE_THRUST_NOT(thrust::identity<char>()) );
+ 
+          hypre_assert(thrust::get<0>(new_end1.get_iterator_tuple()) - off_proc_i == nelms_off);
+ 
+@@ -500,7 +500,7 @@ hypre_IJVectorAssembleParDevice(hypre_IJVector *vector)
+                             thrust::make_zip_iterator(thrust::make_tuple(stack_i + nelms, stack_data + nelms,
+                                                                          stack_sora + nelms)),  /* last */
+                             is_on_proc,                                                         /* stencil */
+-                            HYPRE_THRUST_NOT(HYPRE_THRUST_IDENTITY(char)) );
++                            HYPRE_THRUST_NOT(thrust::identity<char>()) );
+ 
+          hypre_assert(thrust::get<0>(new_end2.get_iterator_tuple()) - stack_i == nelms_on);
+ #endif
+diff --git a/src/parcsr_ls/ame.c b/src/parcsr_ls/ame.c
+index 74f47cb4b..b36204f6e 100644
+--- a/src/parcsr_ls/ame.c
++++ b/src/parcsr_ls/ame.c
+@@ -699,7 +699,7 @@ HYPRE_Int hypre_AMESetup(void *esolver)
+                                   data,
+                                   data + ne,
+                                   edge_bc,
+-                                  HYPRE_THRUST_IDENTITY(HYPRE_Int),
++                                  thrust::identity<HYPRE_Int>(),
+                                   0.0 );
+ #endif
+             }
+diff --git a/src/parcsr_ls/ams.c b/src/parcsr_ls/ams.c
+index 8b1991130..a6551472d 100644
+--- a/src/parcsr_ls/ams.c
++++ b/src/parcsr_ls/ams.c
+@@ -695,7 +695,7 @@ HYPRE_Int hypre_ParCSRComputeL1Norms(hypre_ParCSRMatrix  *A,
+          [] (const auto & x) {return !x;}, 1.0 );
+ #else
+          HYPRE_THRUST_CALL(replace_if, l1_norm, l1_norm + num_rows,
+-                           HYPRE_THRUST_NOT(HYPRE_THRUST_IDENTITY(HYPRE_Complex)), 1.0 );
++                           HYPRE_THRUST_NOT(thrust::identity<HYPRE_Complex>()), 1.0 );
+ #endif
+       }
+       else
+diff --git a/src/parcsr_ls/par_coarsen_device.c b/src/parcsr_ls/par_coarsen_device.c
+index 777d2cb2d..daadfb79e 100644
+--- a/src/parcsr_ls/par_coarsen_device.c
++++ b/src/parcsr_ls/par_coarsen_device.c
+@@ -218,7 +218,7 @@ hypre_BoomerAMGCoarsenPMISDevice( hypre_ParCSRMatrix    *S,
+                                               graph_diag,
+                                               graph_diag + graph_diag_size,
+                                               diag_iwork,
+-                                              HYPRE_THRUST_IDENTITY(HYPRE_Int) );
++                                              thrust::identity<HYPRE_Int>() );
+ #endif
+ 
+       graph_diag_size = new_end - graph_diag;
+@@ -442,7 +442,7 @@ hypre_PMISCoarseningInitDevice( hypre_ParCSRMatrix  *S,               /* in */
+                                 thrust::make_counting_iterator(num_rows_diag),
+                                 CF_marker_diag,
+                                 graph_diag,
+-                                HYPRE_THRUST_IDENTITY(HYPRE_Int));
++                                thrust::identity<HYPRE_Int>());
+ #endif
+ 
+    *graph_diag_size = new_end - graph_diag;
+diff --git a/src/parcsr_ls/par_mod_multi_interp_device.c b/src/parcsr_ls/par_mod_multi_interp_device.c
+index afd27682a..0faac254f 100644
+--- a/src/parcsr_ls/par_mod_multi_interp_device.c
++++ b/src/parcsr_ls/par_mod_multi_interp_device.c
+@@ -526,7 +526,7 @@ hypre_BoomerAMGBuildModMultipassDevice( hypre_ParCSRMatrix  *A,
+                             thrust::make_permutation_iterator(pass_marker, points_left),
+                             thrust::make_permutation_iterator(pass_marker, points_left + remaining),
+                             diag_shifts,
+-                            HYPRE_THRUST_IDENTITY(HYPRE_Int),
++                            thrust::identity<HYPRE_Int>(),
+                             current_pass + 1 );
+ 
+          hypre_TMemcpy(points_left_old, points_left, HYPRE_Int, remaining, HYPRE_MEMORY_DEVICE,
+@@ -538,7 +538,7 @@ hypre_BoomerAMGBuildModMultipassDevice( hypre_ParCSRMatrix  *A,
+                                       points_left_old + remaining,
+                                       diag_shifts,
+                                       pass_order + cnt_old,
+-                                      HYPRE_THRUST_IDENTITY(HYPRE_Int) );
++                                      thrust::identity<HYPRE_Int>() );
+ 
+          hypre_assert(new_end - pass_order == cnt);
+ 
+@@ -547,7 +547,7 @@ hypre_BoomerAMGBuildModMultipassDevice( hypre_ParCSRMatrix  *A,
+                                       points_left_old + remaining,
+                                       diag_shifts,
+                                       points_left,
+-                                      HYPRE_THRUST_NOT(HYPRE_THRUST_IDENTITY(HYPRE_Int)) );
++                                      HYPRE_THRUST_NOT(thrust::identity<HYPRE_Int>()) );
+ #endif
+ 
+          hypre_assert(new_end - points_left == cnt_rem);
+diff --git a/src/parcsr_mv/par_csr_fffc_device.c b/src/parcsr_mv/par_csr_fffc_device.c
+index 3124cf36c..2811d5798 100644
+--- a/src/parcsr_mv/par_csr_fffc_device.c
++++ b/src/parcsr_mv/par_csr_fffc_device.c
+@@ -631,7 +631,7 @@ hypre_ParCSRMatrixGenerateFFFCDevice_core( hypre_ParCSRMatrix  *A,
+                                                      thrust::make_transform_iterator(recv_buf, -_1 - 1) + num_cols_A_offd,
+                                                      offd_mark,
+                                                      col_map_offd_AFF,
+-                                                     HYPRE_THRUST_IDENTITY(HYPRE_Int) );
++                                                     thrust::identity<HYPRE_Int>() );
+       hypre_assert(tmp_end_big - col_map_offd_AFF == num_cols_AFF_offd);
+ #endif
+       hypre_TFree(tmp_j, HYPRE_MEMORY_DEVICE);
+@@ -853,7 +853,7 @@ hypre_ParCSRMatrixGenerateFFFCDevice_core( hypre_ParCSRMatrix  *A,
+                                                      recv_buf + num_cols_A_offd,
+                                                      offd_mark,
+                                                      col_map_offd_AFC,
+-                                                     HYPRE_THRUST_IDENTITY(HYPRE_Int));
++                                                     thrust::identity<HYPRE_Int>());
+ #endif
+       hypre_assert(tmp_end_big - col_map_offd_AFC == num_cols_AFC_offd);
+       hypre_TFree(tmp_j, HYPRE_MEMORY_DEVICE);
+@@ -1081,7 +1081,7 @@ hypre_ParCSRMatrixGenerateFFFCDevice_core( hypre_ParCSRMatrix  *A,
+                                                      thrust::make_transform_iterator(recv_buf, -_1 - 1) + num_cols_A_offd,
+                                                      offd_mark,
+                                                      col_map_offd_ACF,
+-                                                     HYPRE_THRUST_IDENTITY(HYPRE_Int));
++                                                     thrust::identity<HYPRE_Int>());
+ #endif
+       hypre_assert(tmp_end_big - col_map_offd_ACF == num_cols_ACF_offd);
+       hypre_TFree(tmp_j, HYPRE_MEMORY_DEVICE);
+@@ -1305,7 +1305,7 @@ hypre_ParCSRMatrixGenerateFFFCDevice_core( hypre_ParCSRMatrix  *A,
+                                                      recv_buf + num_cols_A_offd,
+                                                      offd_mark,
+                                                      col_map_offd_ACC,
+-                                                     HYPRE_THRUST_IDENTITY(HYPRE_Int));
++                                                     thrust::identity<HYPRE_Int>());
+ #endif
+       hypre_assert(tmp_end_big - col_map_offd_ACC == num_cols_ACC_offd);
+       hypre_TFree(tmp_j, HYPRE_MEMORY_DEVICE);
+@@ -1795,7 +1795,7 @@ hypre_ParCSRMatrixGenerate1DCFDevice( hypre_ParCSRMatrix  *A,
+                                                      col_map_offd_A + num_cols_A_offd,
+                                                      offd_mark,
+                                                      col_map_offd_ACX,
+-                                                     HYPRE_THRUST_IDENTITY(HYPRE_Int));
++                                                     thrust::identity<HYPRE_Int>());
+ #endif
+       hypre_assert(tmp_end_big - col_map_offd_ACX == num_cols_ACX_offd);
+       hypre_TFree(tmp_j, HYPRE_MEMORY_DEVICE);
+@@ -1994,7 +1994,7 @@ hypre_ParCSRMatrixGenerate1DCFDevice( hypre_ParCSRMatrix  *A,
+                                                      recv_buf + num_cols_A_offd,
+                                                      offd_mark,
+                                                      col_map_offd_AXC,
+-                                                     HYPRE_THRUST_IDENTITY(HYPRE_Int));
++                                                     thrust::identity<HYPRE_Int>());
+ #endif
+       hypre_assert(tmp_end_big - col_map_offd_AXC == num_cols_AXC_offd);
+       hypre_TFree(tmp_j, HYPRE_MEMORY_DEVICE);
+diff --git a/src/seq_mv/csr_spgemm_device_symbl.c b/src/seq_mv/csr_spgemm_device_symbl.c
+index 08a3b12a4..c746cc7b8 100644
+--- a/src/seq_mv/csr_spgemm_device_symbl.c
++++ b/src/seq_mv/csr_spgemm_device_symbl.c
+@@ -144,7 +144,7 @@ hypreDevice_CSRSpGemmRownnzUpperbound( HYPRE_Int  m,
+    *rownnz_exact_ptr = !HYPRE_THRUST_CALL( any_of,
+                                            d_rf,
+                                            d_rf + m,
+-                                           HYPRE_THRUST_IDENTITY(char) );
++                                           thrust::identity<char>());
+ #endif
+ 
+    hypre_TFree(d_rf, HYPRE_MEMORY_DEVICE);
+@@ -231,7 +231,7 @@ hypreDevice_CSRSpGemmRownnzNoBin( HYPRE_Int  m,
+                                thrust::make_counting_iterator(m),
+                                d_rf,
+                                d_rind,
+-                               HYPRE_THRUST_IDENTITY(char) );
++                               thrust::identity<char>() );
+ #endif
+ 
+          hypre_assert(new_end - d_rind == num_failed_rows);
+@@ -340,7 +340,7 @@ hypreDevice_CSRSpGemmRownnzBinned( HYPRE_Int  m,
+                                thrust::make_counting_iterator(m),
+                                d_rf,
+                                d_rind,
+-                               HYPRE_THRUST_IDENTITY(char) );
++                               thrust::identity<char>() );
+ #endif
+ 
+          hypre_assert(new_end - d_rind == num_failed_rows);

@@ -31,8 +31,9 @@ RUN echo "Pin-Priority: 600" >> /etc/apt/preferences.d/rocm-pin-600
 RUN echo "/opt/rocm/lib" > /etc/ld.so.conf.d/rocm.conf
 RUN echo "/opt/rocm/lib64" >> /etc/ld.so.conf.d/rocm.conf
 
-# Add apt-repo for the opm packages
-RUN apt-add-repository ppa:opm/ppa
+# Add apt-repo for the opm packages.
+# Currently using testing as dune 2.11 is not yet in release ppa
+RUN apt-add-repository ppa:opm/testing
 
 # Install system packages
 RUN apt-get install -y cmake g++-14 git pkg-config ninja-build lld-20 clang-tidy-20 \

@@ -13,14 +13,14 @@ dune_repo[dune-localfunctions]=https://gitlab.dune-project.org/core/dune-localfu
 dune_repo[dune-uggrid]=https://gitlab.dune-project.org/staging/dune-uggrid.git
 
 declare -A dune_version
-dune_version[dune-alugrid]=v2.9.1
-dune_version[dune-common]=releases/opm/2024.04
-dune_version[dune-fem]=v2.9.0.2
-dune_version[dune-geometry]=v2.9.1
-dune_version[dune-grid]=v2.9.1
-dune_version[dune-istl]=releases/opm/2024.04
-dune_version[dune-localfunctions]=v2.9.1
-dune_version[dune-uggrid]=v2.9.1
+dune_version[dune-alugrid]=v2.11.0
+dune_version[dune-common]=v2.11.0
+dune_version[dune-fem]=releases/2.11
+dune_version[dune-geometry]=v2.11.0
+dune_version[dune-grid]=v2.11.0
+dune_version[dune-istl]=v2.11.0
+dune_version[dune-localfunctions]=v2.11.0
+dune_version[dune-uggrid]=v2.11.0
 
 DESTDIR=/dune/serial
 
@@ -40,6 +40,7 @@ do
   cmake .. -GNinja \
            -DCMAKE_BUILD_TYPE=Release \
            -DCMAKE_DISABLE_FIND_PACKAGE_MPI=ON \
+           -DCMAKE_DISABLE_FIND_PACKAGE_ZOLTAN=ON \
            -DCMAKE_DISABLE_FIND_PACKAGE_Doxygen=ON \
            -DCMAKE_C_COMPILER=/usr/lib/ccache/gcc \
            -DCMAKE_CXX_COMPILER=/usr/lib/ccache/g++ \

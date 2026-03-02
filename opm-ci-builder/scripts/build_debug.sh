@@ -14,7 +14,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Debug \
          -DCMAKE_C_COMPILER=/usr/lib/ccache/gcc \
          -DCMAKE_CXX_COMPILER=/usr/lib/ccache/g++ \
          -DCMAKE_INSTALL_PREFIX=/debug_iter \
-         -DBUILD_SHARED_LIBS=1 \
+         -DBUILD_SHARED_LIBS=ON \
          -GNinja \
          -DBOOST_EXCLUDE_LIBRARIES=numeric/odeint
 ninja install
@@ -70,7 +70,7 @@ do
            -DDUNE_ENABLE_PYTHONBINDINGS=OFF \
            -DCMAKE_INSTALL_PREFIX=/debug_iter \
            -DCMAKE_PREFIX_PATH=/debug_iter \
-           -DCMAKE_DISABLE_FIND_PACKAGE_Doxygen=1
+           -DCMAKE_DISABLE_FIND_PACKAGE_Doxygen=ON
   ninja install
   cd ../..
 done
@@ -102,9 +102,3 @@ cmake .. -DCMAKE_BUILD_TYPE=Debug \
          -DCMAKE_INSTALL_PREFIX=/debug_iter \
          -GNinja
 ninja install
-
-cd /debug_iter
-patch -p0 < /tmp/opm/patches/dune-common/0001-gpu_patch.patch
-patch -p0 < /tmp/opm/patches/dune-istl/0001-missing_initializers.patch
-patch -p0 < /tmp/opm/patches/dune-fem/0002-missing_include.patch
-patch -p0 < /tmp/opm/patches/dune-grid/0001-gpu_patch.patch

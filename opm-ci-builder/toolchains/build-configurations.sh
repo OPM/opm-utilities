@@ -8,6 +8,7 @@ AVAILABLE_BTYPES=(
     debug
     hipify
     lto
+    no_opm_common
     rocm
     serial
     serial_debug

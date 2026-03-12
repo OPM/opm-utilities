@@ -1,0 +1,50 @@
+[project]
+name = "opmrun"
+version = "2026.03.0"
+authors = [{name="David Baxendale et al", email="info@opm-op.com"}]
+maintainers = [{name="OPM-OP AS", email="info@opm-op.com" }]
+description="OPMRUN a GUI for OPM Flow"
+requires-python = ">= 3.8"
+#dynamic = ["long_description"]
+readme = "DESCRIPTION.md"
+license = "GPL-3.0-only"
+#license.files = ["LICENSE.txt"]
+keywords = ["OPM", "OPM flow", "reservoir", "simulation", "blackoil", "CCS"]
+classifiers = [
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Private :: Do Not Upload",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "airspeed~=0.5.16",
+  "datetime>=3.7.0",
+  "notify-py>=0.3.3",
+  "numpy>=1.19.1",
+  "pandas>=1.1.5",
+  "psutil>=5.5.1",
+  "pyDOE3>=1.0.0",
+  "FreeSimpleGUI>=4.44.0",
+  "packaging",
+]
+[project.urls]
+Repository = "https://github.com/OPM/opm-utilities/tree/master/opmrun"
+Issues = "https://github.com/OPM/opm-utilities/issues"
+
+[project.gui-scripts]
+opmrun = "opmrun.opmrun:main"
+
+[build-system]
+requires = [
+  "setuptools >= 77.0.3",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+"opmrun" = ["*.png", "*.ico"]

@@ -64,7 +64,7 @@ pre-installed with Python.
 
 **How to install and run:**
 1. Install Python 3.11, ensure it is in your system's PATH.
-2. Run "python setup.py build" and "python setup.py install" in the folder
+2. Run "python -m pip install -e ." in the folder
    "opmrun" of this repository.
 3. Start opmrun by running "opmrun" in the "opmrun/opmrun" folder of this
    repository.

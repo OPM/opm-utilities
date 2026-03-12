@@ -234,9 +234,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the aforementioned GNU
 details.
 
 Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte Ltd.
+Copyright (C) 2022-2026 OPM-OP AS
 
-Author  : David Baxendale
-          david.baxendale@eipc.co
+Author  : David Baxendale et al
+          info@opm-op.com
 Date    : 30-July-2021
 """
 # ----------------------------------------------------------------------------------------------------------------------
@@ -247,7 +248,7 @@ Date    : 30-July-2021
 #
 # Set OPMRUN Version Number
 #
-__version__ = '2021.04.1'
+__version__ = '2025.04.1'
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Import Modules and Start Up Section - All Modules Used by the OPMRUN Modules are Imported Upfront for Verification.
@@ -2908,9 +2909,10 @@ def main():
                 'OPMRUN Version: ' + str(opmsys['opmvers']) + '\n'
                 'OPMRUN GUI Module: ' + str(opmsys['opmgui']) + '\n'
                 '\n' +
-                'Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte Ltd. \n'
+                'Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte Ltd. \n'+
+                'Copyright (C) 2022-2026 OPM-OP AS \n'
                 '\n' +
-                'Author  : David Baxendale (david.baxendale@eipc.co)')
+                'Author  : David Baxendale at al (info@opm-op.com)')
 
     helptext = (
                 'OPMRun is a Graphical User Interface ("GUI") program for the Open Porous Media ("OPM") Flow ' +

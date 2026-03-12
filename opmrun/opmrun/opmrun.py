@@ -256,6 +256,7 @@ __version__ = '2025.04.1'
 #
 # Check if tkinter Has Been Installed on the System
 #
+from opmrun.opm_common import run_command
 try:
     print('OPMRUN Startup: Importing Standard Module (tkinter)')
     import tkinter as tk

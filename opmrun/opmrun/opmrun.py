@@ -1710,7 +1710,7 @@ def opm_startup(opmvers, opmsys1, opmlog1):
     #
     # Check for Windows 10 for Windows Based Operating Systems
     #
-    if opmsys1['system'] == 'Windows' and opmsys1['release'] != '10':
+    if opmsys1['system'] == 'Windows' and not (opmsys1['release'] == '10' or opmsys1['release'] == '11'):
         sg.popup_error('Windows ' + str(opmsys1['release']) + 'Detected\n' +
                        'OPMRUN Requires Windows 10 and WSL to Run OPM Flow on Windows Operating Systems\n' +
                        'Program Will Exit', no_titlebar=False, grab_anywhere=False, keep_on_top=True)

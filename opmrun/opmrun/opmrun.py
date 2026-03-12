@@ -279,11 +279,13 @@ try:
     import getpass, importlib, numpy, os
     import pandas as pd
     from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
-    import pkg_resources, platform, psutil
+    import platform, psutil
     import subprocess, sys
+    from packaging.version import Version as parse_version
+    from importlib.metadata import version as get_version
     print('OPMRUN Startup: Importing Standard Modules Complete')
 except ImportError as error:
-    packages = ['getpass', 'importlib', 'numpy', 'os', 'pandas', 'pathlib', 'pkg_resources', 'platform', 'psutil',
+    packages = ['getpass', 'importlib', 'numpy', 'os', 'pandas', 'pathlib', 'platform', 'psutil',
                 'subprocess', 'sys']
     print('   Importing Standard Modules Failed\n' +
           '   ' + str(error) + ': ' + str(type(error)) + '\n' +
@@ -319,14 +321,13 @@ except ImportError:
     starterr = True
 # Import for Other Non-Standard Modules
 for package in  {'airspeed', 'pyDOE3', 'FreeSimpleGUI'}:
-    try:
-        dist = pkg_resources.get_distribution(package)
+    if package in sys.modules or (spec := importlib.util.find_spec(package)) is not None:
         if package == 'FreeSimpleGUI':
             sg = importlib.import_module(package)
         else:
             importlib.import_module(package)
-        print('   Require Module - ' + dist.key + '(' + dist.version + ') Imported')
-    except pkg_resources.DistributionNotFound:
+        print('   Require Module - ' + package + '(' + get_version(package) + ') Imported')
+    else:
         print('   Import Require Package - ' + package + ' Failed')
         starterr = True
 
@@ -379,13 +380,13 @@ print('OPMRUN Startup: Python Version Check Complete')
 # Check for Suitable Version of FreeSimpleGUI
 #
 try:
-    version = sg.__version__
+    _version = sg.__version__
 except Exception:
     text = ('FreeSimpleGUI Version Not Found and is therefore invalid, OPMRUN requires version 4.44.0 or higher.' +
             'To upgrade use:\n\n"pip install --user --upgrade FreeSimpleGUI"\n\nProgram Will Exit')
     sg.popup_error(text, title='FreeSimpleGUI Version Check', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
     raise SystemExit(text)
-if pkg_resources.parse_version(sg.__version__) < pkg_resources.parse_version('4.44.0'):
+if parse_version(sg.__version__) < parse_version('4.44.0'):
     text = ('FreeSimpleGUI Version ' + str(sg.version) + ' is invalid, OPMRUN requires version 4.44 or higher.' +
             'To upgrade use:\n\n"pip install --user --upgrade FreeSimpleGUI"\n\nProgram Will Exit')
     sg.popup_error(text, title='FreeSimpleGUI Version Check', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
@@ -1692,17 +1693,16 @@ def opm_startup(opmvers, opmsys1, opmlog1):
     opmsys1['pythondir'    ] = Path(python)
     opmsys1['pythonvers'   ] = platform.python_version()
     opmsys1['opmgui'       ] = 'FreeSimpleGUI - ' + str(sg.version)
-    opmsys1['airspeed'     ] = 'airspeed - ' + str(pkg_resources.get_distribution('airspeed').version)
+    opmsys1['airspeed'     ] = 'airspeed - ' + get_version('airspeed')
     opmsys1['datetime'     ] = 'datetime - ' + opmsys1['pythonvers']
     opmsys1['getpass'      ] = 'getpass - ' + str(pd.__version__)
     opmsys1['importlib'    ] = 'importlib - ' + opmsys1['pythonvers']
     opmsys1['os'           ] = 'os - ' + opmsys1['pythonvers']
     opmsys1['pandas'       ] = 'pandas - ' + str(pd.__version__)
     opmsys1['pathlib'      ] = 'pathlib - ' + opmsys1['pythonvers']
-    opmsys1['pkg_resources'] = 'pkg_resources - ' + opmsys1['pythonvers']
     opmsys1['platform'     ] = 'platform - ' + opmsys1['pythonvers']
     opmsys1['psutil'       ] = 'psutil - ' + str(psutil.__version__)
-    opmsys1['pyDOE3'       ] = 'pyDOE3 - ' + str(pkg_resources.get_distribution('pyDOE3').version)
+    opmsys1['pyDOE3'       ] = 'pyDOE3 - ' + get_version('pyDOE3')
     opmsys1['re'           ] = 're - ' + opmsys1['pythonvers']
     opmsys1['subprocess'   ] = 'subprocess - ' + opmsys1['pythonvers']
     opmsys1['sys'          ] = 'sys - ' + opmsys1['pythonvers']

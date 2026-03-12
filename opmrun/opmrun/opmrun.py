@@ -441,7 +441,7 @@ def add_job(joblist, jobparam, jobsys):
                 sg.Text('Overwrite Parameter\nFile Options'),
                 sg.Listbox(values=['Ask', 'Keep', 'Overwrite'], size=(10, 3), key='_jobopt_', default_values=['Ask'])],
                [sg.Submit(), sg.Exit()]]
-    window1 = sg.Window('Select OPM Flow Input File', layout=layout1)
+    window1 = sg.Window('Select OPM Flow Input File', layout=layout1, resizable=True)
 
     while True:
         (event, values) = window1.read()
@@ -561,7 +561,7 @@ def add_jobs_recursively(joblist, jobparam, jobsys):
                [sg.Text('\nNote, if the parameter file does not exist for a given data file, then the current ' +
                         'default parameter set will be used\n')],
                [sg.Submit(), sg.Exit()]]
-    window1 = sg.Window('Select OPM Flow Input File', layout=layout1)
+    window1 = sg.Window('Select OPM Flow Input File', layout=layout1, resizable=True)
 
     while True:
         (event, values) = window1.read()
@@ -698,7 +698,7 @@ def default_parameters(jobparam, opmsys1):
                  [sg.Radio('Load Parameters from OPM Flow Print File'     , 'bRadio'              )],
                  [sg.Text('Only cases added after the parameters are loaded will use the selected parameter set')],
                  [sg.Submit(), sg.Cancel()]]
-    window1   = sg.Window('Define OPM Flow Default Run Time Parameters', layout=layout1)
+    window1   = sg.Window('Define OPM Flow Default Run Time Parameters', layout=layout1, resizable=True)
 
     while True:
         (event, values) = window1.read()
@@ -880,7 +880,7 @@ def edit_job(job, jobsys, **jobhelp):
                 [sg.Radio('Edit Data File'     , 'bRadio', default=True)],
                 [sg.Radio('Edit Parameter File', 'bRadio'              )],
                 [sg.Submit(), sg.Cancel()]]
-    window1  = sg.Window('Edit Job Options', layout=layout1)
+    window1  = sg.Window('Edit Job Options', layout=layout1, resizable=True)
     (event, values) = window1.read()
     window1.Close()
     #
@@ -1099,7 +1099,7 @@ def edit_options(opmsys1, opmoptn1):
     layout1   = [[sg.Column(column1)      ],
                  [sg.Submit(), sg.Cancel()]]
 
-    window1   = sg.Window('Edit Options', layout=layout1)
+    window1   = sg.Window('Edit Options', layout=layout1, resizable=True)
 
     (event, values) = window1.read()
     window1.Close()
@@ -1176,7 +1176,7 @@ def edit_parameters(fileparam, jobparam, **jobhelp):
                       [sg.Multiline('', size=(80, 4), key='_texthelp_',
                                     font=(opmoptn['output-font'], opmoptn['output-font-size']))],
                       [sg.Button('Edit'), sg.Button('Save'), sg.Button('Cancel'), sg.Button('Exit')]]
-        window1 = sg.Window('Edit Parameters', layout=layout1)
+        window1 = sg.Window('Edit Parameters', layout=layout1, resizable=True)
 
         while True:
             (event, values) = window1.read()
@@ -1284,7 +1284,7 @@ def edit_projects(opmoptn1, opmsys1):
     layout1   = [[sg.Column(column1) ],
                  [sg.Submit(), sg.Cancel()]]
 
-    window1   = sg.Window('Edit Projects', layout=layout1)
+    window1   = sg.Window('Edit Projects', layout=layout1, resizable=True)
 
     (event, values) = window1.read()
     window1.Close()
@@ -1869,7 +1869,7 @@ def reset_queue(joblist, jobparam, jobsys):
                 sg.Text('Overwrite Parameter\nFile Options'),
                 sg.Listbox(values=['Ask', 'Keep', 'Overwrite'], size=(10, 3), key='_jobopt_', default_values=['Keep'])],
                [sg.Submit(), sg.Exit()]]
-    window1 = sg.Window('OPMRUN Reset Job Queue Parameters', layout=layout1)
+    window1 = sg.Window('OPMRUN Reset Job Queue Parameters', layout=layout1, resizable=True)
 
     while True:
         (event, values) = window1.read()
@@ -2129,7 +2129,7 @@ def run_jobs(joblist, jobsys, outlog):
                [sg.Radio('Background Processing'          , 'bRadio2', key='_back_'                )],
                [sg.Text(''                                                                         )],
                [sg.Submit(), sg.Cancel()]]
-    window1 = sg.Window('Select Run Option', layout=layout1)
+    window1 = sg.Window('Select Run Option', layout=layout1, resizable=True)
     (event, values) = window1.read()
     window1.Close()
 
@@ -3006,7 +3006,7 @@ def main():
                                 key='_status_bar_', relief='flat', justification='left', visible=True)]]
 
     window0 = sg.Window('OPMRUN - Flow Job Scheduler ',
-                        layout=mainwind, disable_close=False, finalize=True, location=(300, 100))
+                        layout=mainwind, disable_close=False, finalize=True, location=(300, 100), resizable=True)
     #
     #   Set Output Multiline Window for CPRINT
     #

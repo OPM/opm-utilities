@@ -149,7 +149,7 @@ add_test(
     ${TOOLCHAIN}
 )
 
-foreach(module opm-common opm-grid opm-upscaling)
+foreach(module opm-common opm-upscaling)
   add_test(
     NAME
       post+${module}
@@ -167,6 +167,23 @@ foreach(module opm-common opm-grid opm-upscaling)
       ${TOOLCHAIN}
   )
 endforeach()
+
+add_test(
+  NAME
+    post+opm-grid
+  COMMAND
+    ${PROJECT_SOURCE_DIR}/build.sh
+    -b ${PROJECT_BINARY_DIR}
+    -c ${CLEAN_DIRS}
+    -C "default serial no_opm_common"
+    -d ${DOCKER_IMAGE}
+    -g "jenkins build this serial no_opm_common please"
+    -o opm-grid
+    -r ${OPM_TESTS_LOCAL_ROOT}
+    -R ${REPO_ROOT}
+    -t post
+    ${TOOLCHAIN}
+)
 
 add_test(
   NAME

@@ -1,0 +1,10 @@
+--- Detect.cmake.orig	2026-03-11 09:12:26.286323213 +0000
++++ Detect.cmake	2026-03-11 09:12:39.941077004 +0000
+@@ -69,6 +69,7 @@
+ set(FortranCInterface_EXE)
+ if(FortranCInterface_COMPILED)
+   include(${FortranCInterface_BINARY_DIR}/exe-Release.cmake OPTIONAL)
++  include(${FortranCInterface_BINARY_DIR}/exe-Debug.cmake OPTIONAL)
+ else()
+   set(_result "Failed to compile")
+ endif()

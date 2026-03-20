@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OPTIND=1
-while getopts "b:c:C:d:e:g:n:o:p:r:R:t:T:" OPT
+while getopts "b:c:C:d:e:g:j:n:o:p:r:R:t:T:" OPT
 do
     case "${OPT}" in
         b) PROJECT_BINARY_DIR=${OPTARG} ;;
@@ -10,6 +10,7 @@ do
         d) DOCKER_IMAGE=${OPTARG} ;;
         e) EXTRA_FILES=${OPTARG} ;;
         g) ghprbCommentBody=${OPTARG} ;;
+        j) BUILDTHREADS=${OPTARG} ;;
         n) NUM_COMMITS=${OPTARG} ;;
         o) OPM_MODULE=${OPTARG} ;;
         p) PATCH_FILE=${OPTARG} ;;
@@ -86,12 +87,18 @@ then
     popd
 fi
 
+# Ensure ccache directory exists with correct ownership before Docker
+# creates it as root (which causes "Permission denied" when running
+# the container with -u).
+mkdir -p ${PROJECT_BINARY_DIR}/ccache
+
 # Run the build
 if [ "$TYPE" = "sca" ]
 then
     docker run --shm-size=2048m \
                --rm \
                -u $(id -u) \
+               ${BUILDTHREADS:+-e BUILDTHREADS=${BUILDTHREADS}} \
                -v ${ROOT_DIR}:/build \
                -v ${PROJECT_BINARY_DIR}/ccache:/ccache \
                -v ${OPM_TESTS_ROOT}:/opm-tests \
@@ -106,6 +113,7 @@ else
                -u $(id -u) \
                -e ghprbCommentBody="${ghprbCommentBody}" \
                -e sha1=${sha1}\
+               ${BUILDTHREADS:+-e BUILDTHREADS=${BUILDTHREADS}} \
                -v ${ROOT_DIR}:/build \
                -v ${PROJECT_BINARY_DIR}/ccache:/ccache \
                -v ${OPM_TESTS_ROOT}:/opm-tests \

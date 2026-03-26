@@ -5,10 +5,8 @@ authors = [{name="David Baxendale et al", email="info@opm-op.com"}]
 maintainers = [{name="OPM-OP AS", email="info@opm-op.com" }]
 description="OPMRUN a GUI for OPM Flow"
 requires-python = ">= 3.11"
-#dynamic = ["long_description"]
 readme = "DESCRIPTION.md"
 license = "GPL-3.0-only"
-#license.files = ["LICENSE.txt"]
 keywords = ["OPM", "OPM flow", "reservoir", "simulation", "blackoil", "CCS"]
 classifiers = [
   "Programming Language :: Python :: 3.11",

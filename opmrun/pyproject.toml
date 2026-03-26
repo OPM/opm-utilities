@@ -7,6 +7,7 @@ description="OPMRUN a GUI for OPM Flow"
 requires-python = ">= 3.11"
 readme = "DESCRIPTION.md"
 license = "GPL-3.0-only"
+license-files = ["LICENSE"]
 keywords = ["OPM", "OPM flow", "reservoir", "simulation", "blackoil", "CCS"]
 classifiers = [
   "Programming Language :: Python :: 3.11",

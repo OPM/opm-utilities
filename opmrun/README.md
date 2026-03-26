@@ -63,11 +63,15 @@ install tkinter as tk; whereas,for Windows 11 users the tkinter package is
 pre-installed with Python.
 
 **How to install and run:**
+
+It is avised to use a virtual environment for the installation.
+
 1. Install Python 3.11, ensure it is in your system's PATH.
 2. Run "python -m pip install -e ." in the folder
    "opmrun" of this repository.
-3. Start opmrun by running "opmrun" in the "opmrun/opmrun" folder of this
-   repository.
+4. If your Python distribution does not come with tkinter then you
+   will need to install it via packages on your system
+5. Start opmrun by running "opmrun".
 
 # OPMRUN Functionality
 

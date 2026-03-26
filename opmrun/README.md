@@ -9,11 +9,11 @@ parameters are automatically loaded from OPM Flow, and the user can reset the
 default parameter set either from a parameter or PRT file. Editing of a job's
 parameter file is also available.
 
-  * Runs under Linux and Windows 10. When running under Windows 10, OPMRUN runs OPM Flow  via the Windows Subsystem
+  * Runs under Linux and Windows 11. When running under Windows 11, OPMRUN runs OPM Flow  via the Windows Subsystem
 for Linux ("WSL").
 
   * Allows simulation jobs to be queued and run in either foreground (under OPMRUN),
-or in background in a xterm terminal session in Linux, or WSL under Windows 10. Jobs
+or in background in a xterm terminal session in Linux, or WSL under Windows 11. Jobs
 in the queue can be set to run in NOSIM mode or RUN mode.
 
   * Foreground jobs can be killed from OPMRUN, with the option of killing all the
@@ -59,7 +59,7 @@ platform, psutil, sys, re, subprocess, and tkinter as tk.
 3. In addition, the following non-standard Python modules are required:
    * airspeed, notify-py, pyDOE3, and FreeSimpleGUI.
 4. For some Linux systems the relevant package manager may have to be used to
-install tkinter as tk; whereas,for Windows 10 users the tkinter package is
+install tkinter as tk; whereas,for Windows 11 users the tkinter package is
 pre-installed with Python.
 
 **How to install and run:**
@@ -120,7 +120,7 @@ illustrated below.
 ![](.images/opmrun-05c.png)
 
 ## Reset Job Queue Parameters
-**Reset Job Queue** Parameters allows jobs to run under Windows 10 WSL to be
+**Reset Job Queue** Parameters allows jobs to run under Windows 11 WSL to be
 renamed for running under Linux, and changing jobs from serial to parallel and vice
 versa.
 
@@ -193,7 +193,7 @@ simulation run for viewing.
    * The editor command to used to edit the input deck and view the resulting
 simulator output files.
    * The terminal console to be used for background jobs. WSL ("Windows Subsystem
-for Linux") should be selected if OPMRUN is running under Windows 10 to enable jobs
+for Linux") should be selected if OPMRUN is running under Windows 11 to enable jobs
 to be submitted to the installed Linux distribution.
    * The User Information series of fields are used by various supplied tools and
 in some templates used by the Keyword Generator application. Note if a User
@@ -244,7 +244,7 @@ previously zip job files.
 ![](.images/opmrun-tools-compression-01.png)
 
 Note there is a similar application for uncompressing zip files and that the tool
-users the Linux zip and unzip programs both on Linux host systems and Windows 10
+users the Linux zip and unzip programs both on Linux host systems and Windows 11
 systems using WSL.
 
 ## OPMRUN Tools: Simulator Input/Keywords

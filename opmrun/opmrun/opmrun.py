@@ -234,9 +234,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the aforementioned GNU
 details.
 
 Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte Ltd.
+Copyright (C) 2022-2026 OPM-OP AS
 
-Author  : David Baxendale
-          david.baxendale@eipc.co
+Author  : David Baxendale et al
+          info@opm-op.com
 Date    : 30-July-2021
 """
 # ----------------------------------------------------------------------------------------------------------------------
@@ -247,7 +248,7 @@ Date    : 30-July-2021
 #
 # Set OPMRUN Version Number
 #
-__version__ = '2021.04.1'
+__version__ = '2025.04.1'
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Import Modules and Start Up Section - All Modules Used by the OPMRUN Modules are Imported Upfront for Verification.
@@ -255,6 +256,7 @@ __version__ = '2021.04.1'
 #
 # Check if tkinter Has Been Installed on the System
 #
+from opmrun.opm_common import run_command
 try:
     print('OPMRUN Startup: Importing Standard Module (tkinter)')
     import tkinter as tk
@@ -279,11 +281,13 @@ try:
     import getpass, importlib, numpy, os
     import pandas as pd
     from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
-    import pkg_resources, platform, psutil
+    import platform, psutil
     import subprocess, sys
+    from packaging.version import Version as parse_version
+    from importlib.metadata import version as get_version
     print('OPMRUN Startup: Importing Standard Modules Complete')
 except ImportError as error:
-    packages = ['getpass', 'importlib', 'numpy', 'os', 'pandas', 'pathlib', 'pkg_resources', 'platform', 'psutil',
+    packages = ['getpass', 'importlib', 'numpy', 'os', 'pandas', 'pathlib', 'platform', 'psutil',
                 'subprocess', 'sys']
     print('   Importing Standard Modules Failed\n' +
           '   ' + str(error) + ': ' + str(type(error)) + '\n' +
@@ -319,14 +323,13 @@ except ImportError:
     starterr = True
 # Import for Other Non-Standard Modules
 for package in  {'airspeed', 'pyDOE3', 'FreeSimpleGUI'}:
-    try:
-        dist = pkg_resources.get_distribution(package)
+    if package in sys.modules or (spec := importlib.util.find_spec(package)) is not None:
         if package == 'FreeSimpleGUI':
             sg = importlib.import_module(package)
         else:
             importlib.import_module(package)
-        print('   Require Module - ' + dist.key + '(' + dist.version + ') Imported')
-    except pkg_resources.DistributionNotFound:
+        print('   Require Module - ' + package + '(' + get_version(package) + ') Imported')
+    else:
         print('   Import Require Package - ' + package + ' Failed')
         starterr = True
 
@@ -379,13 +382,13 @@ print('OPMRUN Startup: Python Version Check Complete')
 # Check for Suitable Version of FreeSimpleGUI
 #
 try:
-    version = sg.__version__
+    _version = sg.__version__
 except Exception:
     text = ('FreeSimpleGUI Version Not Found and is therefore invalid, OPMRUN requires version 4.44.0 or higher.' +
             'To upgrade use:\n\n"pip install --user --upgrade FreeSimpleGUI"\n\nProgram Will Exit')
     sg.popup_error(text, title='FreeSimpleGUI Version Check', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
     raise SystemExit(text)
-if pkg_resources.parse_version(sg.__version__) < pkg_resources.parse_version('4.44.0'):
+if parse_version(sg.__version__) < parse_version('4.44.0'):
     text = ('FreeSimpleGUI Version ' + str(sg.version) + ' is invalid, OPMRUN requires version 4.44 or higher.' +
             'To upgrade use:\n\n"pip install --user --upgrade FreeSimpleGUI"\n\nProgram Will Exit')
     sg.popup_error(text, title='FreeSimpleGUI Version Check', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
@@ -438,7 +441,7 @@ def add_job(joblist, jobparam, jobsys):
                 sg.Text('Overwrite Parameter\nFile Options'),
                 sg.Listbox(values=['Ask', 'Keep', 'Overwrite'], size=(10, 3), key='_jobopt_', default_values=['Ask'])],
                [sg.Submit(), sg.Exit()]]
-    window1 = sg.Window('Select OPM Flow Input File', layout=layout1)
+    window1 = sg.Window('Select OPM Flow Input File', layout=layout1, resizable=True)
 
     while True:
         (event, values) = window1.read()
@@ -558,7 +561,7 @@ def add_jobs_recursively(joblist, jobparam, jobsys):
                [sg.Text('\nNote, if the parameter file does not exist for a given data file, then the current ' +
                         'default parameter set will be used\n')],
                [sg.Submit(), sg.Exit()]]
-    window1 = sg.Window('Select OPM Flow Input File', layout=layout1)
+    window1 = sg.Window('Select OPM Flow Input File', layout=layout1, resizable=True)
 
     while True:
         (event, values) = window1.read()
@@ -695,7 +698,7 @@ def default_parameters(jobparam, opmsys1):
                  [sg.Radio('Load Parameters from OPM Flow Print File'     , 'bRadio'              )],
                  [sg.Text('Only cases added after the parameters are loaded will use the selected parameter set')],
                  [sg.Submit(), sg.Cancel()]]
-    window1   = sg.Window('Define OPM Flow Default Run Time Parameters', layout=layout1)
+    window1   = sg.Window('Define OPM Flow Default Run Time Parameters', layout=layout1, resizable=True)
 
     while True:
         (event, values) = window1.read()
@@ -877,7 +880,7 @@ def edit_job(job, jobsys, **jobhelp):
                 [sg.Radio('Edit Data File'     , 'bRadio', default=True)],
                 [sg.Radio('Edit Parameter File', 'bRadio'              )],
                 [sg.Submit(), sg.Cancel()]]
-    window1  = sg.Window('Edit Job Options', layout=layout1)
+    window1  = sg.Window('Edit Job Options', layout=layout1, resizable=True)
     (event, values) = window1.read()
     window1.Close()
     #
@@ -1096,7 +1099,7 @@ def edit_options(opmsys1, opmoptn1):
     layout1   = [[sg.Column(column1)      ],
                  [sg.Submit(), sg.Cancel()]]
 
-    window1   = sg.Window('Edit Options', layout=layout1)
+    window1   = sg.Window('Edit Options', layout=layout1, resizable=True)
 
     (event, values) = window1.read()
     window1.Close()
@@ -1173,7 +1176,7 @@ def edit_parameters(fileparam, jobparam, **jobhelp):
                       [sg.Multiline('', size=(80, 4), key='_texthelp_',
                                     font=(opmoptn['output-font'], opmoptn['output-font-size']))],
                       [sg.Button('Edit'), sg.Button('Save'), sg.Button('Cancel'), sg.Button('Exit')]]
-        window1 = sg.Window('Edit Parameters', layout=layout1)
+        window1 = sg.Window('Edit Parameters', layout=layout1, resizable=True)
 
         while True:
             (event, values) = window1.read()
@@ -1281,7 +1284,7 @@ def edit_projects(opmoptn1, opmsys1):
     layout1   = [[sg.Column(column1) ],
                  [sg.Submit(), sg.Cancel()]]
 
-    window1   = sg.Window('Edit Projects', layout=layout1)
+    window1   = sg.Window('Edit Projects', layout=layout1, resizable=True)
 
     (event, values) = window1.read()
     window1.Close()
@@ -1692,24 +1695,23 @@ def opm_startup(opmvers, opmsys1, opmlog1):
     opmsys1['pythondir'    ] = Path(python)
     opmsys1['pythonvers'   ] = platform.python_version()
     opmsys1['opmgui'       ] = 'FreeSimpleGUI - ' + str(sg.version)
-    opmsys1['airspeed'     ] = 'airspeed - ' + str(pkg_resources.get_distribution('airspeed').version)
+    opmsys1['airspeed'     ] = 'airspeed - ' + get_version('airspeed')
     opmsys1['datetime'     ] = 'datetime - ' + opmsys1['pythonvers']
     opmsys1['getpass'      ] = 'getpass - ' + str(pd.__version__)
     opmsys1['importlib'    ] = 'importlib - ' + opmsys1['pythonvers']
     opmsys1['os'           ] = 'os - ' + opmsys1['pythonvers']
     opmsys1['pandas'       ] = 'pandas - ' + str(pd.__version__)
     opmsys1['pathlib'      ] = 'pathlib - ' + opmsys1['pythonvers']
-    opmsys1['pkg_resources'] = 'pkg_resources - ' + opmsys1['pythonvers']
     opmsys1['platform'     ] = 'platform - ' + opmsys1['pythonvers']
     opmsys1['psutil'       ] = 'psutil - ' + str(psutil.__version__)
-    opmsys1['pyDOE3'       ] = 'pyDOE3 - ' + str(pkg_resources.get_distribution('pyDOE3').version)
+    opmsys1['pyDOE3'       ] = 'pyDOE3 - ' + get_version('pyDOE3')
     opmsys1['re'           ] = 're - ' + opmsys1['pythonvers']
     opmsys1['subprocess'   ] = 'subprocess - ' + opmsys1['pythonvers']
     opmsys1['sys'          ] = 'sys - ' + opmsys1['pythonvers']
     #
     # Check for Windows 10 for Windows Based Operating Systems
     #
-    if opmsys1['system'] == 'Windows' and opmsys1['release'] != '10':
+    if opmsys1['system'] == 'Windows' and not (opmsys1['release'] == '10' or opmsys1['release'] == '11'):
         sg.popup_error('Windows ' + str(opmsys1['release']) + 'Detected\n' +
                        'OPMRUN Requires Windows 10 and WSL to Run OPM Flow on Windows Operating Systems\n' +
                        'Program Will Exit', no_titlebar=False, grab_anywhere=False, keep_on_top=True)
@@ -1867,7 +1869,7 @@ def reset_queue(joblist, jobparam, jobsys):
                 sg.Text('Overwrite Parameter\nFile Options'),
                 sg.Listbox(values=['Ask', 'Keep', 'Overwrite'], size=(10, 3), key='_jobopt_', default_values=['Keep'])],
                [sg.Submit(), sg.Exit()]]
-    window1 = sg.Window('OPMRUN Reset Job Queue Parameters', layout=layout1)
+    window1 = sg.Window('OPMRUN Reset Job Queue Parameters', layout=layout1, resizable=True)
 
     while True:
         (event, values) = window1.read()
@@ -2127,7 +2129,7 @@ def run_jobs(joblist, jobsys, outlog):
                [sg.Radio('Background Processing'          , 'bRadio2', key='_back_'                )],
                [sg.Text(''                                                                         )],
                [sg.Submit(), sg.Cancel()]]
-    window1 = sg.Window('Select Run Option', layout=layout1)
+    window1 = sg.Window('Select Run Option', layout=layout1, resizable=True)
     (event, values) = window1.read()
     window1.Close()
 
@@ -2908,9 +2910,10 @@ def main():
                 'OPMRUN Version: ' + str(opmsys['opmvers']) + '\n'
                 'OPMRUN GUI Module: ' + str(opmsys['opmgui']) + '\n'
                 '\n' +
-                'Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte Ltd. \n'
+                'Copyright (C) 2018-2021 Equinox International Petroleum Consultants Pte Ltd. \n'+
+                'Copyright (C) 2022-2026 OPM-OP AS \n'
                 '\n' +
-                'Author  : David Baxendale (david.baxendale@eipc.co)')
+                'Author  : David Baxendale at al (info@opm-op.com)')
 
     helptext = (
                 'OPMRun is a Graphical User Interface ("GUI") program for the Open Porous Media ("OPM") Flow ' +
@@ -3003,7 +3006,7 @@ def main():
                                 key='_status_bar_', relief='flat', justification='left', visible=True)]]
 
     window0 = sg.Window('OPMRUN - Flow Job Scheduler ',
-                        layout=mainwind, disable_close=False, finalize=True, location=(300, 100))
+                        layout=mainwind, disable_close=False, finalize=True, location=(300, 100), resizable=True)
     #
     #   Set Output Multiline Window for CPRINT
     #

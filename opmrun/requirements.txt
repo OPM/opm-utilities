@@ -6,3 +6,5 @@ psutil>=5.5.1
 pyDOE3>=1.0.0
 FreeSimpleGUI>=4.44.0
 numpy>=1.19.1
+packaging
+setuptools

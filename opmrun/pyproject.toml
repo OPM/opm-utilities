@@ -1,6 +1,6 @@
 [project]
 name = "opmrun"
-version = "2026.03.0"
+dynamic = ["version"]
 authors = [{name="David Baxendale et al", email="info@opm-op.com"}]
 maintainers = [{name="OPM-OP AS", email="info@opm-op.com" }]
 description="OPMRUN a GUI for OPM Flow"
@@ -48,3 +48,6 @@ where = ["."]
 
 [tool.setuptools.package-data]
 "opmrun" = ["*.png", "*.ico"]
+
+[tool.setuptools.dynamic]
+version = {attr = "opmrun.__version__"}

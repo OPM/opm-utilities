@@ -51,7 +51,7 @@ ResInsight for viewing.
 exported well trajectory file into an OPM ResInsight file, containing all the wells.
 
 **Notes:**
-1. Only Python 3.11 is supported and tested, Python2 and also newer Python versions
+1. Only Python 3.11-3.14 is supported and tested, Python2 and also newer Python versions
    are not supported.
 2. The following standard module Python libraries are required.
    * datetime, getpass, importlib, os, numpy, pkg_resources, pandas, pathlib,

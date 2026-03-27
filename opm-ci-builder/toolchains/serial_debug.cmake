@@ -6,7 +6,6 @@ set(CMAKE_CXX_FLAGS_INIT "-fuse-ld=mold")
 
 # CMake settings
 set(BUILD_SHARED_LIBS OFF)
-set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY ON)
 
 # Python settings

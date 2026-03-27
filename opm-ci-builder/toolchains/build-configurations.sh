@@ -22,12 +22,19 @@ then
     CMAKE_TOOLCHAIN_FILES="$TOOLCHAIN_DIR/default.cmake"
 fi
 
+BUILD_CONFIGS=""
 for BTYPE in ${AVAILABLE_BTYPES[*]}
 do
     if grep -q " ${BTYPE}" <<< $ghprbCommentBody
     then
         BTYPES+=" $BTYPE"
         CMAKE_TOOLCHAIN_FILES+=" $TOOLCHAIN_DIR/$BTYPE.cmake"
+        if grep -q "_debug" <<< $BTYPE
+        then
+          BUILD_CONFIGS+=" Debug"
+        else
+          BUILD_CONFIGS+=" Release"
+        fi
     fi
 done
 
@@ -35,6 +42,7 @@ export BUILDTHREADS=${BUILDTHREADS:-16}
 export TESTTHREADS=${TESTTHREADS:-16}
 export CTEST_TIMEOUT=400
 export BTYPES
+export BUILD_CONFIGS
 export CMAKE_TOOLCHAIN_FILES
 export OPENBLAS_NUM_THREADS=1
 export OMP_NUM_THREADS=2

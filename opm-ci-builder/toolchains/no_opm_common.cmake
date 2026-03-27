@@ -4,7 +4,6 @@ set(CMAKE_CXX_COMPILER /usr/lib/ccache/g++)
 
 # CMake settings
 set(BUILD_SHARED_LIBS OFF)
-set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY ON)
 
 # OPM settings

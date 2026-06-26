@@ -14,6 +14,7 @@ AVAILABLE_BTYPES=(
     serial_debug
     serial_shared
     shared
+    dune_master
 )
 
 if ! grep -q "nodefault" <<< $ghprbCommentBody

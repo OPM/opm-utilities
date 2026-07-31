@@ -69,6 +69,9 @@ RUN scripts/setup_system_options.sh ${uid}
 # Build serial dune
 RUN scripts/build_dune.sh
 
+# Build dune with experimental IBCRSMatrix type
+RUN scripts/build_dune_ibcrsmatrix.sh
+
 # Build hypre
 # Need to build from master branch to have CUDA 13.2 fixes
 RUN scripts/build_hypre.sh 89e7e8da73de9a0d7885ae32a417bb556d4fccc5

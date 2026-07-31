@@ -14,6 +14,7 @@ AVAILABLE_BTYPES=(
     serial_debug
     serial_shared
     shared
+    dune_ibcrsmatrix
 )
 
 if ! grep -q "nodefault" <<< $ghprbCommentBody

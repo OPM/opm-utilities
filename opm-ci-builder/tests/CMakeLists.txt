@@ -203,3 +203,22 @@ add_test(
     -t post
     ${TOOLCHAIN}
 )
+
+add_test(
+  NAME
+    post+dune_ibcrsmatrix+opm-simulators
+  COMMAND
+    ${PROJECT_SOURCE_DIR}/build.sh
+    -b ${PROJECT_BINARY_DIR}
+    -c ${CLEAN_DIRS}
+    -C "default dune_ibcrsmatrix"
+    -d ${DOCKER_IMAGE}
+    -e "deps/opm-tests/norne/norne-wells.pdf \
+        deps/opm-tests/norne/norne-wells-noecl.pdf"
+    -g "jenkins run norne norne_parallel dune_ibcrsmatrix please"
+    -o opm-simulators
+    -r ${OPM_TESTS_LOCAL_ROOT}
+    -R ${REPO_ROOT}
+    -t post
+    ${TOOLCHAIN}
+)

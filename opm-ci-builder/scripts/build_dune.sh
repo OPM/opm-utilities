@@ -35,20 +35,20 @@ for repo in dune-common \
 do
   echo "Building $repo ${dune_version[$repo]} ${dune_repo[$repo]}"
   git clone -b ${dune_version[$repo]} ${dune_repo[$repo]}
-  mkdir -p $repo/build
-  cd $repo/build
-  cmake .. -GNinja \
-           -DCMAKE_BUILD_TYPE=Release \
-           -DCMAKE_DISABLE_FIND_PACKAGE_MPI=ON \
-           -DCMAKE_DISABLE_FIND_PACKAGE_ZOLTAN=ON \
-           -DCMAKE_DISABLE_FIND_PACKAGE_Doxygen=ON \
-           -DCMAKE_C_COMPILER=/usr/lib/ccache/gcc \
-           -DCMAKE_CXX_COMPILER=/usr/lib/ccache/g++ \
-           -DBUILD_SHARED_LIBS=OFF \
-           -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-           -DDUNE_ENABLE_PYTHONBINDINGS=OFF \
-           -DCMAKE_INSTALL_PREFIX=$DESTDIR \
-           -DCMAKE_PREFIX_PATH=$DESTDIR
-  ninja install
-  cd ../..
+  cmake -S $repo \
+        -B $repo/build \
+        -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_DISABLE_FIND_PACKAGE_MPI=ON \
+        -DCMAKE_DISABLE_FIND_PACKAGE_ZOLTAN=ON \
+        -DCMAKE_DISABLE_FIND_PACKAGE_Doxygen=ON \
+        -DCMAKE_C_COMPILER=/usr/lib/ccache/gcc \
+        -DCMAKE_CXX_COMPILER=/usr/lib/ccache/g++ \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+        -DDUNE_ENABLE_PYTHONBINDINGS=OFF \
+        -DCMAKE_INSTALL_PREFIX=$DESTDIR \
+        -DCMAKE_PREFIX_PATH=$DESTDIR
+  cmake --build $repo/build
+  cmake --install $repo/build
 done

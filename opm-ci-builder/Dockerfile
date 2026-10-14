@@ -67,7 +67,10 @@ RUN scripts/setup_python_env.sh
 RUN scripts/setup_system_options.sh ${uid}
 
 # Build serial dune
-RUN scripts/build_dune.sh
+RUN scripts/build_dune_serial.sh
+
+# Build latest dune
+RUN scripts/build_dune_master.sh
 
 # Build hypre
 # Need to build from master branch to have CUDA 13.2 fixes
